@@ -1,0 +1,17 @@
+# The Betrothed, a Python platformer built with pygame
+# Copyright (C) 2022  BarbeMCR
+
+++++++++++++++++++++++++++
+HISTORY OF "THE BETROTHED"
+++++++++++++++++++++++++++
+
+Release 0.01 - The Original Update
+==================================
+Build 101
+Python 3.10.1
+Pygame 2.1.2
+*Released on January 1st, 2022*
+- Initial release
+- Horizontal scrolling
+- Collision detection
+- Placeholder map
