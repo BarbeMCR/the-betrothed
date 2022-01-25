@@ -14,11 +14,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
+from misc import import_folder
 
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
+        self.import_player_assets()
         self.image = pygame.Surface((16, 32))
         self.image.fill('red')
         self.rect = self.image.get_rect(topleft=pos)
@@ -28,6 +30,19 @@ class Player(pygame.sprite.Sprite):
         self.speed = 4
         self.gravity = 0.4
         self.jump_height = -8
+
+    def import_player_assets(self):
+        """Imports and manages the assets for the player character."""
+        player_path = './assets/player/'
+        self.player_assets = {
+            'run':  [],
+            'idle': [],
+            'jump': [],
+            'fall': []
+            }
+        for animation in self.player_assets.keys():
+            full_path = player_path + animation
+            self.player_assets[animation] = import_folder(full_path)
 
     def get_input(self):
         """Gets the player input and moves it accordingly."""

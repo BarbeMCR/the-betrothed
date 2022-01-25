@@ -13,36 +13,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import os
 import pygame
-import sys
 
-from settings import *
-from level import Level
-
-# Build identification
-version = "0.02"
-build = 125
-stable = False
-
-# Pygame initialization
-pygame.init()
-if stable: pygame.display.set_caption(f"The Betrothed {version}")
-else: pygame.display.set_caption(f"The Betrothed {version} - Build {build}")
-# pygame.display.set_icon()
-screen = pygame.display.set_mode((screen_width, screen_height))
-clock = pygame.time.Clock()
-level = Level(level_map, screen)
-
-# Game loop
-while True:
-    # Event loop
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-
-    screen.fill('black')
-    level.run()
-
-    pygame.display.update()
-    clock.tick(60)
+def import_folder(path):
+    """Imports all images in a folder and puts them in Pygame surfaces.
+    This function will throw an error if anything other than images is present in the target folder.
+    """
+    surface_list = []
+    for _, __, images in os.walk(path):
+        for image in images:
+            full_path = path + '/' + image
+            image_surface = pygame.image.load(full_path).convert_alpha()
+            surface_list.append(image_surface)
+    return surface_list
