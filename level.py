@@ -24,6 +24,7 @@ class Level:
         self.display_surface = display_surface
         self.setup(level_data)
         self.shift = 0
+        self.current_x = 0
 
     def setup(self, layout):
         """Builds the level based on a given layout, then places the player inside."""
@@ -62,8 +63,18 @@ class Level:
             if sprite.rect.colliderect(player.rect):
                 if player.direction.x < 0:
                     player.rect.left = sprite.rect.right
+                    player.on_left_wall = True
+                    self.current_x = player.rect.left
                 elif player.direction.x > 0:
                     player.rect.right = sprite.rect.left
+                    player.on_right_wall = True
+                    self.current_x = player.rect.right
+
+        # Checks if the player is touching a wall on the left
+        if player.on_left_wall and (player.rect.left < self.current_x or player.direction.x >= 0):
+            player.on_left_wall = False
+        if player.on_right_wall and (player.rect.right > self.current_x or player.direction.x <= 0):
+            player.on_right_wall = False
 
     def y_mov_coll(self):
         """Checks for vertical movement and collisions."""
@@ -74,9 +85,18 @@ class Level:
                 if player.direction.y > 0:
                     player.rect.bottom = sprite.rect.top
                     player.direction.y = 0
+                    player.on_ground = True
                 elif player.direction.y < 0:
                     player.rect.top = sprite.rect.bottom
                     player.direction.y = 0
+                    player.on_ceiling = True
+
+        # Checks if the player is jumping
+        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
+            player.on_ground = False
+        # Checks if the player is falling
+        if player.on_ceiling and player.direction.y > 0:
+            player.on_ceiling = False
 
     def run(self):
         """Draws the level and the player to screen."""

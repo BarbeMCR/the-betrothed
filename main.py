@@ -21,8 +21,8 @@ from level import Level
 
 # Build identification
 version = "0.02"
-build = 125
-stable = False
+build = 205
+stable = True
 
 # Pygame initialization
 pygame.init()

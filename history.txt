@@ -5,6 +5,30 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.02 - The Animation Update
+===================================
+Build 205
+Python 3.10.2
+Pygame 2.1.2
+*Released on February 5th, 2022*
+- Added Renzo Tramaglino (the player character) and his animations
+- Enhanced the collision checks
+- The player can now only jump once
+- The placeholder level has been slightly modified
+
+**Changed from build 203**
+- The player can now jump only once
+- The placeholder level has been slightly modified in order to ease some platforming
+
+
+Release 0.02 - Build 203
+========================
+Python 3.10.2
+Pygame 2.1.2
+*Released on February 3rd, 2022*
+- Added animations for running, jumping, falling and idling
+- Animations get flipped when the player is facing left instead of right
+
 Release 0.02 - Build 125
 ========================
 Python 3.10.2
