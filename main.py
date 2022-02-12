@@ -20,14 +20,16 @@ from settings import *
 from level import Level
 
 # Build identification
-version = "0.02"
-build = 205
+version = "0.03"
+build = 212
 stable = True
 
 # Pygame initialization
 pygame.init()
-if stable: pygame.display.set_caption(f"The Betrothed {version}")
-else: pygame.display.set_caption(f"The Betrothed {version} - Build {build}")
+if stable:
+    pygame.display.set_caption(f"The Betrothed {version}")
+else:
+    pygame.display.set_caption(f"The Betrothed {version} - Build {build}")
 # pygame.display.set_icon()
 screen = pygame.display.set_mode((screen_width, screen_height))
 clock = pygame.time.Clock()

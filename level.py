@@ -17,14 +17,43 @@ import pygame
 from tile import Tile
 from settings import tile_size, screen_width
 from player import Player
+from particles import Particle
 
 
 class Level:
     def __init__(self, level_data, display_surface):
+        # Level setup
         self.display_surface = display_surface
         self.setup(level_data)
         self.shift = 0
         self.current_x = 0
+
+        # Dust
+        self.dust_sprite = pygame.sprite.GroupSingle()
+        self.player_on_ground = False
+
+    def create_jump_particle(self, pos):
+        if self.player.sprite.facing_right:
+            pos -= pygame.math.Vector2(0, 16)
+        else:
+            pos += pygame.math.Vector2(0, -16)
+        jump_particle_sprite = Particle(pos, 'jump')
+        self.dust_sprite.add(jump_particle_sprite)
+
+    def get_player_on_ground(self):
+        if self.player.sprite.on_ground:
+            self.player_on_ground = True
+        else:
+            self.player_on_ground = False
+
+    def create_fall_particle(self):
+        if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
+            if self.player.sprite.facing_right:
+                offset = pygame.math.Vector2(0, 16)
+            else:
+                offset = pygame.math.Vector2(0, 16)
+            fall_particle = Particle(self.player.sprite.rect.midbottom - offset, 'fall')
+            self.dust_sprite.add(fall_particle)
 
     def setup(self, layout):
         """Builds the level based on a given layout, then places the player inside."""
@@ -38,7 +67,7 @@ class Level:
                     tile = Tile((x, y), tile_size)
                     self.tiles.add(tile)
                 if col == 'P':
-                    player_sprite = Player((x, y))
+                    player_sprite = Player((x, y), self.display_surface, self.create_jump_particle)
                     self.player.add(player_sprite)
 
     def scroll_x(self):
@@ -100,12 +129,19 @@ class Level:
 
     def run(self):
         """Draws the level and the player to screen."""
+        # Dust particles
+        self.dust_sprite.update(self.shift)
+        self.dust_sprite.draw(self.display_surface)
+
         # Tile drawing
         self.tiles.update(self.shift)
         self.tiles.draw(self.display_surface)
         self.scroll_x()
+
         # Player drawing
         self.player.update()
         self.x_mov_coll()
+        self.get_player_on_ground()
         self.y_mov_coll()
+        self.create_fall_particle()
         self.player.draw(self.display_surface)

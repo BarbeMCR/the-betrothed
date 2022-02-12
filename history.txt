@@ -5,6 +5,16 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.03 - The Particle Update
+==================================
+Build 212
+Python 3.10.2
+Pygame 2.1.2
+*Released on February 12th, 2022*
+- Added run, jump and fall particles
+- Changed the level tile color to be gray instead of white
+- Updated to Pyinstaller 4.9
+
 Release 0.02 - The Animation Update
 ===================================
 Build 205
