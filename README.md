@@ -23,8 +23,12 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 ## How do I compile the code?
 1. Make sure to have Python 3.8 or higher (32-bit Python for wider compatibility)
 2. Grab the Pyinstaller version that matches what is used with your target game version:
-   - Pyinstaller 4.10 for **The Betrothed 0.04+**
-   - Pyinstaller 4.9 for **The Betrothed 0.03**
-   - Pyinstaller 4.8 for **The Betrothed 0.02**
-   - Pyinstaller 4.7 for **The Betrothed 0.01**
+
+| The Betrothed version | Pyinstaller version |
+| --------------------- | ------------------- |
+| 0.01                  | 4.7                 |
+| 0.02                  | 4.8                 |
+| 0.03                  | 4.9                 |
+| 0.04 +                | 4.10                |
+
 3. Compile with Pyinstaller
