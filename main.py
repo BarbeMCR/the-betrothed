@@ -15,13 +15,15 @@
 
 import pygame
 import sys
+import ctypes
 
 from settings import *
 from level import Level
+from data import chapter_1a
 
 # Build identification
-version = "0.03"
-build = 212
+version = "0.04"
+build = 306
 stable = True
 
 # Pygame initialization
@@ -30,21 +32,21 @@ if stable:
     pygame.display.set_caption(f"The Betrothed {version}")
 else:
     pygame.display.set_caption(f"The Betrothed {version} - Build {build}")
-# pygame.display.set_icon()
-screen = pygame.display.set_mode((screen_width, screen_height))
+ctypes.windll.user32.SetProcessDPIAware()  # This makes the window the correct resolution
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.SCALED)
+icon = pygame.image.load('./icon.png').convert_alpha()
+pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
-level = Level(level_map, screen)
+level = Level(chapter_1a, screen)
 
-# Game loop
 while True:
-    # Event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
     screen.fill('black')
-    level.run()
+    level.update()
 
     pygame.display.update()
     clock.tick(60)

@@ -18,7 +18,7 @@ from misc import import_folder
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, pos, surface, create_jump_particle):
+    def __init__(self, pos, display_surface, create_jump_particle):
         super().__init__()
         self.import_player_assets()
         self.frame_index = 0
@@ -28,15 +28,15 @@ class Player(pygame.sprite.Sprite):
 
         # Player movement
         self.direction = pygame.math.Vector2(0, 0)
-        self.speed = 4
-        self.gravity = 0.4
-        self.jump_height = -8
+        self.speed = 6
+        self.gravity = 1
+        self.jump_height = -22
 
         # Dust particles
         self.import_run_particles()
         self.dust_frame_index = 0
-        self.dust_animation_speed = 0.1
-        self.display_surface = surface
+        self.dust_animation_speed = 0.15
+        self.display_surface = display_surface
         self.create_jump_particle = create_jump_particle
 
         # Player status
@@ -48,7 +48,6 @@ class Player(pygame.sprite.Sprite):
         self.on_right_wall = False
 
     def import_player_assets(self):
-        """Imports and manages the assets for the player character."""
         player_path = './assets/player/'
         self.player_assets = {
             'run':  [],
@@ -64,7 +63,6 @@ class Player(pygame.sprite.Sprite):
         self.run_particles = import_folder('./assets/player/particles/run')
 
     def animate(self):
-        """Animates the player."""
         animation = self.player_assets[self.status]
         # Frame index loop
         self.frame_index += self.animation_speed
@@ -103,15 +101,14 @@ class Player(pygame.sprite.Sprite):
             particle = self.run_particles[int(self.dust_frame_index)]
 
             if self.facing_right:
-                pos = self.rect.bottomleft - pygame.math.Vector2(12, 16)
+                pos = self.rect.bottomleft - pygame.math.Vector2(28, 32)
                 self.display_surface.blit(particle, pos)
             else:
-                pos = self.rect.bottomright - pygame.math.Vector2(6, 16)
+                pos = self.rect.bottomright - pygame.math.Vector2(6, 32)
                 flipped_particle = pygame.transform.flip(particle, True, False)
                 self.display_surface.blit(flipped_particle, pos)
 
     def get_input(self):
-        """Gets the player input and moves it accordingly."""
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             self.direction.x = -1  # Left movement
@@ -127,10 +124,9 @@ class Player(pygame.sprite.Sprite):
             self.create_jump_particle(self.rect.midbottom)
 
     def get_status(self):
-        """Retrieves the current status of the player."""
-        if self.direction.y < 0:
+        if self.direction.y < 0 and not self.on_ground:
             self.status = 'jump'
-        elif self.direction.y > 1:
+        elif self.direction.y > 1 and not self.on_ceiling:
             self.status = 'fall'
         else:
             if self.direction.x != 0:
@@ -139,16 +135,13 @@ class Player(pygame.sprite.Sprite):
                 self.status = 'idle'
 
     def jump(self):
-        """Makes the player jump."""
         self.direction.y = self.jump_height
 
     def apply_gravity(self):
-        """Applies gravity to the player."""
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
 
     def update(self):
-        """Updates the player."""
         self.get_input()
         self.get_status()
         self.animate()

@@ -5,6 +5,31 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.04 - The Level Update
+===============================
+Build 306
+Python 3.10.2
+Pygame 2.1.2
+*Released on March 6th, 2022*
+- Completely overhauled the code, the level and the graphics
+- Changed tile_size to be 64 pixels (previously was 32)
+- Added Chapter I (section A)
+- Made the game window 1280 x 704
+- Made the game process DPI aware on Windows
+- Added dirt, grass, pebbled dirt, stone and stone bricks
+- Added grass tips
+- Added trees: the height of the roots is randomly generated
+- Added skeletons: the speed is randomly generated
+- Added the energy item
+- Added water
+- Added the sky
+- Added clouds: the number and the positions are randomly generated
+- Added mountains: the height is randomly generated
+- Added a wooden cross at the end of the level
+- The background now scrolls twice as slowly
+- Added an invisible barrier at each end of the level and on top of it
+- Updated to Pyinstaller 4.10
+
 Release 0.03 - The Particle Update
 ==================================
 Build 212
@@ -25,11 +50,6 @@ Pygame 2.1.2
 - Enhanced the collision checks
 - The player can now only jump once
 - The placeholder level has been slightly modified
-
-**Changed from build 203**
-- The player can now jump only once
-- The placeholder level has been slightly modified in order to ease some platforming
-
 
 Release 0.02 - Build 203
 ========================

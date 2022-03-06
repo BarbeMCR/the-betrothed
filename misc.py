@@ -1,29 +1,36 @@
-# The Betrothed, a Python platformer built with Pygame
-# Copyright (C) 2022  BarbeMCR
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+import csv
 import os
 import pygame
+from settings import tile_size
 
 def import_folder(path):
-    """Imports all images in a folder and puts them in Pygame surfaces.
-    This function will throw an error if anything other than images is present in the target folder.
-    """
     surface_list = []
-    for _, __, images in os.walk(path):
-        for image in images:
+    for _, __, image_list in os.walk(path):
+        for image in image_list:
             full_path = path + '/' + image
             image_surface = pygame.image.load(full_path).convert_alpha()
             surface_list.append(image_surface)
     return surface_list
+
+
+def import_csv_layout(path):
+    terrain_map = []
+    with open(path) as map:
+        level = csv.reader(map, delimiter = ',')
+        for row in level:
+            terrain_map.append(list(row))
+        return terrain_map
+
+def import_sliced_graphics(path):
+    surface = pygame.image.load(path).convert_alpha()
+    tile_num_x = int(surface.get_size()[0]) / tile_size
+    tile_num_y = int(surface.get_size()[1]) / tile_size
+    sliced_tiles = []
+    for row in range(int(tile_num_y)):
+        for col in range(int(tile_num_x)):
+            x = col * tile_size
+            y = row * tile_size
+            tile_surface = pygame.Surface((tile_size, tile_size), flags = pygame.SRCALPHA)
+            tile_surface.blit(surface, (0, 0), pygame.Rect(x, y, tile_size, tile_size))
+            sliced_tiles.append(tile_surface)
+    return sliced_tiles

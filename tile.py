@@ -1,28 +1,39 @@
-# The Betrothed, a Python platformer built with Pygame
-# Copyright (C) 2022  BarbeMCR
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 import pygame
-
+from misc import import_folder
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, pos, size):
+    def __init__(self, size, x, y):
         super().__init__()
         self.image = pygame.Surface((size, size))
-        self.image.fill('gray')
-        self.rect = self.image.get_rect(topleft=pos)
+        self.rect = self.image.get_rect(topleft = (x, y))
 
     def update(self, shift):
-        """Shifts all the tiles to simulate a camera."""
         self.rect.x += shift
+
+class StaticTile(Tile):
+    def __init__(self, size, x, y, surface):
+        super().__init__(size, x, y)
+        self.image = surface
+
+class Tree(StaticTile):
+    def __init__(self, size, x, y, path, offset):
+        super().__init__(size, x, y, pygame.image.load(path).convert_alpha())
+        offset_y = y - offset
+        self.rect.topleft = (x, offset_y)
+
+class AnimatedTile(Tile):
+    def __init__(self, size, x, y, path):
+        super().__init__(size, x, y)
+        self.frames = import_folder(path)
+        self.frame_index = 0
+        self.image = self.frames[self.frame_index]
+
+    def animate(self):
+        self.frame_index += 0.1
+        if self.frame_index >= len(self.frames):
+            self.frame_index = 0
+        self.image = self.frames[int(self.frame_index)]
+
+    def update(self, shift):
+        self.animate()
+        super().update(shift)
