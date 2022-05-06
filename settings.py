@@ -1,3 +1,5 @@
+"""This file contains various settings that need to be easily accessible."""
+
 y_tiles = 11
 tile_size = 64
 

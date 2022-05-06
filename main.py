@@ -18,13 +18,13 @@ import sys
 import ctypes
 
 from settings import *
-from level import Level
-from data import chapter_1a
+from game import Game
+from data import *
 
 # Build identification
-version = "0.04"
-build = 306
-stable = True
+version = "0.05"
+build = 506
+stable = False
 
 # Pygame initialization
 pygame.init()
@@ -37,8 +37,9 @@ screen = pygame.display.set_mode((screen_width, screen_height), pygame.SCALED)
 icon = pygame.image.load('./icon.png').convert_alpha()
 pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
-level = Level(chapter_1a, screen)
+game = Game(screen)
 
+# Event loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -46,7 +47,7 @@ while True:
             sys.exit()
 
     screen.fill('black')
-    level.update()
+    game.run()
 
     pygame.display.update()
     clock.tick(60)

@@ -5,6 +5,30 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.05 - The World Update
+===============================
+Build 506
+Python 3.10.4
+Pygame 2.1.2
+*Released on May 6th, 2022*
+- Overhauled the way the game is handled
+- Documented files, classes and functions
+- Added a level selection screen: no graphics yet!
+- A level is now blocked until the previous one is completed
+- Falling below the level now counts as dying
+- Running into the wooden cross now counts as completing the level
+- Added Chapter I (section B)
+- Added roots, bricks, rose windows, stained windows, doors and rooftops
+- Added some (inaccessible) blocks to hide the end of the level
+- The base level size has been increased to 72 because of the above change (previously was 62)
+- The clouds now move: the speed at which they move and how frequently they do are randomly generated
+- The background now scrolls three times as slowly (previously was twice as slow)
+- The hitbox of enemies has been increased
+- Skeletons now have an offset of 64 pixels (previously was 63)
+- Updated to Pyinstaller 5.0.1
+Bugfixes:
+- The player can no longer hold SPACE to stick to the ceiling
+
 Release 0.04 - The Level Update
 ===============================
 Build 306
@@ -50,24 +74,7 @@ Pygame 2.1.2
 - Enhanced the collision checks
 - The player can now only jump once
 - The placeholder level has been slightly modified
-
-Release 0.02 - Build 203
-========================
-Python 3.10.2
-Pygame 2.1.2
-*Released on February 3rd, 2022*
-- Added animations for running, jumping, falling and idling
-- Animations get flipped when the player is facing left instead of right
-
-Release 0.02 - Build 125
-========================
-Python 3.10.2
-Pygame 2.1.2
-*Released on January 25th, 2022*
-- Updated to Python 3.10.2
-- The Betrothed is now built with Pyinstaller 4.8
-- Changed 'screen_width' to be true 16:9
-- Now some player assets get imported
+- Updated to Pyinstaller 4.8
 
 Release 0.01 - The Original Update
 ==================================

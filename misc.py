@@ -3,7 +3,14 @@ import os
 import pygame
 from settings import tile_size
 
+"""This file contains several miscellaneous functions."""
+
 def import_folder(path):
+    """Import everything present in a folder with only images and return the list of all imported surfaces.
+
+    Arguments:
+    path -- the folder to import
+    """
     surface_list = []
     for _, __, image_list in os.walk(path):
         for image in image_list:
@@ -14,6 +21,11 @@ def import_folder(path):
 
 
 def import_csv_layout(path):
+    """Read a CSV data layer and return a list with several lists containing the data for each row.
+
+    Arguments:
+    path -- the CSV file to import
+    """
     terrain_map = []
     with open(path) as map:
         level = csv.reader(map, delimiter = ',')
@@ -22,6 +34,11 @@ def import_csv_layout(path):
         return terrain_map
 
 def import_sliced_graphics(path):
+    """Slice an image atlas and return a list of those slices.
+
+    Arguments:
+    path -- the image atlas to slice
+    """
     surface = pygame.image.load(path).convert_alpha()
     tile_num_x = int(surface.get_size()[0]) / tile_size
     tile_num_y = int(surface.get_size()[1]) / tile_size
