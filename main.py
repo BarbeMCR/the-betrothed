@@ -22,9 +22,9 @@ from game import Game
 from data import *
 
 # Build identification
-version = "0.05"
+version = "0.05a"
 build = 506
-stable = False
+stable = True
 
 # Pygame initialization
 pygame.init()

@@ -5,6 +5,15 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.05a - The World Update
+================================
+Build 506
+Python 3.10.4
+Pygame 2.1.2
+*Released on May 6th, 2022*
+### Bugfixes:
+- The title no longer says 'Build 506'
+
 Release 0.05 - The World Update
 ===============================
 Build 506
