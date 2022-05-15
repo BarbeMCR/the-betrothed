@@ -1,25 +1,30 @@
 import pygame
+from settings import *
 from misc import import_folder
 
 """This file defines the player behavior."""
 
 class Player(pygame.sprite.Sprite):
     """This class defines the player."""
-    def __init__(self, pos, display_surface, create_jump_particle):
+    def __init__(self, pos, display_surface, create_jump_particle, controller):
         """Setup the player sprite, movement, particles, status and flags.
 
         Arguments:
         pos -- the position of the player spawn
         display_surface -- the screen
         create_jump_particle -- the method for creating the jump particles
+        controller -- the controller class
         """
         super().__init__()
         self.display_surface = display_surface
+        self.controllers = controller.controllers
+        self.gamepad = 'xbox_one'
         self.import_player_assets()
         self.frame_index = 0
         self.animation_speed = 0.15
         self.image = self.player_assets['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
+        self.gen_time, self.now = 0, 0  # Dummy values are set for this timer stuff
 
         # Player movement
         self.direction = pygame.math.Vector2(0, 0)
@@ -103,18 +108,28 @@ class Player(pygame.sprite.Sprite):
                 self.display_surface.blit(flipped_particle, pos)
 
     def get_input(self):
-        """Get the input from the keyboard and do the correct actions."""
+        """Get the input from the devices and do the correct actions."""
+        gamepad = controllers[self.gamepad]  # controllers is a value defined in settings
+        controller_left = False
+        controller_right = False
+        controller_a = False
+        for controller in self.controllers.values():
+            if controller.get_hat(0) == gamepad['hat']['LEFT']:
+                controller_left = True
+            elif controller.get_hat(0) == gamepad['hat']['RIGHT']:
+                controller_right = True
+            if controller.get_button(gamepad['buttons']['A']):
+                controller_a = True
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_a]:
+        if (keys[pygame.K_a] or controller_left):
             self.direction.x = -1  # Left movement
             self.facing_right = False
-        elif keys[pygame.K_d]:
+        elif (keys[pygame.K_d] or controller_right):
             self.direction.x = 1  # Right movement
             self.facing_right = True
         else:
             self.direction.x = 0
-
-        if keys[pygame.K_SPACE] and self.on_ground and not self.on_ceiling:
+        if (keys[pygame.K_SPACE] or controller_a) and self.on_ground and not self.on_ceiling:
             if not self.jumping:
                 self.jump()
                 self.create_jump_particle(self.rect.midbottom)
@@ -144,7 +159,8 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         """Update the player."""
-        self.get_input()
+        if self.now - self.gen_time >= 100:
+            self.get_input()
         self.get_status()
         self.animate()
         self.animate_run_particles()

@@ -2,6 +2,7 @@
 
 chapter_1a = {
     'node_pos': (140, 180),
+    'node_graphics': './assets/world/chapter1a.png',
     'unlock': 1,
     'enable_water': True,
     'enable_mountains': True,
@@ -20,6 +21,7 @@ chapter_1a = {
 }
 chapter_1b = {
     'node_pos': (390, 180),
+    'node_graphics': './assets/world/chapter1b.png',
     'unlock': 1,
     'enable_water': True,
     'enable_mountains': True,

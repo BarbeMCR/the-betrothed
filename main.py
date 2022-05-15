@@ -13,17 +13,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+#!/usr/bin/env python3
+
 import pygame
 import sys
 import ctypes
-
 from settings import *
 from game import Game
 from data import *
 
 # Build identification
-version = "0.05a"
-build = 506
+version = "0.06"
+build = 515
 stable = True
 
 # Pygame initialization
@@ -41,10 +42,18 @@ game = Game(screen)
 
 # Event loop
 while True:
-    for event in pygame.event.get():
+    for event in game.events:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        if event.type == pygame.JOYDEVICEADDED:
+            controller = pygame.joystick.Joystick(event.device_index)
+            game.controller.controllers[controller.get_instance_id()]
+        if event.type == pygame.JOYDEVICEREMOVED:
+            del game.controller.controllers[event.instance_id]
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.display.toggle_fullscreen()
 
     screen.fill('black')
     game.run()

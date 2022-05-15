@@ -13,27 +13,29 @@ from data import levels
 
 class Level:
     """The level builder class."""
-    def __init__(self, current_level, display_surface, create_world):
+    def __init__(self, current_level, display_surface, create_world, first_level, controller):
         """Setup the builder, the level layout, the player and the background.
 
         Arguments:
         current_level -- the selected level
         display_surface -- the screen
         create_world -- the method for building the world
+        first_level -- the lowest level the player can select
+        controller -- the controller class
         """
         # Basic setup
         self.display_surface = display_surface
+        self.controller = controller
         self.shift = 0
         self.current_x = None
-        #self.now = pygame.time.get_ticks()
 
         # World setup
-        #self.level_finished = False
-        #self.trigger_level_end = False
         self.create_world = create_world
+        self.first_level = first_level
         self.current_level = current_level
         level_data = levels[self.current_level]
         self.level_unlocked = level_data['unlock']
+        self.level_completed = False
 
         # Level barriers
         barrier_layout = import_csv_layout(level_data['barriers'])
@@ -99,7 +101,7 @@ class Level:
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if col == '0':
-                    sprite = Player((x, y), self.display_surface, self.create_jump_particles)
+                    sprite = Player((x, y), self.display_surface, self.create_jump_particles, self.controller)
                     self.player.add(sprite)
                 if col == '1':
                     cross_surface = pygame.image.load('./assets/level/ground/cross.png')
@@ -254,31 +256,24 @@ class Level:
     def check_death(self):
         """Check if the player is dead."""
         if self.player.sprite.rect.top > 2 * screen_height:
-            self.create_world(self.current_level, self.current_level)  # self.create_world(current_level, level_unlocked)
+            self.create_world(self.first_level, self.current_level, self.current_level)  # self.create_world(current_level, level_unlocked)
 
     def check_success(self):
         """Check if the player completed the level and put them back to the level selection screen."""
-        if pygame.sprite.spritecollide(self.player.sprite, self.player_end, False):
-            pygame.display.flip()
-            pygame.time.wait(500)
-            self.create_world(self.current_level, self.level_unlocked)
-        # The code below allows for a delay (the player can be controlled) to happen before being sent to the level selection screen
-        #if self.level_finished:
-            #global now
-            #now = pygame.time.get_ticks()
-            #self.level_finished = False
-            #self.trigger_level_end = True
-        #if pygame.sprite.spritecollide(self.player.sprite, self.player_end, False):
-            #if not self.trigger_level_end:
-                #self.level_finished = True
-        #if self.trigger_level_end:
-            #if self.now - now >= 1000:
-                #del now
-                #self.create_world(self.current_level, self.level_unlocked)
+        if pygame.sprite.spritecollide(self.player.sprite, self.player_end, False) and not self.level_completed:
+            self.player_end.sprite.ticks = pygame.time.get_ticks()
+            self.level_completed = True
+        elif self.level_completed:
+            self.run_end_level_sequence()
+
+    def run_end_level_sequence(self):
+        """Run the end level sequence."""
+        now = pygame.time.get_ticks()
+        if now - self.player_end.sprite.ticks >= 1000:
+            self.create_world(self.first_level, self.current_level, self.level_unlocked)
 
     def run(self):
         """Run the level, update and draw everything (must be called every frame)."""
-        #self.now = pygame.time.get_ticks()
         # Level barriers
         self.barrier_sprites.update(self.shift)
 
@@ -328,6 +323,9 @@ class Level:
         self.player_end.update(self.shift)
         self.player_end.draw(self.display_surface)
         # Player
+        if self.player.sprite.gen_time == 0:
+            self.player.sprite.gen_time = pygame.time.get_ticks()
+        self.player.sprite.now = pygame.time.get_ticks()
         self.player.update()
         self.x_mov_coll()
         self.get_player_on_ground()

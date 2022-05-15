@@ -5,6 +5,28 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.06 - The Fancy World Update
+=====================================
+Build 515
+Python 3.10.4
+Pygame 2.1.2
+*Released on May 15th, 2022*
+- Now the player can be controlled for 1 second after running into the wooden cross
+- The player no longer freezes after running into the wooden cross due to the new behavior
+- Updated the door texture
+- Added graphics to the level selection screen
+- Added Xbox One / Xbox Series X|S controller support and mapping
+- Added controller hotplugging
+- Added controllers mappings in settings.py
+- Added a new 'first_level' argument to the world builder for setting the first available level
+- Added a shebang line at the beginning of main.py
+- Added the level selection menu background
+- Now events are pulled in the Game class (previously they were pulled in the main loop)
+- Now the locked levels in the level selection screen are completely filled with black
+- Now you can make the game fullscreen (look in the README.MD file in the repository for the new controls section)
+### Bugfixes:
+- The player no longer clips through the barriers surrounding the level when buffering input
+
 Release 0.05a - The World Update
 ================================
 Build 506
@@ -35,7 +57,7 @@ Pygame 2.1.2
 - The hitbox of enemies has been increased
 - Skeletons now have an offset of 64 pixels (previously was 63)
 - Updated to Pyinstaller 5.0.1
-Bugfixes:
+### Bugfixes:
 - The player can no longer hold SPACE to stick to the ceiling
 
 Release 0.04 - The Level Update
