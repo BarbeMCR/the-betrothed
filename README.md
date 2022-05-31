@@ -1,4 +1,4 @@
-# The Betrothed
+# BarbeMCR's The Betrothed
 The Betrothed is a platformer written in Python with the aid of Pygame.
 
 ## How do I run the code?
