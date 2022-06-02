@@ -48,11 +48,11 @@ class Water:
         level_width -- the width of the level, measured in tiles
         generate -- water will be generated only if this flag is set to True
         """
+        self.water_sprites = pygame.sprite.Group()
         if generate:
             water_start = -screen_width
             water_width = pygame.image.load('./assets/level/water/water1.png').get_width()
             water_x_tiles = int((level_width + 2 * screen_width) / water_width)
-            self.water_sprites = pygame.sprite.Group()
             for tile in range(water_x_tiles):
                 x = tile * water_width + water_start
                 y = top
@@ -126,12 +126,12 @@ class Mountains:
         level_width -- the width of the level, measured in tiles
         generate -- mountains will be generated only if this flag is set to True
         """
+        self.mountain_sprites = pygame.sprite.Group()
         if generate:
             mountain_surf = pygame.image.load('./assets/level/ground/mountain.png').convert_alpha()
             mountain_start = -screen_width
             mountain_width = mountain_surf.get_width()
             mountain_x_tiles = int((level_width + 2 * screen_width) / mountain_width)
-            self.mountain_sprites = pygame.sprite.Group()
             for tile in range(mountain_x_tiles):
                 x = tile * mountain_width + mountain_start
                 y = random.randrange(top, top+256, 32)

@@ -6,7 +6,7 @@ from tile import AnimatedTile
 
 class Enemy(AnimatedTile):
     """The base enemy class."""
-    def __init__(self, size, x, y, path, speed):
+    def __init__(self, size, x, y, path, speed, health, damage):
         """Initialize the parent AnimatedTile class.
 
         Arguments:
@@ -15,9 +15,13 @@ class Enemy(AnimatedTile):
         y -- the initial Y position, measured in pixels from the top
         path -- the folder with all the animation frames
         speed -- the enemy speed
+        health -- the enemy health
+        damage -- the damage the enemy deals
         """
         super().__init__(size, x, y, path)
         self.speed = speed
+        self.health = health
+        self.damage = damage
 
     def move(self):
         """Move the enemy based on their speed."""
@@ -55,16 +59,10 @@ class Skeleton(Enemy):
         offset -- the vertical offset (the bigger the value the higher the enemy)
         """
         self.speed = random.randint(3, 6)
-        # self.speed_start = 1
-        # self.speed_stop = 8
-        super().__init__(size, x, y, path, self.speed)
+        self.health = 1
+        self.damage = 1
+        super().__init__(size, x, y, path, self.speed, self.health, self.damage)
         self.rect.y -= offset
-
-    # def reverse(self):
-        # speed_start = self.speed_start * -1
-        # speed_stop = self.speed_stop * -1
-        # self.speed_start = speed_stop
-        # self.speed_stop = speed_start
 
     def update(self, shift):
         """Call Enemy().update()
@@ -72,5 +70,4 @@ class Skeleton(Enemy):
         Arguments:
         shift -- the camera shift
         """
-        # self.speed = random.randint(self.speed_start, self.speed_stop)
         super().update(shift)

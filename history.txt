@@ -5,6 +5,43 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.07 - The Health Update
+================================
+Build 602
+Python 3.10.4
+Pygame 2.1.2
+*Released on June 2nd, 2022*
+- Added health: Renzo starts the game with 20 HP (Health Points)
+- Added the health bar and the health statistics: they are displayed in the top right corner of the screen
+- Added death: if the player's health drops to 0, they will die and all their progress will be lost
+- Now falling into the void deals 5 Pure Damage after respawning (the distinction between the types of damage has not been yet implemented)
+- Skeletons now have 1 HP and deal 1 Physical Damage
+- Now falling onto enemies deals 1 Physical Damage to them
+- Now crushing an enemy has a 25% chance of dealing half of the enemy Physical Damage to you, rounded down (you will not notice any change in the skeleton behavior, though)
+- Now touching an enemy from the left, from the right, from the bottom or from the top (when not falling onto it) deals the player some Physical Damage
+- Enemies now spawn particles when they die
+- Added Chapter II (Section A)
+- Added caves: they can be found in some levels and yield a lot of treasures, like energy (to be implemented)
+- Added background blocks in caves (be careful!)
+- Added generic windows
+- Added a loading screen
+- Added DualShock 4 controller mappings (for now they can be used only by changing the 'self.gamepad' attribute in the 'Player' class in 'player.py' in the source code to 'ps4')
+- The world is now divided into parts
+- The horizon height is now independent for each level
+- The horizon height for Chapter I-B is now 6 tiles (previously was 7)
+- The level pointer now is placed automatically on the next level on completion of the level
+- Lowered the levels in the level selection screen by 20 pixels
+- Enemies are now spawned from id '1' to allow for more enemies to be added (previously was '0')
+- The level selection screen graphics has been darkened
+- The game now tries to use VSync when available
+- Updated the embedded font to version 1.1
+- Updated to Pyinstaller 5.1
+### Bugfixes:
+- The game no longer crashes on startup because of 'ModuleNotFoundError: No module named ctypes.windll' on non-Windows platforms
+- The shebang is now placed in the correct location
+- The game no longer crashes if a level does not generate water or mountains
+- The game no longer hangs up when loading a level
+
 Release 0.06 - The Fancy World Update
 =====================================
 Build 515

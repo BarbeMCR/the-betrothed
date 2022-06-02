@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # The Betrothed, a Python platformer built with Pygame
 # Copyright (C) 2022  BarbeMCR
 # This program is free software: you can redistribute it and/or modify
@@ -13,18 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#!/usr/bin/env python3
-
 import pygame
 import sys
-import ctypes
+if sys.platform.startswith('win32'):
+    import ctypes
 from settings import *
 from game import Game
 from data import *
 
 # Build identification
-version = "0.06"
-build = 515
+version = "0.07"
+build = 602
 stable = True
 
 # Pygame initialization
@@ -33,8 +34,9 @@ if stable:
     pygame.display.set_caption(f"The Betrothed {version}")
 else:
     pygame.display.set_caption(f"The Betrothed {version} - Build {build}")
-ctypes.windll.user32.SetProcessDPIAware()  # This makes the window the correct resolution
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.SCALED)
+if sys.platform.startswith('win32'):
+    ctypes.windll.user32.SetProcessDPIAware()  # This makes the window the correct resolution
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.SCALED, vsync=1)
 icon = pygame.image.load('./icon.png').convert_alpha()
 pygame.display.set_icon(icon)
 clock = pygame.time.Clock()
@@ -52,7 +54,7 @@ while True:
         if event.type == pygame.JOYDEVICEREMOVED:
             del game.controller.controllers[event.instance_id]
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+            if event.key == pygame.K_F11:
                 pygame.display.toggle_fullscreen()
 
     screen.fill('black')

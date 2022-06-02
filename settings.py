@@ -8,7 +8,7 @@ screen_width = 1280
 
 # Controller mappings
 
-xbox_one = {  # Xbox One / Xbox Series X|S Controller
+xbox_one = {  # Xbox One / Xbox Series X|S Controller (also works with Xbox 360 Controller)
     'buttons': {
         'A': 0,
         'B': 1,
@@ -43,7 +43,36 @@ xbox_one = {  # Xbox One / Xbox Series X|S Controller
         'RT': 5
     }
 }
+ps4 = {  # DualShock 4
+    'buttons': {
+        'A': 0,  # CROSS
+        'B': 1,  # CIRCLE
+        'X': 2,  # SQUARE
+        'Y': 3,  # TRIANGLE
+        'VIEW': 4,  # SHARE
+        'LOGO': 5,
+        'MENU': 6,  # OPTIONS
+        'LSTICK': 7,  # L3
+        'RSTICK': 8,  # R3
+        'LB': 9,  # L1
+        'RB': 10,  # R1
+        'UP': 11,
+        'DOWN': 12,
+        'LEFT': 13,
+        'RIGHT': 14,
+        'SHARE': 15  # TOUCHPAD_CLICK
+    },
+    'axes': {
+        'LSTICK_X': 0,
+        'LSTICK_Y': 1,
+        'RSTICK_X': 2,
+        'RSTICK_Y': 3,
+        'LT': 4,  # L2
+        'RT': 5  # R2
+    }
+}
 
 controllers = {
-    'xbox_one': xbox_one
+    'xbox_one': xbox_one,
+    'ps4': ps4
 }

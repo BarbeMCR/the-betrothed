@@ -13,15 +13,17 @@ from data import levels
 
 class Level:
     """The level builder class."""
-    def __init__(self, current_level, display_surface, create_world, first_level, controller):
+    def __init__(self, current_level, current_part, display_surface, create_world, first_level, controller, update_health):
         """Setup the builder, the level layout, the player and the background.
 
         Arguments:
         current_level -- the selected level
+        current_part -- the part the level is in
         display_surface -- the screen
         create_world -- the method for building the world
         first_level -- the lowest level the player can select
         controller -- the controller class
+        update_health -- the method for updating the player health
         """
         # Basic setup
         self.display_surface = display_surface
@@ -29,11 +31,18 @@ class Level:
         self.shift = 0
         self.current_x = None
 
+        # Loading screen
+        self.display_surface.fill('black')
+        loading_screen = pygame.image.load('./assets/ui/loading.png').convert_alpha()
+        self.display_surface.blit(loading_screen, (64, 64))
+        pygame.display.flip()
+
         # World setup
         self.create_world = create_world
         self.first_level = first_level
         self.current_level = current_level
-        level_data = levels[self.current_level]
+        self.current_part = current_part
+        level_data = levels[self.current_part][self.current_level]
         self.level_unlocked = level_data['unlock']
         self.level_completed = False
 
@@ -45,14 +54,19 @@ class Level:
         player_layout = import_csv_layout(level_data['setup'])
         self.player = pygame.sprite.GroupSingle()
         self.player_end = pygame.sprite.GroupSingle()
-        self.setup_player(player_layout)
+        self.setup_player(player_layout, update_health)
         # Player particles
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.player_on_ground = False
+        # Enemy particles
+        self.enemy_death_sprites = pygame.sprite.Group()
 
         # Terrain setup
         terrain_layout = import_csv_layout(level_data['terrain'])
         self.terrain_sprites = self.create_tile_group(terrain_layout, 'terrain')
+        # Background terrain setup
+        bg_terrain_layout = import_csv_layout(level_data['background'])
+        self.background_sprites = self.create_tile_group(bg_terrain_layout, 'background')
         # Building setup
         building_layout = import_csv_layout(level_data['buildings'])
         self.building_sprites = self.create_tile_group(building_layout, 'terrain')
@@ -84,24 +98,25 @@ class Level:
         self.border_sprites = self.create_tile_group(border_layout, 'borders')
 
         # Background
-        self.sky = Sky(7)
+        self.sky = Sky(level_data['horizon'])
         level_width = len(terrain_layout[0]) * tile_size
         self.water = Water(screen_height - 52, level_width, level_data['enable_water'])
         self.clouds = Clouds(320, level_width, random.randint(0, 32))
         self.mountains = Mountains(192, level_width, level_data['enable_mountains'])
 
-    def setup_player(self, layout):
+    def setup_player(self, layout, update_health):
         """Place the player and the end-level cross based upon their position
 
         Arguments:
         layout -- the level layout to use
+        update_health -- the method for updating the player health
         """
         for row_index, row in enumerate(layout):
             for col_index, col in enumerate(row):
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if col == '0':
-                    sprite = Player((x, y), self.display_surface, self.create_jump_particles, self.controller)
+                    sprite = Player((x, y), self.display_surface, self.create_jump_particles, self.controller, update_health)
                     self.player.add(sprite)
                 if col == '1':
                     cross_surface = pygame.image.load('./assets/level/ground/cross.png')
@@ -159,6 +174,10 @@ class Level:
                         terrain_list = import_sliced_graphics('./assets/level/ground/ground_day.png')
                         tile_surface = terrain_list[int(col)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
+                    if type == 'background':
+                        bg_terrain_list = import_sliced_graphics('./assets/level/ground/bg_day.png')
+                        tile_surface = bg_terrain_list[int(col)]
+                        sprite = StaticTile(tile_size, x, y, tile_surface)
                     if type == 'roofs':
                         roof_list = import_sliced_graphics('./assets/level/ground/roofs.png')
                         tile_surface = roof_list[int(col)]
@@ -173,11 +192,12 @@ class Level:
                         sprite = Tree(tile_size, x, y, './assets/level/ground/tree.png', random.randrange(160, 192, 8))
 
                     if type == 'enemies':
-                        if col == '0':
-                            sprite = Skeleton(tile_size, x, y, './assets/skeleton', 64)
+                        if col == '1':
+                            sprite = Skeleton(tile_size, x, y, './assets/enemy/skeleton', 64)
                     if type == 'borders':
                         sprite = Tile(tile_size, x, y)
                     sprite_group.add(sprite)
+            pygame.event.pump()
         return sprite_group
 
     def apply_enemy_border_collision(self):
@@ -237,26 +257,56 @@ class Level:
         if player.on_ceiling and player.direction.y > 0 or (player.on_ceiling and player.on_ground and player.direction.x != 0):
             player.on_ceiling = False
 
-    def scroll_x(self):
-        """Scroll the camera horizontally."""
+    def scroll_x(self, speed):
+        """Scroll the camera horizontally.
+
+        Arguments:
+        speed -- the speed the camera is scrolling and the player is moving
+        """
         player = self.player.sprite
         player_x = player.rect.centerx
         direction_x = player.direction.x
-        # BOTH self.shift and player.speed must be the same value as player.speed in player.py
         if player_x < screen_width / 4 and direction_x < 0:
-            self.shift = 6
+            self.shift = speed
             player.speed = 0
         elif player_x > screen_width - (screen_width / 4) and direction_x > 0:
-            self.shift = -6
+            self.shift = -speed
             player.speed = 0
         else:
             self.shift = 0
-            player.speed = 6
+            player.speed = speed
 
-    def check_death(self):
-        """Check if the player is dead."""
+    def check_enemy_collisions(self):
+        """Check if the player collides with the enemies and do actions accordingly."""
+        for group in self.enemy_sprites:
+            enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, group, False)
+            if enemy_collisions:
+                for enemy in enemy_collisions:
+                    enemy_center = enemy.rect.centery
+                    enemy_top = enemy.rect.top
+                    player_bottom = self.player.sprite.rect.bottom
+                    if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y > 1:
+                        self.player.sprite.direction.y = int(self.player.sprite.jump_height / 2)
+                        enemy.health -= 1
+                        if random.randint(1, 4) == 1:
+                            self.player.sprite.get_damage(int(enemy.damage / 2))
+                    else:
+                        self.player.sprite.get_damage(enemy.damage)
+
+    def check_enemy_death(self):
+        """Check if the enemies should be dead and kill their sprites if that is the case."""
+        for group in self.enemy_sprites:
+            for enemy in group.sprites():
+                if enemy.health <= 0:
+                    death_particle = Particle(enemy.rect.center, 'enemy_death')
+                    self.enemy_death_sprites.add(death_particle)
+                    enemy.kill()
+
+    def check_fall_death(self):
+        """Check if the player is dead by a fall accident."""
         if self.player.sprite.rect.top > 2 * screen_height:
-            self.create_world(self.first_level, self.current_level, self.current_level)  # self.create_world(current_level, level_unlocked)
+            self.player.sprite.get_damage(5)
+            self.create_world(self.first_level, self.current_level, self.current_level, self.current_part)  # self.create_world(current_level, level_unlocked)
 
     def check_success(self):
         """Check if the player completed the level and put them back to the level selection screen."""
@@ -270,7 +320,7 @@ class Level:
         """Run the end level sequence."""
         now = pygame.time.get_ticks()
         if now - self.player_end.sprite.ticks >= 1000:
-            self.create_world(self.first_level, self.current_level, self.level_unlocked)
+            self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_part)
 
     def run(self):
         """Run the level, update and draw everything (must be called every frame)."""
@@ -290,6 +340,9 @@ class Level:
         # Terrain
         self.terrain_sprites.update(self.shift)
         self.terrain_sprites.draw(self.display_surface)
+        # Background terrain
+        self.background_sprites.update(self.shift)
+        self.background_sprites.draw(self.display_surface)
         # Buildings
         self.building_sprites.update(self.shift)
         self.building_sprites.draw(self.display_surface)
@@ -318,6 +371,8 @@ class Level:
         self.apply_enemy_border_collision()
         for group in self.enemy_sprites:
             group.draw(self.display_surface)
+        self.enemy_death_sprites.update(self.shift)
+        self.enemy_death_sprites.draw(self.display_surface)
 
         # End tile
         self.player_end.update(self.shift)
@@ -331,9 +386,13 @@ class Level:
         self.get_player_on_ground()
         self.y_mov_coll()
         self.create_fall_particle()
-        self.scroll_x()
+        self.scroll_x(6)
         self.player.draw(self.display_surface)
 
+        # Enemy routines
+        self.check_enemy_collisions()
+        self.check_enemy_death()
+
         # Level end
-        self.check_death()
+        self.check_fall_death()
         self.check_success()

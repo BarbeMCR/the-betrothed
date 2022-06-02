@@ -19,6 +19,8 @@ class Particle(pygame.sprite.Sprite):
             self.frames = import_folder('./assets/player/particles/jump')
         if type == 'fall':
             self.frames = import_folder('./assets/player/particles/fall')
+        if type == 'enemy_death':
+            self.frames = import_folder('./assets/enemy/death')
         self.image = self.frames[self.frame_index]
         self.rect = self.image.get_rect(center = pos)
     def animate(self):

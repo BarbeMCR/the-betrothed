@@ -1,11 +1,13 @@
 """This file contains all the information about the levels."""
 
 chapter_1a = {
-    'node_pos': (140, 180),
+    'node_pos': (140, 200),
     'node_graphics': './assets/world/chapter1a.png',
     'unlock': 1,
     'enable_water': True,
     'enable_mountains': True,
+    'horizon': 7,
+    'background': './leveldata/empty72.csv',
     'barriers': './leveldata/chapter1a/chapter1a_barriers.csv',
     'borders': './leveldata/chapter1a/chapter1a_borders.csv',
     'buildings': './leveldata/empty72.csv',
@@ -20,11 +22,13 @@ chapter_1a = {
     'windows': './leveldata/empty72.csv'
 }
 chapter_1b = {
-    'node_pos': (390, 180),
+    'node_pos': (390, 200),
     'node_graphics': './assets/world/chapter1b.png',
-    'unlock': 1,
+    'unlock': 2,
     'enable_water': True,
     'enable_mountains': True,
+    'horizon': 6,
+    'background': './leveldata/empty144.csv',
     'barriers': './leveldata/chapter1b/chapter1b_barriers.csv',
     'borders': './leveldata/chapter1b/chapter1b_borders.csv',
     'buildings': './leveldata/chapter1b/chapter1b_buildings.csv',
@@ -38,10 +42,35 @@ chapter_1b = {
     'trees': './leveldata/chapter1b/chapter1b_trees.csv',
     'windows': './leveldata/chapter1b/chapter1b_windows.csv'
 }
+chapter_2a = {
+    'node_pos': (720, 200),
+    'node_graphics': './assets/world/chapter2a.png',
+    'unlock': 2,
+    'enable_water': False,
+    'enable_mountains': True,
+    'horizon': 7,
+    'background': './leveldata/chapter2a/chapter2a_background.csv',
+    'barriers': './leveldata/chapter2a/chapter2a_barriers.csv',
+    'borders': './leveldata/chapter2a/chapter2a_borders.csv',
+    'buildings': './leveldata/chapter2a/chapter2a_buildings.csv',
+    'enemies': './leveldata/chapter2a/chapter2a_enemies.csv',
+    'energy': './leveldata/chapter2a/chapter2a_energy.csv',
+    'grass': './leveldata/chapter2a/chapter2a_grass.csv',
+    'roofs': './leveldata/chapter2a/chapter2a_roofs.csv',
+    'roots': './leveldata/chapter2a/chapter2a_roots.csv',
+    'setup': './leveldata/chapter2a/chapter2a_setup.csv',
+    'terrain': './leveldata/chapter2a/chapter2a_terrain.csv',
+    'trees': './leveldata/chapter2a/chapter2a_trees.csv',
+    'windows': './leveldata/chapter2a/chapter2a_windows.csv'
+}
 
 levels = {
-    0: chapter_1a,
-    1: chapter_1b
+    0: {
+        0: chapter_1a,
+        1: chapter_1b,
+        2: chapter_2a,
+        'background': './assets/world/part1.png'
+    }
 }
 
 # chapter_1a = {'node_pos': (140, 180), 'content': "This is Chapter I - A", 'unlock': 1}
