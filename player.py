@@ -185,16 +185,28 @@ class Player(pygame.sprite.Sprite):
         self.direction.y += self.gravity
         self.rect.y += self.direction.y
 
-    def get_damage(self, damage):
+    def get_damage(self, damage, type):
         """Deal damage to the player.
 
         Arguments:
         damage -- the amount of damage to deal
+        type -- the damage type
         """
-        if not self.invincible and damage > 0:
+        if type == 'physical':
+            if not self.invincible and damage > 0:
+                self.update_health(damage, True)
+                self.invincible = True
+                self.hurt_time = pygame.time.get_ticks()
+        elif type == 'pure':
             self.update_health(damage, True)
-            self.invincible = True
-            self.hurt_time = pygame.time.get_ticks()
+
+    def heal(self, healing):
+        """Heal the player.
+
+        Arguments:
+        healing -- the amount of health to heal
+        """
+        self.update_health(healing, False)
 
     def tick_invincibility_timer(self):
         """Tick down the invincibility timer."""

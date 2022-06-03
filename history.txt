@@ -5,6 +5,16 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.07a - The Health Update
+=================================
+Build 603
+Python 3.10.4
+Pygame 2.1.2
+*Released on June 3rd, 2022*
+- Now pure damage is dealt even if the player is invincible
+- Now pure damage doesn't trigger the invincibility frames
+- Now the player is healed by 10 HP after completing a level
+
 Release 0.07 - The Health Update
 ================================
 Build 602

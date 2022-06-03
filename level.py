@@ -289,9 +289,9 @@ class Level:
                         self.player.sprite.direction.y = int(self.player.sprite.jump_height / 2)
                         enemy.health -= 1
                         if random.randint(1, 4) == 1:
-                            self.player.sprite.get_damage(int(enemy.damage / 2))
+                            self.player.sprite.get_damage(int(enemy.damage / 2), 'physical')
                     else:
-                        self.player.sprite.get_damage(enemy.damage)
+                        self.player.sprite.get_damage(enemy.damage, 'physical')
 
     def check_enemy_death(self):
         """Check if the enemies should be dead and kill their sprites if that is the case."""
@@ -305,7 +305,7 @@ class Level:
     def check_fall_death(self):
         """Check if the player is dead by a fall accident."""
         if self.player.sprite.rect.top > 2 * screen_height:
-            self.player.sprite.get_damage(5)
+            self.player.sprite.get_damage(5, 'pure')
             self.create_world(self.first_level, self.current_level, self.current_level, self.current_part)  # self.create_world(current_level, level_unlocked)
 
     def check_success(self):
@@ -318,6 +318,7 @@ class Level:
 
     def run_end_level_sequence(self):
         """Run the end level sequence."""
+        self.player.sprite.heal(10)
         now = pygame.time.get_ticks()
         if now - self.player_end.sprite.ticks >= 1000:
             self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_part)
