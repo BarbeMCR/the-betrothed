@@ -318,9 +318,9 @@ class Level:
 
     def run_end_level_sequence(self):
         """Run the end level sequence."""
-        self.player.sprite.heal(10)
         now = pygame.time.get_ticks()
         if now - self.player_end.sprite.ticks >= 1000:
+            self.player.sprite.heal(10)
             self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_part)
 
     def run(self):

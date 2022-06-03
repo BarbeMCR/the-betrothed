@@ -24,7 +24,7 @@ from game import Game
 from data import *
 
 # Build identification
-version = "0.07a"
+version = "0.07b"
 build = 603
 stable = True
 
