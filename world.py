@@ -51,13 +51,14 @@ class LevelSelector(pygame.sprite.Sprite):
 
 class World:
     """The world builder class."""
-    def __init__(self, first_level, start_level, end_level, current_part, display_surface, create_level, controller):
+    def __init__(self, first_level, start_level, end_level, current_subpart, current_part, display_surface, create_level, controller):
         """Setup the level selector screen, the movement of the cursor and the sprites.
 
         Arguments:
         first_level -- the lowest level the player can select
         start_level -- the level to place the cursor on
         end_level -- the highest level the player can select
+        current_subpart -- the subpart to load
         current_part -- the part to load
         display_surface -- the screen
         create_level -- the method for building the level
@@ -70,6 +71,7 @@ class World:
         self.first_level = first_level
         self.current_level = start_level
         self.end_level = end_level
+        self.current_subpart = current_subpart
         self.current_part = current_part
         self.create_level = create_level
         self.background = pygame.image.load(levels[self.current_part]['background']).convert_alpha()
@@ -86,7 +88,7 @@ class World:
     def setup_nodes(self):
         """Create and place the nodes."""
         self.nodes = pygame.sprite.Group()
-        for index, node in enumerate(levels[self.current_part].values()):
+        for index, node in enumerate(levels[self.current_part][self.current_subpart].values()):
             if isinstance(node, dict):
                 if index <= self.end_level:
                     node_sprite = Node(node['node_pos'], True, self.movement_speed, node['node_graphics'])
@@ -97,7 +99,7 @@ class World:
 
     def draw_paths(self):
         """Draw the lines joining the nodes together."""
-        points = [node['node_pos'] for index, node in enumerate(levels[self.current_part].values()) if index <= self.end_level + 1 and isinstance(node, dict)]
+        points = [node['node_pos'] for index, node in enumerate(levels[self.current_part][self.current_subpart].values()) if index <= self.end_level + 1 and isinstance(node, dict)]
         pygame.draw.lines(self.display_surface, '#daab76', False, points, 6)
 
     def setup_level_selector(self):
@@ -139,7 +141,7 @@ class World:
                 self.current_level += 1
                 self.moving = True
             elif (keys[pygame.K_SPACE] or controller_a):
-                self.create_level(self.current_level, self.current_part)
+                self.create_level(self.current_level, self.current_subpart, self.current_part)
 
     def get_movement_data(self, next):
         """Create start and end vectors for the level selector.

@@ -88,3 +88,26 @@ class AnimatedTile(Tile):
         """
         self.animate()
         super().update(shift)
+
+class Energy(AnimatedTile):
+    """A specialized AnimatedTile for the energy items."""
+    def __init__(self, size, x, y, path, value):
+        """Initialize the parent AnimatedTile class.
+
+        Arguments:
+        size -- the tile size (can be a dummy value as it is only used to build the base Tile class)
+        x -- the initial X position
+        y -- the initial Y position
+        path -- the folder with all the animation frames
+        value -- the amount of energy to add after collection
+        """
+        super().__init__(size, x, y, path)
+        self.value = value
+
+    def update(self, shift):
+        """Update the energy tile.
+
+        Arguments:
+        shift -- the camera shift
+        """
+        super().update(shift)

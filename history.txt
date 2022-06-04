@@ -5,6 +5,32 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.08 - The Energy Update
+================================
+Build 604
+Python 3.10.4
+Pygame 2.1.2
+*Released on June 4th, 2022*
+- Added energy: Renzo starts the game with 0 EP (Energy Points) and can hold up to 100 EP
+- Added the energy bar and the energy statistics: they are displayed in the top left corner of the screen
+- Now when the energy bar is full, the energy overflow will start filling
+- Added energy overflow: Renzo starts the game with 0 EP in the overflow energy bar and can hold up to 25 EP there
+- Added the energy overflow bar: it is displayed below the energy bar
+- Now when the overflow bar is full, the player is completely healed and the overflow bar is decreased by 25 EP.
+- Now the overflow bar resets to 0 EP after the energy bar drops below 90% of its maximum EP.
+- Now picking up an energy item increases the player energy by 2 EP for every blue energy, 5 EP for every red energy, 10 EP for every yellow energy and 20 EP for every green energy
+- Now falling into the void decreases the player energy by a random amount between 1 and 25 points
+- Added red energy, yellow energy and green energy items
+- Now energy only generates in new levels
+- Now the player gets healed only if the completed level is the highest they can select
+- Now dying decreases the energy by 50%
+- Now dying resets the energy overflow
+- Added Chapter II (Section B)
+- Added fences and fence gates
+- Rearranged the levels in part 0, subpart 0
+- The parts are now devided into subparts
+- Changed the name of the 'windows' layer to 'decoration'
+
 Release 0.07b - The Health Update
 =================================
 Build 603
@@ -31,7 +57,7 @@ Python 3.10.4
 Pygame 2.1.2
 *Released on June 2nd, 2022*
 - Added health: Renzo starts the game with 20 HP (Health Points)
-- Added the health bar and the health statistics: they are displayed in the top right corner of the screen
+- Added the health bar and the health statistics: they are displayed in the top left corner of the screen
 - Added death: if the player's health drops to 0, they will die and all their progress will be lost
 - Now falling into the void deals 5 Pure Damage after respawning (the distinction between the types of damage has not been yet implemented)
 - Skeletons now have 1 HP and deal 1 Physical Damage

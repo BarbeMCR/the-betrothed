@@ -24,8 +24,8 @@ from game import Game
 from data import *
 
 # Build identification
-version = "0.07b"
-build = 603
+version = "0.08"
+build = 604
 stable = True
 
 # Pygame initialization

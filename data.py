@@ -11,6 +11,7 @@ chapter_1a = {
     'barriers': './leveldata/chapter1a/chapter1a_barriers.csv',
     'borders': './leveldata/chapter1a/chapter1a_borders.csv',
     'buildings': './leveldata/empty72.csv',
+    'decoration': './leveldata/empty72.csv',
     'enemies': './leveldata/chapter1a/chapter1a_enemies.csv',
     'energy': './leveldata/chapter1a/chapter1a_energy.csv',
     'grass': './leveldata/chapter1a/chapter1a_grass.csv',
@@ -18,8 +19,7 @@ chapter_1a = {
     'roots': './leveldata/empty72.csv',
     'setup': './leveldata/chapter1a/chapter1a_setup.csv',
     'terrain': './leveldata/chapter1a/chapter1a_terrain.csv',
-    'trees': './leveldata/chapter1a/chapter1a_trees.csv',
-    'windows': './leveldata/empty72.csv'
+    'trees': './leveldata/chapter1a/chapter1a_trees.csv'
 }
 chapter_1b = {
     'node_pos': (390, 200),
@@ -32,6 +32,7 @@ chapter_1b = {
     'barriers': './leveldata/chapter1b/chapter1b_barriers.csv',
     'borders': './leveldata/chapter1b/chapter1b_borders.csv',
     'buildings': './leveldata/chapter1b/chapter1b_buildings.csv',
+    'decoration': './leveldata/chapter1b/chapter1b_decoration.csv',
     'enemies': './leveldata/chapter1b/chapter1b_enemies.csv',
     'energy': './leveldata/chapter1b/chapter1b_energy.csv',
     'grass': './leveldata/chapter1b/chapter1b_grass.csv',
@@ -39,13 +40,12 @@ chapter_1b = {
     'roots': './leveldata/chapter1b/chapter1b_roots.csv',
     'setup': './leveldata/chapter1b/chapter1b_setup.csv',
     'terrain': './leveldata/chapter1b/chapter1b_terrain.csv',
-    'trees': './leveldata/chapter1b/chapter1b_trees.csv',
-    'windows': './leveldata/chapter1b/chapter1b_windows.csv'
+    'trees': './leveldata/chapter1b/chapter1b_trees.csv'
 }
 chapter_2a = {
-    'node_pos': (720, 200),
+    'node_pos': (1110, 200),
     'node_graphics': './assets/world/chapter2a.png',
-    'unlock': 2,
+    'unlock': 3,
     'enable_water': False,
     'enable_mountains': True,
     'horizon': 7,
@@ -53,6 +53,7 @@ chapter_2a = {
     'barriers': './leveldata/chapter2a/chapter2a_barriers.csv',
     'borders': './leveldata/chapter2a/chapter2a_borders.csv',
     'buildings': './leveldata/chapter2a/chapter2a_buildings.csv',
+    'decoration': './leveldata/chapter2a/chapter2a_decoration.csv',
     'enemies': './leveldata/chapter2a/chapter2a_enemies.csv',
     'energy': './leveldata/chapter2a/chapter2a_energy.csv',
     'grass': './leveldata/chapter2a/chapter2a_grass.csv',
@@ -60,15 +61,38 @@ chapter_2a = {
     'roots': './leveldata/chapter2a/chapter2a_roots.csv',
     'setup': './leveldata/chapter2a/chapter2a_setup.csv',
     'terrain': './leveldata/chapter2a/chapter2a_terrain.csv',
-    'trees': './leveldata/chapter2a/chapter2a_trees.csv',
-    'windows': './leveldata/chapter2a/chapter2a_windows.csv'
+    'trees': './leveldata/chapter2a/chapter2a_trees.csv'
+}
+chapter_2b = {
+    'node_pos': (1110, 400),
+    'node_graphics': './assets/world/chapter2b.png',
+    'unlock': 3,
+    'enable_water': False,
+    'enable_mountains': True,
+    'horizon': 8,
+    'background': './leveldata/chapter2b/chapter2b_background.csv',
+    'barriers': './leveldata/chapter2b/chapter2b_barriers.csv',
+    'borders': './leveldata/chapter2b/chapter2b_borders.csv',
+    'buildings': './leveldata/chapter2b/chapter2b_buildings.csv',
+    'decoration': './leveldata/chapter2b/chapter2b_decoration.csv',
+    'enemies': './leveldata/chapter2b/chapter2b_enemies.csv',
+    'energy': './leveldata/chapter2b/chapter2b_energy.csv',
+    'grass': './leveldata/chapter2b/chapter2b_grass.csv',
+    'roofs': './leveldata/chapter2b/chapter2b_roofs.csv',
+    'roots': './leveldata/chapter2b/chapter2b_roots.csv',
+    'setup': './leveldata/chapter2b/chapter2b_setup.csv',
+    'terrain': './leveldata/chapter2b/chapter2b_terrain.csv',
+    'trees': './leveldata/chapter2b/chapter2b_trees.csv'
 }
 
 levels = {
     0: {
-        0: chapter_1a,
-        1: chapter_1b,
-        2: chapter_2a,
+        0: {
+            0: chapter_1a,
+            1: chapter_1b,
+            2: chapter_2a,
+            3: chapter_2b
+        },
         'background': './assets/world/part1.png'
     }
 }

@@ -13,17 +13,21 @@ from data import levels
 
 class Level:
     """The level builder class."""
-    def __init__(self, current_level, current_part, display_surface, create_world, first_level, controller, update_health):
+    def __init__(self, current_level, current_subpart, current_part, display_surface, create_world, first_level, end_level, controller, update_health, update_energy, reset_energy_overflow):
         """Setup the builder, the level layout, the player and the background.
 
         Arguments:
         current_level -- the selected level
+        current_subpart -- the subpart the level is in
         current_part -- the part the level is in
         display_surface -- the screen
         create_world -- the method for building the world
         first_level -- the lowest level the player can select
+        end_level -- the highest level the player can select
         controller -- the controller class
         update_health -- the method for updating the player health
+        update_energy -- the method for updating the player energy
+        reset_energy_overflow -- the method for resetting the player energy overflow
         """
         # Basic setup
         self.display_surface = display_surface
@@ -40,9 +44,11 @@ class Level:
         # World setup
         self.create_world = create_world
         self.first_level = first_level
+        self.end_level = end_level
         self.current_level = current_level
+        self.current_subpart
         self.current_part = current_part
-        level_data = levels[self.current_part][self.current_level]
+        level_data = levels[self.current_part][self.current_subpart][self.current_level]
         self.level_unlocked = level_data['unlock']
         self.level_completed = False
 
@@ -61,6 +67,10 @@ class Level:
         # Enemy particles
         self.enemy_death_sprites = pygame.sprite.Group()
 
+        # UI
+        self.update_energy = update_energy
+        self.reset_energy_overflow = reset_energy_overflow
+
         # Terrain setup
         terrain_layout = import_csv_layout(level_data['terrain'])
         self.terrain_sprites = self.create_tile_group(terrain_layout, 'terrain')
@@ -73,9 +83,9 @@ class Level:
         # Roof setup
         roof_layout = import_csv_layout(level_data['roofs'])
         self.roof_sprites = self.create_tile_group(roof_layout, 'roofs')
-        # Window setup
-        window_layout = import_csv_layout(level_data['windows'])
-        self.window_sprites = self.create_tile_group(window_layout, 'terrain')
+        # Decoration setup
+        decoration_layout = import_csv_layout(level_data['decoration'])
+        self.decoration_sprites = self.create_tile_group(decoration_layout, 'terrain')
         # Root setup
         root_layout = import_csv_layout(level_data['roots'])
         self.root_sprites = self.create_tile_group(root_layout, 'terrain')
@@ -186,10 +196,21 @@ class Level:
                         grass_list = import_sliced_graphics('./assets/level/ground/grass.png')
                         tile_surface = grass_list[int(col)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
-                    if type == 'energy':
-                        sprite = AnimatedTile(tile_size, x, y, './assets/level/energy')
                     if type == 'trees':
                         sprite = Tree(tile_size, x, y, './assets/level/ground/tree.png', random.randrange(160, 192, 8))
+
+                    if type == 'energy':
+                        if self.current_level >= self.end_level:
+                            if col == '0':
+                                sprite = Energy(tile_size, x, y, './assets/level/energy/blue', 2)
+                            elif col == '1':
+                                sprite = Energy(tile_size, x, y, './assets/level/energy/red', 5)
+                            elif col == '2':
+                                sprite = Energy(tile_size, x, y, './assets/level/energy/yellow', 10)
+                            elif col == '3':
+                                sprite = Energy(tile_size, x, y, './assets/level/energy/green', 20)
+                        else:
+                            sprite = Tile(tile_size, x, y)
 
                     if type == 'enemies':
                         if col == '1':
@@ -276,6 +297,29 @@ class Level:
             self.shift = 0
             player.speed = speed
 
+    def increase_energy(self, amount):
+        """Add energy to the player.
+
+        Arguments:
+        amount -- the amount of energy to add
+        """
+        self.update_energy(amount, True)
+
+    def decrease_energy(self, amount):
+        """Subtract energy from the player.
+
+        Arguments:
+        amount -- the amount of energy to subtract
+        """
+        self.update_energy(amount, False)
+
+    def check_energy_collisions(self):
+        """Check if the player collides with the energy and collect it."""
+        energy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.energy_sprites, True)
+        if energy_collisions:
+            for energy in energy_collisions:
+                self.increase_energy(energy.value)
+
     def check_enemy_collisions(self):
         """Check if the player collides with the enemies and do actions accordingly."""
         for group in self.enemy_sprites:
@@ -306,7 +350,9 @@ class Level:
         """Check if the player is dead by a fall accident."""
         if self.player.sprite.rect.top > 2 * screen_height:
             self.player.sprite.get_damage(5, 'pure')
-            self.create_world(self.first_level, self.current_level, self.current_level, self.current_part)  # self.create_world(current_level, level_unlocked)
+            self.decrease_energy(random.randint(1, 25))
+            self.reset_energy_overflow()
+            self.create_world(self.first_level, self.current_level, self.current_level, self.current_subpart, self.current_part)  # self.create_world(current_level, level_unlocked)
 
     def check_success(self):
         """Check if the player completed the level and put them back to the level selection screen."""
@@ -320,8 +366,9 @@ class Level:
         """Run the end level sequence."""
         now = pygame.time.get_ticks()
         if now - self.player_end.sprite.ticks >= 1000:
-            self.player.sprite.heal(10)
-            self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_part)
+            if self.current_level >= self.end_level:
+                self.player.sprite.heal(10)
+            self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_subpart, self.current_part)
 
     def run(self):
         """Run the level, update and draw everything (must be called every frame)."""
@@ -350,9 +397,9 @@ class Level:
         # Roofs
         self.roof_sprites.update(self.shift)
         self.roof_sprites.draw(self.display_surface)
-        # Windows
-        self.window_sprites.update(self.shift)
-        self.window_sprites.draw(self.display_surface)
+        # Decoration
+        self.decoration_sprites.update(self.shift)
+        self.decoration_sprites.draw(self.display_surface)
         # Roots
         self.root_sprites.update(self.shift)
         self.root_sprites.draw(self.display_surface)
@@ -363,8 +410,10 @@ class Level:
         self.tree_sprites.update(self.shift)
         self.tree_sprites.draw(self.display_surface)
         # Energy
-        self.energy_sprites.update(self.shift)
-        self.energy_sprites.draw(self.display_surface)
+        if self.current_level >= self.end_level:
+            self.energy_sprites.update(self.shift)
+            self.energy_sprites.draw(self.display_surface)
+            self.check_energy_collisions()
         # Enemies
         for group in self.enemy_sprites:
             group.update(self.shift)
