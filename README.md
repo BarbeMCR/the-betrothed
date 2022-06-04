@@ -16,7 +16,7 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 
 **If you instead want to run the source code:**
 1. Go on the `Releases` page and check for whatever version you want to run
-2. Download the `Source Code` as an archive
+2. Download the `the_betrothed_<version>_source.zip`
 3. Extract the archive
 4. Run `main.py` with at least Python 3.8 (probably it works with previous versions but I don't guarantee)
 
