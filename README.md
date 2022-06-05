@@ -1,6 +1,9 @@
 # BarbeMCR's The Betrothed
 The Betrothed is a platformer written in Python with the aid of Pygame.
 
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/BarbeMCR/the-betrothed.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/BarbeMCR/the-betrothed/context:python)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/BarbeMCR/the-betrothed.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/BarbeMCR/the-betrothed/alerts/)
+
 ## How do I run the code?
 **If you just want to play The Betrothed:**
 1. Go on the `Releases` page and check for the latest stable version (or any other one, if you want)
