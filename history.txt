@@ -5,6 +5,17 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.08a - The Energy Update
+=================================
+Build 605
+Python 3.10.4
+Pygame 2.1.2
+*Released on June 5th, 2022*
+- Implemented the 'if __name__ == '__main__'' idiom
+- Now the game loop in 'main.py' runs inside a 'main()' function
+### Bugfixes:
+- The game no longer crashes on startup because of missing 'self.current_subpart' attribute
+
 Release 0.08 - The Energy Update
 ================================
 Build 604
@@ -28,7 +39,7 @@ Pygame 2.1.2
 - Added Chapter II (Section B)
 - Added fences and fence gates
 - Rearranged the levels in part 0, subpart 0
-- The parts are now devided into subparts
+- The parts are now divided into subparts
 - Changed the name of the 'windows' layer to 'decoration'
 
 Release 0.07b - The Health Update

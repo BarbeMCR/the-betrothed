@@ -46,7 +46,7 @@ class Level:
         self.first_level = first_level
         self.end_level = end_level
         self.current_level = current_level
-        self.current_subpart
+        self.current_subpart = current_subpart
         self.current_part = current_part
         level_data = levels[self.current_part][self.current_subpart][self.current_level]
         self.level_unlocked = level_data['unlock']
