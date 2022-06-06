@@ -1,7 +1,7 @@
 import pygame
 import random
-from settings import *
-from tile import *
+from settings import *  # lgtm [py/polluting-import]
+from tile import *  # lgtm [py/polluting-import]
 
 """This file defines all the background elements."""
 

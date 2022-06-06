@@ -19,22 +19,25 @@ import pygame
 import sys
 if sys.platform.startswith('win32'):
     import ctypes
-from settings import *
+from settings import *  # lgtm [py/polluting-import]
 from game import Game
-from data import *
 
 def main():
     # Build identification
-    version = "0.08a"
+    version = "0.09"
     build = 605
-    stable = True
+    build_id = 0
+    stable = False
 
     # Pygame initialization
+    # The comments below the if-elif-else statements are used to suppress LGTM warnings about build identification
     pygame.init()
-    if stable:
+    if stable:  # lgtm [py/unreachable-statement]
         pygame.display.set_caption(f"The Betrothed {version}")
-    else:
+    elif build_id == 0:  # lgtm [py/unreachable-statement]
         pygame.display.set_caption(f"The Betrothed {version} - Build {build}")
+    else:  # lgtm [py/unreachable-statement]
+        pygame.display.set_caption(f"The Betrothed {version} - Build {build}.{build_id}")
     if sys.platform.startswith('win32'):
         ctypes.windll.user32.SetProcessDPIAware()  # This makes the window the correct resolution
     screen = pygame.display.set_mode((screen_width, screen_height), pygame.SCALED, vsync=1)

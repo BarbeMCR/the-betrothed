@@ -71,7 +71,7 @@ class Game:
             self.start_level = 0
             self.end_level = 0
             self.current_part = 0
-            self.world = World(self.first_level, self.start_level, self.end_level, self.current_part, self.display_surface, self.create_level, self.controller)
+            self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self.create_level, self.controller)
             self.status = 'world'
             self.health = 20
             self.energy = int(self.energy / 2)

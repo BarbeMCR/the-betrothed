@@ -1,10 +1,10 @@
 import pygame
 import random
-from misc import *
-from settings import *
-from tile import *
-from enemy import *
-from bgstuff import *
+from misc import *  # lgtm [py/polluting-import]
+from settings import *  # lgtm [py/polluting-import]
+from tile import *  # lgtm [py/polluting-import]
+from enemy import *  # lgtm [py/polluting-import]
+from bgstuff import *  # lgtm [py/polluting-import]
 from player import Player
 from particles import Particle
 from data import levels

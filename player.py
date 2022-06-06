@@ -1,6 +1,6 @@
 import pygame
 from math import sin
-from settings import *
+from settings import *  # lgtm [py/polluting-import]
 from misc import import_folder
 
 """This file defines the player behavior."""

@@ -1,5 +1,5 @@
 import pygame
-from settings import *
+from settings import *  # lgtm [py/polluting-import]
 from data import levels
 
 """This file defines the level selection screen."""
