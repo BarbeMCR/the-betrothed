@@ -100,3 +100,12 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | L     | Move to previous level |
 | R     | Move to following level |
 | A     | Select level |
+
+---
+## Credits
+
+@BarbeMCR (aka myself) - Programming, graphics, music, SFXs, font, level design, mechanics... (I created the game and since this is a solo project don't expect many people working on the actual game)
+
+**But, most importantly, everybody who contributed with testing and various tidbits, like those folks:**
+
+- Aleee - Early testing, early controller testing
