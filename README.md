@@ -36,7 +36,7 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | 0.05 - 0.06           | 5.0.1               |
 | 0.07 +                | 5.1                 |
 
-3. Compile with Pyinstaller
+3. Compile with Pyinstaller using the `--onefile` argument
 
 ---
 ## Controls
@@ -64,6 +64,13 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | Right | Walk right |
 | Cross | Jump |
 
+*__Nintendo Switch Pro Controller__*
+| Input | Action |
+| ----- | ------ |
+| Left  | Walk left |
+| Right | Walk right |
+| A     | Jump |
+
 ### In the level selection screen
 
 *__Keyboard__*
@@ -86,3 +93,10 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | L1    | Move to previous level |
 | R1    | Move to following level |
 | Cross | Select level |
+
+*__Nintendo Switch Pro Controller__*
+| Input | Action |
+| ----- | ------ |
+| L     | Move to previous level |
+| R     | Move to following level |
+| A     | Select level |
