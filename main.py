@@ -24,10 +24,10 @@ from game import Game
 
 def main():
     # Build identification
-    version = "0.09"
+    version = "0.09a"
     build = 611
-    build_id = 0
-    stable = False
+    build_id = 1
+    stable = True
 
     # Pygame initialization
     # The comments below the if-elif-else statements are used to suppress LGTM warnings about build identification

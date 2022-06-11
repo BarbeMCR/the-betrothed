@@ -133,7 +133,7 @@ class Player(pygame.sprite.Sprite):
         controller_right = False
         controller_a = False
         for controller in self.controllers.values():
-            if self.gamepad == 'ps4':
+            if self.gamepad == 'ps4' or self.gamepad == 'switch_pro':
                 if controller.get_button(gamepad['buttons']['LEFT']):
                     controller_left = True
                 elif controller.get_button(gamepad['buttons']['RIGHT']):

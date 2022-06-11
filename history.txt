@@ -5,6 +5,16 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.09a - The Sound Update
+================================
+Build 611.1
+Python 3.10.5
+Pygame 2.1.2
+*Released on June 11th, 2022*
+- Changed the level layout for Chapter II-C
+### Bugfixes:
+- The title no longer says "Build 611"
+
 Release 0.09 - The Sound Update
 ===============================
 Build 611
