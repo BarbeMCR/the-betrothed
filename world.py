@@ -21,7 +21,7 @@ class Node(pygame.sprite.Sprite):
             self.status = 'unlocked'
         else:
             self.status = 'locked'
-        pos = (pos[0], pos[1] - 34)  # Lowering by 18 pixels makes for a cool effect when the cross moves
+        pos = (pos[0], pos[1] - 34)  # Lowering by 34 pixels makes for a cool effect when the cross moves
         self.rect = self.image.get_rect(center = pos)
         self.target_rect = pygame.Rect(self.rect.centerx - (movement_speed / 2), self.rect.centery - (movement_speed / 2), movement_speed, movement_speed)
 
@@ -51,7 +51,7 @@ class LevelSelector(pygame.sprite.Sprite):
 
 class World:
     """The world builder class."""
-    def __init__(self, first_level, start_level, end_level, current_subpart, current_part, display_surface, create_level, controller):
+    def __init__(self, first_level, start_level, end_level, current_subpart, current_part, display_surface, parent):
         """Setup the level selector screen, the movement of the cursor and the sprites.
 
         Arguments:
@@ -61,20 +61,25 @@ class World:
         current_subpart -- the subpart to load
         current_part -- the part to load
         display_surface -- the screen
-        create_level -- the method for building the level
-        controller -- the controller class
+        parent -- the parent class
         """
         # Setup
         self.display_surface = display_surface
-        self.controllers = controller.controllers
+        self.parent = parent
+        self.controllers = self.parent.controller.controllers
         self.gamepad = 'xbox_one'
         self.first_level = first_level
         self.current_level = start_level
         self.end_level = end_level
         self.current_subpart = current_subpart
         self.current_part = current_part
-        self.create_level = create_level
+        self.create_level = self.parent.create_level
         self.background = pygame.image.load(levels[self.current_part]['background']).convert_alpha()
+        self.now = 0  # This is a dummy value
+        self.gen_time = pygame.time.get_ticks()
+
+        # SFX
+        self.menu_sfx = pygame.mixer.Sound('./assets/audio/sfx/menu_select.wav')
 
         # Movement logic
         self.movement_direction = pygame.math.Vector2(0, 0)
@@ -84,6 +89,11 @@ class World:
         # Sprites
         self.setup_nodes()
         self.setup_level_selector()
+
+        # Music
+        # pygame.mixer.music.queue(<path_to_world_music>)
+        # pygame.mixer.music.set_volume(0.5)
+        # pygame.mixer.music.play(-1, fade_ms=2000)
 
     def setup_nodes(self):
         """Create and place the nodes."""
@@ -136,11 +146,15 @@ class World:
                 self.movement_direction = self.get_movement_data(False)
                 self.current_level -= 1
                 self.moving = True
+                self.menu_sfx.play()
             elif (keys[pygame.K_RIGHT] or controller_rb) and self.current_level < self.end_level:
                 self.movement_direction = self.get_movement_data(True)
                 self.current_level += 1
                 self.moving = True
+                self.menu_sfx.play()
             elif (keys[pygame.K_SPACE] or controller_a):
+                self.menu_sfx.play()
+                pygame.mixer.music.stop()
                 self.create_level(self.current_level, self.current_subpart, self.current_part)
 
     def get_movement_data(self, next):
@@ -158,8 +172,10 @@ class World:
 
     def run(self):
         """Run the level selector, update and draw everything (must be called every frame)."""
+        self.now = pygame.time.get_ticks()
         self.display_surface.blit(self.background, (0, 0))
-        self.get_input()
+        if self.now - self.gen_time >= 250:
+            self.get_input()
         self.update_level_selector()
         self.level_selector.update()
         self.draw_paths()

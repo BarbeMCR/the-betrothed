@@ -3,7 +3,7 @@
  <editorsettings>
   <export target="chapter2a/chapter2a.csv" format="csv"/>
  </editorsettings>
- <tileset firstgid="1" source="ground_day.tsx"/>
+ <tileset firstgid="1" source="ground.tsx"/>
  <tileset firstgid="257" source="setup/setup.tsx"/>
  <tileset firstgid="259" source="setup/enemies.tsx"/>
  <tileset firstgid="261" source="roofs.tsx"/>

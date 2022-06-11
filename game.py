@@ -4,7 +4,7 @@ from level import Level
 from controller import Controller
 from ui import UI
 
-"""This file contains the base game structure needed to switch between the world and the levels, as well as the controller interface and the event queue."""
+"""This file contains the base game structure needed to switch between the world and the levels, as well as various global methods and attributes."""
 
 class Game:
     """The main game class."""
@@ -24,7 +24,7 @@ class Game:
         self.end_level = 0
         self.current_subpart = 0
         self.current_part = 0
-        self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self.create_level, self.controller)
+        self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
 
         # Global variables
@@ -43,7 +43,7 @@ class Game:
         current_subpart -- the subpart the level is in
         current_part -- the part the level is in
         """
-        self.level = Level(current_level, self.current_subpart, self.current_part, self.display_surface, self.create_world, self.first_level, self.end_level, self.controller, self.update_health, self.update_energy, self.reset_energy_overflow)
+        self.level = Level(self.display_surface, current_level, current_subpart, current_part, self)
         self.status = 'level'
 
     def create_world(self, first_level, start_level, end_level, current_subpart, current_part):
@@ -61,7 +61,7 @@ class Game:
         self.first_level = first_level
         self.current_subpart = current_subpart
         self.current_part = current_part
-        self.world = World(self.first_level, start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self.create_level, self.controller)
+        self.world = World(self.first_level, start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
 
     def check_death(self):
@@ -71,11 +71,16 @@ class Game:
             self.start_level = 0
             self.end_level = 0
             self.current_part = 0
-            self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self.create_level, self.controller)
+            self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
             self.status = 'world'
             self.health = 20
             self.energy = int(self.energy / 2)
             self.energy_overflow = 0
+            pygame.mixer.stop()
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load('./assets/audio/game_over.ogg')
+            pygame.mixer.music.set_volume(1)
+            pygame.mixer.music.play()
 
     def update_health(self, amount, damage):
         """Change the player health.

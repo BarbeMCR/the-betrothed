@@ -5,7 +5,7 @@
  </editorsettings>
  <tileset firstgid="1" source="collectibles.tsx"/>
  <tileset firstgid="5" source="grass.tsx"/>
- <tileset firstgid="6" source="ground_day.tsx"/>
+ <tileset firstgid="6" source="ground.tsx"/>
  <tileset firstgid="262" source="trees.tsx"/>
  <tileset firstgid="263" source="setup/setup.tsx"/>
  <tileset firstgid="265" source="setup/enemies.tsx"/>

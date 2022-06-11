@@ -25,19 +25,19 @@ from game import Game
 def main():
     # Build identification
     version = "0.09"
-    build = 605
+    build = 611
     build_id = 0
     stable = False
 
     # Pygame initialization
     # The comments below the if-elif-else statements are used to suppress LGTM warnings about build identification
     pygame.init()
-    if stable:  # lgtm [py/unreachable-statement]
-        pygame.display.set_caption(f"The Betrothed {version}")
-    elif build_id == 0:  # lgtm [py/unreachable-statement]
-        pygame.display.set_caption(f"The Betrothed {version} - Build {build}")
-    else:  # lgtm [py/unreachable-statement]
-        pygame.display.set_caption(f"The Betrothed {version} - Build {build}.{build_id}")
+    if stable:
+        pygame.display.set_caption(f"The Betrothed {version}")  # lgtm [py/unreachable-statement]
+    elif build_id == 0:
+        pygame.display.set_caption(f"The Betrothed {version} - Build {build}")  # lgtm [py/unreachable-statement]
+    else:
+        pygame.display.set_caption(f"The Betrothed {version} - Build {build}.{build_id}")  # lgtm [py/unreachable-statement]
     if sys.platform.startswith('win32'):
         ctypes.windll.user32.SetProcessDPIAware()  # This makes the window the correct resolution
     screen = pygame.display.set_mode((screen_width, screen_height), pygame.SCALED, vsync=1)
@@ -54,7 +54,7 @@ def main():
                 sys.exit()
             if event.type == pygame.JOYDEVICEADDED:
                 controller = pygame.joystick.Joystick(event.device_index)
-                game.controller.controllers[controller.get_instance_id()]
+                game.controller.controllers[controller.get_instance_id()] = controller
             if event.type == pygame.JOYDEVICEREMOVED:
                 del game.controller.controllers[event.instance_id]
             if event.type == pygame.KEYDOWN:

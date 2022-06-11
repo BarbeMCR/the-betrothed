@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.8" tiledversion="1.8.5" orientation="orthogonal" renderorder="right-down" width="72" height="11" tilewidth="64" tileheight="64" infinite="0" nextlayerid="14" nextobjectid="1">
  <tileset firstgid="1" source="setup/setup.tsx"/>
- <tileset firstgid="3" source="ground_day.tsx"/>
+ <tileset firstgid="3" source="ground.tsx"/>
  <tileset firstgid="259" source="roofs.tsx"/>
  <tileset firstgid="279" source="grass.tsx"/>
  <tileset firstgid="280" source="trees.tsx"/>

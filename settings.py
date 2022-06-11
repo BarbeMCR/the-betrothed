@@ -71,8 +71,37 @@ ps4 = {  # DualShock 4
         'RT': 5  # R2
     }
 }
+switch_pro = {  # Nintendo Switch Pro Controller
+    'buttons': {
+        'A': 0,
+        'B': 1,
+        'X': 2,
+        'Y': 3,
+        'VIEW': 4,  # -
+        'LOGO': 5,  # HOME
+        'MENU': 6,  # +
+        'LSTICK': 7,
+        'RSTICK': 8,
+        'LB': 9,  # L
+        'RB': 10,  # R
+        'UP': 11,
+        'DOWN': 12,
+        'LEFT': 13,
+        'RIGHT': 14,
+        'SHARE': 15  # CAPTURE
+    },
+    'axes': {
+        'LSTICK_X': 0,
+        'LSTICK_Y': 1,
+        'RSTICK_X': 2,
+        'RSTICK_Y': 3,
+        'LT': 4,  # ZL
+        'RT': 5  # ZR
+    }
+}
 
 controllers = {
     'xbox_one': xbox_one,
-    'ps4': ps4
+    'ps4': ps4,
+    'switch_pro': switch_pro
 }

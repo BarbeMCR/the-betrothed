@@ -5,6 +5,38 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.09 - The Sound Update
+===============================
+Build 611
+Python 3.10.5
+Pygame 2.1.2
+*Released on June 11th, 2022*
+- Added the first musical track for Chapter I and II: "Magnolie"
+- The music fades in during a period of 2 seconds
+- Added musical themes for completing a level and dying from loss of health
+- Added SFXs for enemy hurts and deaths, player hurts and deaths, jumping, picking up energy and selecting stuff in the menu (only plays when changing a level in the level selection screen for now)
+- Added Chapter II (Section C)
+- The player can no longer press SPACE or A to jump continously
+- Now the player stays in the level after falling into the void
+- The player is now spawned at the top of the screen after falling into the void
+- Now the player must travel 3 screens downwards before being teleported back up
+- The player collision box has been separated from the sprite
+- The player collision box width is now 4 pixels smaller and 4 pixels shorter
+- Changed the collision handling to be more reliable
+- A lot of unnecessary code has been removed
+- Added a timer of 0.25 seconds on the level selection screen to allow for it to be actually displayed before starting a level
+- Now the player becomes invincible for 0.25 seconds after stomping an enemy
+- Now the possible damage the player can get after stomping an enemy is a quarter of the normal damage dealt (previously was half)
+- Now if the player gets damaged after stomping the enemy they are dealt Pure Damage (previously was Physical Damage)
+- Simplified the player input timer handling
+- Added Nintendo Switch Pro mappings (accessible by changing the same attribute used to set the mappings to DualShock 4 to 'switch_pro')
+- Switched from a method-passing approach to a class-passing approach in the linking logic between parent and child classes in 'game.py'
+- Added a new build ID for identifying builds made the same day
+- Removed 'from data import *' in 'main.py'
+- Suppressed some star-imports recommendations from LGTM
+### Bugfixes:
+- The game no longer crashes after plugging in a controller
+
 Release 0.08a - The Energy Update
 =================================
 Build 605

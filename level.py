@@ -13,27 +13,21 @@ from data import levels
 
 class Level:
     """The level builder class."""
-    def __init__(self, current_level, current_subpart, current_part, display_surface, create_world, first_level, end_level, controller, update_health, update_energy, reset_energy_overflow):
+    def __init__(self, display_surface, current_level, current_subpart, current_part, parent):
         """Setup the builder, the level layout, the player and the background.
 
         Arguments:
-        current_level -- the selected level
-        current_subpart -- the subpart the level is in
-        current_part -- the part the level is in
+        current_level -- the currently selected level
+        current_subpart -- the currently selected subpart
+        current_part -- the currently selected part
         display_surface -- the screen
-        create_world -- the method for building the world
-        first_level -- the lowest level the player can select
-        end_level -- the highest level the player can select
-        controller -- the controller class
-        update_health -- the method for updating the player health
-        update_energy -- the method for updating the player energy
-        reset_energy_overflow -- the method for resetting the player energy overflow
+        parent -- the parent class
         """
         # Basic setup
         self.display_surface = display_surface
-        self.controller = controller
+        self.parent = parent
+        self.controller = self.parent.controller
         self.shift = 0
-        self.current_x = None
 
         # Loading screen
         self.display_surface.fill('black')
@@ -41,16 +35,23 @@ class Level:
         self.display_surface.blit(loading_screen, (64, 64))
         pygame.display.flip()
 
+        # SFX
+        self.energy_pickup_sfx = pygame.mixer.Sound('./assets/audio/sfx/energy_pickup.wav')
+        self.energy_pickup_sfx.set_volume(0.5)
+        self.enemy_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_death.wav')
+        self.player_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_death.wav')
+
         # World setup
-        self.create_world = create_world
-        self.first_level = first_level
-        self.end_level = end_level
+        self.create_world = self.parent.create_world
+        self.first_level = self.parent.first_level
+        self.end_level = self.parent.end_level
         self.current_level = current_level
         self.current_subpart = current_subpart
         self.current_part = current_part
         level_data = levels[self.current_part][self.current_subpart][self.current_level]
         self.level_unlocked = level_data['unlock']
         self.level_completed = False
+        self.level_completed_music_started = False
 
         # Level barriers
         barrier_layout = import_csv_layout(level_data['barriers'])
@@ -60,7 +61,7 @@ class Level:
         player_layout = import_csv_layout(level_data['setup'])
         self.player = pygame.sprite.GroupSingle()
         self.player_end = pygame.sprite.GroupSingle()
-        self.setup_player(player_layout, update_health)
+        self.setup_player(player_layout, self.parent.update_health)
         # Player particles
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.player_on_ground = False
@@ -68,8 +69,8 @@ class Level:
         self.enemy_death_sprites = pygame.sprite.Group()
 
         # UI
-        self.update_energy = update_energy
-        self.reset_energy_overflow = reset_energy_overflow
+        self.update_energy = self.parent.update_energy
+        self.reset_energy_overflow = self.parent.reset_energy_overflow
 
         # Terrain setup
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -113,6 +114,11 @@ class Level:
         self.water = Water(screen_height - 52, level_width, level_data['enable_water'])
         self.clouds = Clouds(320, level_width, random.randint(0, 32))
         self.mountains = Mountains(192, level_width, level_data['enable_mountains'])
+
+        # Music
+        pygame.mixer.music.load(level_data['music'])
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1, fade_ms=2000)
 
     def setup_player(self, layout, update_health):
         """Place the player and the end-level cross based upon their position
@@ -200,17 +206,14 @@ class Level:
                         sprite = Tree(tile_size, x, y, './assets/level/ground/tree.png', random.randrange(160, 192, 8))
 
                     if type == 'energy':
-                        if self.current_level >= self.end_level:
-                            if col == '0':
-                                sprite = Energy(tile_size, x, y, './assets/level/energy/blue', 2)
-                            elif col == '1':
-                                sprite = Energy(tile_size, x, y, './assets/level/energy/red', 5)
-                            elif col == '2':
-                                sprite = Energy(tile_size, x, y, './assets/level/energy/yellow', 10)
-                            elif col == '3':
-                                sprite = Energy(tile_size, x, y, './assets/level/energy/green', 20)
-                        else:
-                            sprite = Tile(tile_size, x, y)
+                        if col == '0':
+                            sprite = Energy(tile_size, x, y, './assets/level/energy/blue', 2)
+                        elif col == '1':
+                            sprite = Energy(tile_size, x, y, './assets/level/energy/red', 5)
+                        elif col == '2':
+                            sprite = Energy(tile_size, x, y, './assets/level/energy/yellow', 10)
+                        elif col == '3':
+                            sprite = Energy(tile_size, x, y, './assets/level/energy/green', 20)
 
                     if type == 'enemies':
                         if col == '1':
@@ -231,27 +234,18 @@ class Level:
     def x_mov_coll(self):
         """Check the player horizontal movement collision and set the correct flags."""
         player = self.player.sprite
-        player.rect.x += player.direction.x * player.speed
+        player.collision_rect.x += player.direction.x * player.speed
         # collidables = self.terrain_sprites.sprites() + self.whatever.sprites()
         # for sprite in collidables: collision code
         collidables = self.terrain_sprites.sprites() + self.barrier_sprites.sprites()
         for sprite in collidables:
-            if sprite.rect.colliderect(player.rect):
+            if sprite.rect.colliderect(player.collision_rect):
                 if player.direction.x < 0:
-                    player.rect.left = sprite.rect.right
+                    player.collision_rect.left = sprite.rect.right
                     player.on_left_wall = True
-                    self.current_x = player.rect.left
                 elif player.direction.x > 0:
-                    player.rect.right = sprite.rect.left
+                    player.collision_rect.right = sprite.rect.left
                     player.on_right_wall = True
-                    self.current_x = player.rect.right
-
-        # Checks if the player is touching a wall on the left
-        if player.on_left_wall and (player.rect.left < self.current_x or player.direction.x >= 0):
-            player.on_left_wall = False
-        # Checks if the player is touching a wall on the right
-        if player.on_right_wall and (player.rect.right > self.current_x or player.direction.x <= 0):
-            player.on_right_wall = False
 
     def y_mov_coll(self):
         """Check the player vertical movement collision and set the correct flags."""
@@ -260,23 +254,19 @@ class Level:
         # See above for multiple collidable sprites
         collidables = self.terrain_sprites.sprites() + self.barrier_sprites.sprites()
         for sprite in collidables:
-            if sprite.rect.colliderect(player.rect):
+            if sprite.rect.colliderect(player.collision_rect):
                 if player.direction.y > 0:
-                    player.rect.bottom = sprite.rect.top
+                    player.collision_rect.bottom = sprite.rect.top
                     player.direction.y = 0
                     player.on_ground = True
                     player.jumping = False
                 elif player.direction.y < 0:
-                    player.rect.top = sprite.rect.bottom
+                    player.collision_rect.top = sprite.rect.bottom
                     player.direction.y = 0
-                    player.on_ceiling = True
 
         # Checks if the player is jumping
         if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
             player.on_ground = False
-        # Checks if the player is falling
-        if player.on_ceiling and player.direction.y > 0 or (player.on_ceiling and player.on_ground and player.direction.x != 0):
-            player.on_ceiling = False
 
     def scroll_x(self, speed):
         """Scroll the camera horizontally.
@@ -317,6 +307,7 @@ class Level:
         """Check if the player collides with the energy and collect it."""
         energy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.energy_sprites, True)
         if energy_collisions:
+            self.energy_pickup_sfx.play()
             for energy in energy_collisions:
                 self.increase_energy(energy.value)
 
@@ -332,8 +323,12 @@ class Level:
                     if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y > 1:
                         self.player.sprite.direction.y = int(self.player.sprite.jump_height / 2)
                         enemy.health -= 1
+                        self.player.sprite.enemy_hurt_sfx.play()
+                        self.player.sprite.invincibility_ticks = 250
+                        self.player.sprite.invincible = True
+                        self.player.sprite.hurt_time = pygame.time.get_ticks()
                         if random.randint(1, 4) == 1:
-                            self.player.sprite.get_damage(int(enemy.damage / 2), 'physical')
+                            self.player.sprite.get_damage(int(enemy.damage / 4), 'pure')
                     else:
                         self.player.sprite.get_damage(enemy.damage, 'physical')
 
@@ -345,14 +340,19 @@ class Level:
                     death_particle = Particle(enemy.rect.center, 'enemy_death')
                     self.enemy_death_sprites.add(death_particle)
                     enemy.kill()
+                    self.player.sprite.enemy_hurt_sfx.stop()
+                    self.enemy_death_sfx.play()
 
     def check_fall_death(self):
         """Check if the player is dead by a fall accident."""
-        if self.player.sprite.rect.top > 2 * screen_height:
+        if self.player.sprite.collision_rect.top > 4 * screen_height:
             self.player.sprite.get_damage(5, 'pure')
             self.decrease_energy(random.randint(1, 25))
             self.reset_energy_overflow()
-            self.create_world(self.first_level, self.current_level, self.current_level, self.current_subpart, self.current_part)  # self.create_world(current_level, level_unlocked)
+            self.player_death_sfx.play()
+            self.player.sprite.collision_rect.top = -2 * tile_size
+            self.player.sprite.gravity = 1
+            self.player.sprite.direction.y = 0
 
     def check_success(self):
         """Check if the player completed the level and put them back to the level selection screen."""
@@ -365,6 +365,12 @@ class Level:
     def run_end_level_sequence(self):
         """Run the end level sequence."""
         now = pygame.time.get_ticks()
+        if not self.level_completed_music_started:
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load('./assets/audio/level_completed.ogg')
+            pygame.mixer.music.set_volume(1)
+            pygame.mixer.music.play()
+            self.level_completed_music_started = True
         if now - self.player_end.sprite.ticks >= 1000:
             if self.current_level >= self.end_level:
                 self.player.sprite.heal(10)
@@ -410,8 +416,8 @@ class Level:
         self.tree_sprites.update(self.shift)
         self.tree_sprites.draw(self.display_surface)
         # Energy
+        self.energy_sprites.update(self.shift)
         if self.current_level >= self.end_level:
-            self.energy_sprites.update(self.shift)
             self.energy_sprites.draw(self.display_surface)
             self.check_energy_collisions()
         # Enemies
@@ -428,9 +434,6 @@ class Level:
         self.player_end.update(self.shift)
         self.player_end.draw(self.display_surface)
         # Player
-        if self.player.sprite.gen_time == 0:
-            self.player.sprite.gen_time = pygame.time.get_ticks()
-        self.player.sprite.now = pygame.time.get_ticks()
         self.player.update()
         self.x_mov_coll()
         self.get_player_on_ground()

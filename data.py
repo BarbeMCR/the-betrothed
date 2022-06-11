@@ -7,6 +7,7 @@ chapter_1a = {
     'enable_water': True,
     'enable_mountains': True,
     'horizon': 7,
+    'music': './assets/audio/chapter1-2.ogg',
     'background': './leveldata/empty72.csv',
     'barriers': './leveldata/chapter1a/chapter1a_barriers.csv',
     'borders': './leveldata/chapter1a/chapter1a_borders.csv',
@@ -28,6 +29,7 @@ chapter_1b = {
     'enable_water': True,
     'enable_mountains': True,
     'horizon': 6,
+    'music': './assets/audio/chapter1-2.ogg',
     'background': './leveldata/empty144.csv',
     'barriers': './leveldata/chapter1b/chapter1b_barriers.csv',
     'borders': './leveldata/chapter1b/chapter1b_borders.csv',
@@ -49,6 +51,7 @@ chapter_2a = {
     'enable_water': False,
     'enable_mountains': True,
     'horizon': 7,
+    'music': './assets/audio/chapter1-2.ogg',
     'background': './leveldata/chapter2a/chapter2a_background.csv',
     'barriers': './leveldata/chapter2a/chapter2a_barriers.csv',
     'borders': './leveldata/chapter2a/chapter2a_borders.csv',
@@ -66,10 +69,11 @@ chapter_2a = {
 chapter_2b = {
     'node_pos': (1110, 400),
     'node_graphics': './assets/world/chapter2b.png',
-    'unlock': 3,
+    'unlock': 4,
     'enable_water': False,
     'enable_mountains': True,
     'horizon': 8,
+    'music': './assets/audio/chapter1-2.ogg',
     'background': './leveldata/chapter2b/chapter2b_background.csv',
     'barriers': './leveldata/chapter2b/chapter2b_barriers.csv',
     'borders': './leveldata/chapter2b/chapter2b_borders.csv',
@@ -84,14 +88,36 @@ chapter_2b = {
     'terrain': './leveldata/chapter2b/chapter2b_terrain.csv',
     'trees': './leveldata/chapter2b/chapter2b_trees.csv'
 }
-
+chapter_2c = {
+    'node_pos': (860, 400),
+    'node_graphics': './assets/world/chapter2c.png',
+    'unlock': 4,
+    'enable_water': False,
+    'enable_mountains': True,
+    'horizon': 7,
+    'music': './assets/audio/chapter1-2.ogg',
+    'background': './leveldata/chapter2c/chapter2c_background.csv',
+    'barriers': './leveldata/chapter2c/chapter2c_barriers.csv',
+    'borders': './leveldata/chapter2c/chapter2c_borders.csv',
+    'buildings': './leveldata/chapter2c/chapter2c_buildings.csv',
+    'decoration': './leveldata/chapter2c/chapter2c_decoration.csv',
+    'enemies': './leveldata/chapter2c/chapter2c_enemies.csv',
+    'energy': './leveldata/chapter2c/chapter2c_energy.csv',
+    'grass': './leveldata/chapter2c/chapter2c_grass.csv',
+    'roofs': './leveldata/chapter2c/chapter2c_roofs.csv',
+    'roots': './leveldata/chapter2c/chapter2c_roots.csv',
+    'setup': './leveldata/chapter2c/chapter2c_setup.csv',
+    'terrain': './leveldata/chapter2c/chapter2c_terrain.csv',
+    'trees': './leveldata/chapter2c/chapter2c_trees.csv'
+}
 levels = {
     0: {
         0: {
             0: chapter_1a,
             1: chapter_1b,
             2: chapter_2a,
-            3: chapter_2b
+            3: chapter_2b,
+            4: chapter_2c
         },
         'background': './assets/world/part1.png'
     }

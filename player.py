@@ -26,7 +26,15 @@ class Player(pygame.sprite.Sprite):
         self.animation_speed = 0.15
         self.image = self.player_assets['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
-        self.gen_time, self.now = 0, 0  # Dummy values are set for this timer stuff
+        self.collision_rect = pygame.Rect((self.rect.top - 2, self.rect.left - 2), (self.rect.width - 2, self.rect.height - 2))
+        self.now = 0  # This is a dummy value
+        self.gen_time = pygame.time.get_ticks()
+
+        # SFX
+        self.jump_sfx = pygame.mixer.Sound('./assets/audio/sfx/jump.wav')
+        self.jump_sfx.set_volume(0.25)
+        self.player_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_hurt.wav')
+        self.enemy_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_hurt.wav')
 
         # Player movement
         self.direction = pygame.math.Vector2(0, 0)
@@ -47,13 +55,14 @@ class Player(pygame.sprite.Sprite):
         self.status = 'idle'
         self.facing_right = True
         self.on_ground = False
-        self.on_ceiling = False
-        self.on_left_wall = False
-        self.on_right_wall = False
         self.jumping = False
         self.invincible = False
         self.invincibility_ticks = 1000
         self.hurt_time = 0  # This is a timestamp, like self.gen_time
+
+        # Input initialization
+        self.keydown_space = False
+        self.buttondown_a = False
 
     def import_player_assets(self):
         """Place all the player assets in an easily accessible dictionary."""
@@ -78,9 +87,11 @@ class Player(pygame.sprite.Sprite):
         image = animation[int(self.frame_index)]
         if self.facing_right:
             self.image = image
+            self.rect.bottomleft = self.collision_rect.bottomleft
         else:
             flipped_image = pygame.transform.flip(image, True, False)  # flip(image, X-axis, Y-axis)
             self.image = flipped_image
+            self.rect.bottomright = self.collision_rect.bottomright
 
         # Sprite flickering
         alpha = self.create_sin_wave()
@@ -89,21 +100,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.image.set_alpha(255)
 
-        # Rect setup
-        if self.on_ground and self.on_right_wall:
-            self.rect = self.image.get_rect(bottomright = self.rect.bottomright)
-        elif self.on_ground and self.on_left_wall:
-            self.rect = self.image.get_rect(bottomleft = self.rect.bottomleft)
-        elif self.on_ground:
-            self.rect = self.image.get_rect(midbottom = self.rect.midbottom)
-        elif self.on_ceiling and self.on_right_wall:
-            self.rect = self.image.get_rect(topright = self.rect.topright)
-        elif self.on_ceiling and self.on_left_wall:
-            self.rect = self.image.get_rect(topleft = self.rect.topleft)
-        elif self.on_ceiling:
-            self.rect = self.image.get_rect(midtop = self.rect.midtop)
-        else:  # Fallback for rect setup
-            self.rect = self.image.get_rect(center = self.rect.center)
+        self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
 
     def animate_run_particles(self):
         """Animate the run particles if the player is on the ground."""
@@ -124,6 +121,13 @@ class Player(pygame.sprite.Sprite):
 
     def get_input(self):
         """Get the input from the devices and do the correct actions."""
+        # To avoid using pygame.KEYDOWN events whilst keeping the same behavior:
+        # if keys[key] and not keydown_key:
+        #     ...
+        #     keydown_key = True
+        # if not keys[key]:
+        #     keydown_key = False
+        # where keydown_key is initialized as False
         gamepad = controllers[self.gamepad]  # controllers is a value defined in settings
         controller_left = False
         controller_right = False
@@ -150,23 +154,20 @@ class Player(pygame.sprite.Sprite):
             self.facing_right = True
         else:
             self.direction.x = 0
-        # To avoid pygame.KEYDOWN events while having the same behavior:
-        # if keys[key] and not keydown_key:
-        #     ...
-        #     keydown_key = True
-        # if not keys[key]:
-        #     keydown_key = False
-        # where keydown_key is initialized as False
-        if (keys[pygame.K_SPACE] or controller_a) and self.on_ground and not self.on_ceiling:
-            if not self.jumping:
-                self.jump()
-                self.create_jump_particles(self.rect.midbottom)
+        if (keys[pygame.K_SPACE] or controller_a) and not (self.keydown_space or self.buttondown_a) and self.on_ground and not self.jumping:
+            self.jump()
+            self.create_jump_particles(self.rect.midbottom)
+            self.keydown_space = True
+            self.buttondown_a = True
+
+        if not keys[pygame.K_SPACE]: self.keydown_space = False
+        if not controller_a: self.buttondown_a = False
 
     def get_status(self):
         """Check the current player status and update it."""
         if self.direction.y < 0 and not self.on_ground:
             self.status = 'jump'
-        elif self.direction.y > 1 and not self.on_ceiling:
+        elif self.direction.y > 1:
             self.status = 'fall'
         else:
             if self.direction.x != 0:
@@ -177,16 +178,16 @@ class Player(pygame.sprite.Sprite):
     def jump(self):
         """Make the player jump."""
         self.direction.y = self.jump_height
-        self.on_ceiling = False
         self.jumping = True
+        self.jump_sfx.play()
 
     def apply_gravity(self):
         """Apply gravity to the player."""
         self.direction.y += self.gravity
-        self.rect.y += self.direction.y
+        self.collision_rect.y += self.direction.y
 
     def get_damage(self, damage, type):
-        """Deal damage to the player.
+        """Deal damage to the player and play the hurt SFX.
 
         Arguments:
         damage -- the amount of damage to deal
@@ -197,8 +198,12 @@ class Player(pygame.sprite.Sprite):
                 self.update_health(damage, True)
                 self.invincible = True
                 self.hurt_time = pygame.time.get_ticks()
+                self.player_hurt_sfx.play()
         elif type == 'pure':
             self.update_health(damage, True)
+
+        if not type == 'physical':
+            self.player_hurt_sfx.play()
 
     def heal(self, healing):
         """Heal the player.
@@ -213,6 +218,7 @@ class Player(pygame.sprite.Sprite):
         if self.invincible:
             if self.now - self.hurt_time >= self.invincibility_ticks:
                 self.invincible = False
+                self.invincibility_ticks = 1000
 
     def create_sin_wave(self):
         """Create a sin wave for sprite flickering and return an alpha value of either full or no transparency."""
@@ -224,6 +230,7 @@ class Player(pygame.sprite.Sprite):
 
     def update(self):
         """Update the player."""
+        self.now = pygame.time.get_ticks()
         if self.now - self.gen_time >= 100:
             self.get_input()
         self.get_status()
