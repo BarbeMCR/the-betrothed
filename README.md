@@ -48,6 +48,7 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | A     | Walk left |
 | D     | Walk right |
 | Space | Jump |
+| J     | Melee attack |
 | F11 | Toggle fullscreen |
 
 *__Xbox 360 / Xbox One / Xbox Series X|S Controller__*
@@ -56,6 +57,7 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | D-Pad Left | Walk left |
 | D-Pad Right | Walk right |
 | A     | Jump |
+| B     | Melee attack |
 
 *__DualShock 4__*
 | Input | Action |
@@ -63,6 +65,7 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | Left  | Walk left |
 | Right | Walk right |
 | Cross | Jump |
+| Circle | Melee attack |
 
 *__Nintendo Switch Pro Controller__*
 | Input | Action |
@@ -70,6 +73,7 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | Left  | Walk left |
 | Right | Walk right |
 | A     | Jump |
+| B     | Melee attack |
 
 ### In the level selection screen
 
