@@ -79,7 +79,7 @@ class World:
         self.gen_time = pygame.time.get_ticks()
 
         # SFX
-        self.menu_sfx = pygame.mixer.Sound('./assets/audio/sfx/menu_select.wav')
+        self.menu_sfx = pygame.mixer.Sound('./assets/audio/sfx/menu_select.ogg')
 
         # Movement logic
         self.movement_direction = pygame.math.Vector2(0, 0)

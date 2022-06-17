@@ -24,19 +24,19 @@ from game import Game
 
 def main():
     # Build identification
-    version = "0.09a"
-    build = 611
-    build_id = 1
+    version = "0.10"
+    build = 617  # lgtm [py/unused-local-variable]
+    build_id = 0  # lgtm [py/unused-local-variable]
     stable = True
 
     # Pygame initialization
     # The comments below the if-elif-else statements are used to suppress LGTM warnings about build identification
     pygame.init()
-    if stable:
+    if stable:  # lgtm [py/unreachable-statement]
         pygame.display.set_caption(f"The Betrothed {version}")  # lgtm [py/unreachable-statement]
-    elif build_id == 0:
+    elif build_id == 0:  # lgtm [py/unreachable-statement]
         pygame.display.set_caption(f"The Betrothed {version} - Build {build}")  # lgtm [py/unreachable-statement]
-    else:
+    else:  # lgtm [py/unreachable-statement]
         pygame.display.set_caption(f"The Betrothed {version} - Build {build}.{build_id}")  # lgtm [py/unreachable-statement]
     if sys.platform.startswith('win32'):
         ctypes.windll.user32.SetProcessDPIAware()  # This makes the window the correct resolution

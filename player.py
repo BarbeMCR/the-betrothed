@@ -7,7 +7,7 @@ from misc import import_folder
 
 class Player(pygame.sprite.Sprite):
     """This class defines the player."""
-    def __init__(self, pos, display_surface, create_jump_particles, controller, update_health):
+    def __init__(self, pos, display_surface, create_jump_particles, controller, parent):
         """Setup the player sprite, movement, particles, status and flags.
 
         Arguments:
@@ -15,26 +15,33 @@ class Player(pygame.sprite.Sprite):
         display_surface -- the screen
         create_jump_particles -- the method for creating the jump particles
         controller -- the controller class
-        update_health -- the method for updating the health
+        parent -- the parent class
         """
         super().__init__()
         self.display_surface = display_surface
+        self.parent = parent
+        self.game = self.parent.parent
         self.controllers = controller.controllers
         self.gamepad = 'xbox_one'
+        self.base_path = './assets/player/'
+        self.character = 'renzo'
         self.import_player_assets()
         self.frame_index = 0
         self.animation_speed = 0.15
         self.image = self.player_assets['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
         self.collision_rect = pygame.Rect((self.rect.top - 2, self.rect.left - 2), (self.rect.width - 2, self.rect.height - 2))
+        self.melee_weapon_rect = pygame.Rect(self.rect.topright, (0, 0))
         self.now = 0  # This is a dummy value
         self.gen_time = pygame.time.get_ticks()
 
         # SFX
-        self.jump_sfx = pygame.mixer.Sound('./assets/audio/sfx/jump.wav')
+        self.jump_sfx = pygame.mixer.Sound('./assets/audio/sfx/jump.ogg')
         self.jump_sfx.set_volume(0.25)
-        self.player_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_hurt.wav')
-        self.enemy_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_hurt.wav')
+        self.melee_attack_sfx = pygame.mixer.Sound('./assets/audio/sfx/attack_melee.ogg')
+        self.melee_attack_sfx.set_volume(0.5)
+        self.player_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_hurt.ogg')
+        self.enemy_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_hurt.ogg')
 
         # Player movement
         self.direction = pygame.math.Vector2(0, 0)
@@ -43,7 +50,7 @@ class Player(pygame.sprite.Sprite):
         self.jump_height = -22
 
         # Methods
-        self.update_health = update_health
+        self.update_health = self.game.update_health
 
         # Dust particles
         self.import_run_particles()
@@ -59,17 +66,20 @@ class Player(pygame.sprite.Sprite):
         self.invincible = False
         self.invincibility_ticks = 1000
         self.hurt_time = 0  # This is a timestamp, like self.gen_time
+        self.melee_attacking = False
+        self.melee_attack_time = 0
 
         # Input initialization
         self.keydown_space = False
+        self.keydown_j = False
         self.buttondown_a = False
+        self.buttondown_b = False
 
     def import_player_assets(self):
         """Place all the player assets in an easily accessible dictionary."""
-        player_path = './assets/player/'
         self.player_assets = {'run':  [], 'idle': [], 'jump': [], 'fall': []}
         for animation in self.player_assets.keys():
-            full_path = player_path + animation
+            full_path = self.base_path + self.character + '/' + animation
             self.player_assets[animation] = import_folder(full_path)
 
     def import_run_particles(self):
@@ -78,7 +88,13 @@ class Player(pygame.sprite.Sprite):
 
     def animate(self):
         """Animate the player and setup the player rect correctly."""
-        animation = self.player_assets[self.status]
+        if self.melee_attacking:
+            animation = import_folder(self.base_path + self.character + '/attack/melee' + self.game.selection['melee'].animation)
+            self.animation_speed = self.game.selection['melee'].animation_speed
+            self.frame_index = 0
+        else:
+            animation = self.player_assets[self.status]
+            self.animation_speed = 0.15
         # Frame index loop
         self.frame_index += self.animation_speed
         if self.frame_index >= len(animation):
@@ -88,10 +104,12 @@ class Player(pygame.sprite.Sprite):
         if self.facing_right:
             self.image = image
             self.rect.bottomleft = self.collision_rect.bottomleft
+            self.melee_weapon_rect.topleft = (self.rect.right, self.rect.top + self.game.selection['melee'].offset)
         else:
             flipped_image = pygame.transform.flip(image, True, False)  # flip(image, X-axis, Y-axis)
             self.image = flipped_image
             self.rect.bottomright = self.collision_rect.bottomright
+            self.melee_weapon_rect.topright = (self.rect.left, self.rect.top + self.game.selection['melee'].offset)
 
         # Sprite flickering
         alpha = self.create_sin_wave()
@@ -132,6 +150,7 @@ class Player(pygame.sprite.Sprite):
         controller_left = False
         controller_right = False
         controller_a = False
+        controller_b = False
         for controller in self.controllers.values():
             if self.gamepad == 'ps4' or self.gamepad == 'switch_pro':
                 if controller.get_button(gamepad['buttons']['LEFT']):
@@ -145,13 +164,18 @@ class Player(pygame.sprite.Sprite):
                     controller_right = True
             if controller.get_button(gamepad['buttons']['A']):
                 controller_a = True
+            if controller.get_button(gamepad['buttons']['B']):
+                controller_b = True
         keys = pygame.key.get_pressed()
+        #mod_keys = pygame.key.get_mods()
         if (keys[pygame.K_a] or controller_left):
             self.direction.x = -1  # Left movement
             self.facing_right = False
+            #if mod_keys & pygame.KMOD_ALT
         elif (keys[pygame.K_d] or controller_right):
             self.direction.x = 1  # Right movement
             self.facing_right = True
+            #if mod_keys & pygame.KMOD_ALT
         else:
             self.direction.x = 0
         if (keys[pygame.K_SPACE] or controller_a) and not (self.keydown_space or self.buttondown_a) and self.on_ground and not self.jumping:
@@ -159,9 +183,19 @@ class Player(pygame.sprite.Sprite):
             self.create_jump_particles(self.rect.midbottom)
             self.keydown_space = True
             self.buttondown_a = True
+        if (keys[pygame.K_j] or controller_b) and not (self.keydown_j or self.buttondown_b):
+            if self.now - self.melee_attack_time >= self.game.selection['melee'].cooldown:
+                self.melee_attacking = True
+                self.melee_attack_time = pygame.time.get_ticks()
+                self.melee_attack_sfx.play()
+                self.update_melee_weapon_rect(False)
+            self.keydown_j = True
+            self.buttondown_b = True
 
         if not keys[pygame.K_SPACE]: self.keydown_space = False
+        if not keys[pygame.K_j]: self.keydown_j = False
         if not controller_a: self.buttondown_a = False
+        if not controller_b: self.buttondown_b = False
 
     def get_status(self):
         """Check the current player status and update it."""
@@ -186,7 +220,7 @@ class Player(pygame.sprite.Sprite):
         self.direction.y += self.gravity
         self.collision_rect.y += self.direction.y
 
-    def get_damage(self, damage, type):
+    def take_damage(self, damage, type):
         """Deal damage to the player and play the hurt SFX.
 
         Arguments:
@@ -228,6 +262,17 @@ class Player(pygame.sprite.Sprite):
         else:
             return 0
 
+    def update_melee_weapon_rect(self, reset):
+        """Change the melee weapon rectangle.
+
+        Arguments:
+        reset -- if this flag is set to True, the rectangle will be reset
+        """
+        if not reset:
+            self.melee_weapon_rect.size = (self.game.selection['melee'].range, self.game.selection['melee'].height)
+        else:
+            self.melee_weapon_rect.size = (0, 0)
+
     def update(self):
         """Update the player."""
         self.now = pygame.time.get_ticks()
@@ -238,3 +283,8 @@ class Player(pygame.sprite.Sprite):
         self.animate_run_particles()
         self.tick_invincibility_timer()
         self.create_sin_wave()
+        if self.melee_attacking:
+            self.direction.x = 0
+        if self.now - self.melee_attack_time >= self.game.selection['melee'].cooldown:
+            self.melee_attacking = False
+            self.update_melee_weapon_rect(True)

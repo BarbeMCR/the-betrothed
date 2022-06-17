@@ -36,10 +36,10 @@ class Level:
         pygame.display.flip()
 
         # SFX
-        self.energy_pickup_sfx = pygame.mixer.Sound('./assets/audio/sfx/energy_pickup.wav')
+        self.energy_pickup_sfx = pygame.mixer.Sound('./assets/audio/sfx/energy_pickup.ogg')
         self.energy_pickup_sfx.set_volume(0.5)
-        self.enemy_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_death.wav')
-        self.player_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_death.wav')
+        self.enemy_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_death.ogg')
+        self.player_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_death.ogg')
 
         # World setup
         self.create_world = self.parent.create_world
@@ -61,7 +61,7 @@ class Level:
         player_layout = import_csv_layout(level_data['setup'])
         self.player = pygame.sprite.GroupSingle()
         self.player_end = pygame.sprite.GroupSingle()
-        self.setup_player(player_layout, self.parent.update_health)
+        self.setup_player(player_layout, self)
         # Player particles
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.player_on_ground = False
@@ -102,8 +102,7 @@ class Level:
 
         # Enemies
         enemy_layout = import_csv_layout(level_data['enemies'])
-        self.skeleton_sprites = self.create_tile_group(enemy_layout, 'enemies')
-        self.enemy_sprites = [self.skeleton_sprites]  # [self.skeleton_sprites, self.<enemy>_sprites]
+        self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemies')
         # Enemy borders
         border_layout = import_csv_layout(level_data['borders'])
         self.border_sprites = self.create_tile_group(border_layout, 'borders')
@@ -120,19 +119,19 @@ class Level:
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1, fade_ms=2000)
 
-    def setup_player(self, layout, update_health):
+    def setup_player(self, layout, parent):
         """Place the player and the end-level cross based upon their position
 
         Arguments:
         layout -- the level layout to use
-        update_health -- the method for updating the player health
+        parent -- the parent class
         """
         for row_index, row in enumerate(layout):
             for col_index, col in enumerate(row):
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if col == '0':
-                    sprite = Player((x, y), self.display_surface, self.create_jump_particles, self.controller, update_health)
+                    sprite = Player((x, y), self.display_surface, self.create_jump_particles, self.controller, parent)
                     self.player.add(sprite)
                 if col == '1':
                     cross_surface = pygame.image.load('./assets/level/ground/cross.png')
@@ -226,10 +225,9 @@ class Level:
 
     def apply_enemy_border_collision(self):
         """Reverse the enemies if they run into a border tile."""
-        for group in self.enemy_sprites:
-            for enemy in group.sprites():
-                if pygame.sprite.spritecollide(enemy, self.border_sprites, False):
-                    enemy.reverse()
+        for enemy in self.enemy_sprites.sprites():
+            if pygame.sprite.spritecollide(enemy, self.border_sprites, False):
+                enemy.reverse()
 
     def x_mov_coll(self):
         """Check the player horizontal movement collision and set the correct flags."""
@@ -277,10 +275,10 @@ class Level:
         player = self.player.sprite
         player_x = player.rect.centerx
         direction_x = player.direction.x
-        if player_x < screen_width / 4 and direction_x < 0:
+        if player_x < screen_width / 3 and direction_x < 0:
             self.shift = speed
             player.speed = 0
-        elif player_x > screen_width - (screen_width / 4) and direction_x > 0:
+        elif player_x > screen_width - (screen_width / 3) and direction_x > 0:
             self.shift = -speed
             player.speed = 0
         else:
@@ -313,40 +311,48 @@ class Level:
 
     def check_enemy_collisions(self):
         """Check if the player collides with the enemies and do actions accordingly."""
-        for group in self.enemy_sprites:
-            enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, group, False)
-            if enemy_collisions:
-                for enemy in enemy_collisions:
-                    enemy_center = enemy.rect.centery
-                    enemy_top = enemy.rect.top
-                    player_bottom = self.player.sprite.rect.bottom
-                    if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y > 1:
-                        self.player.sprite.direction.y = int(self.player.sprite.jump_height / 2)
-                        enemy.health -= 1
-                        self.player.sprite.enemy_hurt_sfx.play()
-                        self.player.sprite.invincibility_ticks = 250
-                        self.player.sprite.invincible = True
-                        self.player.sprite.hurt_time = pygame.time.get_ticks()
-                        if random.randint(1, 4) == 1:
-                            self.player.sprite.get_damage(int(enemy.damage / 4), 'pure')
-                    else:
-                        self.player.sprite.get_damage(enemy.damage, 'physical')
+        enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.enemy_sprites, False)
+        if enemy_collisions:
+            for enemy in enemy_collisions:
+                enemy_center = enemy.rect.centery
+                enemy_top = enemy.rect.top
+                player_bottom = self.player.sprite.rect.bottom
+                if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y > 1:
+                    self.player.sprite.direction.y = int(self.player.sprite.jump_height / 2)
+                    enemy.health -= 1
+                    self.player.sprite.enemy_hurt_sfx.play()
+                    self.player.sprite.invincibility_ticks = 250
+                    self.player.sprite.invincible = True
+                    self.player.sprite.hurt_time = pygame.time.get_ticks()
+                    if random.randint(1, 4) == 1:
+                        self.player.sprite.take_damage(int(enemy.damage / 4), 'pure')
+                else:
+                    self.player.sprite.take_damage(enemy.damage, 'physical')
+
+    def check_enemy_melee_collisions(self):
+        """Check if the melee weapon collides with the enemies and damage them if so."""
+        for enemy in self.enemy_sprites:
+            if self.player.sprite.melee_weapon_rect.colliderect(enemy.rect):
+                if not enemy.invincible:
+                    enemy.health -= self.parent.selection['melee'].damage
+                    self.player.sprite.enemy_hurt_sfx.play()
+                    enemy.invincible = True
+                    enemy.hurt_time = pygame.time.get_ticks()
 
     def check_enemy_death(self):
         """Check if the enemies should be dead and kill their sprites if that is the case."""
-        for group in self.enemy_sprites:
-            for enemy in group.sprites():
-                if enemy.health <= 0:
-                    death_particle = Particle(enemy.rect.center, 'enemy_death')
-                    self.enemy_death_sprites.add(death_particle)
-                    enemy.kill()
-                    self.player.sprite.enemy_hurt_sfx.stop()
-                    self.enemy_death_sfx.play()
+        for enemy in self.enemy_sprites.sprites():
+            if enemy.health <= 0:
+                death_particle = Particle(enemy.rect.center, 'enemy_death')
+                self.enemy_death_sprites.add(death_particle)
+                enemy.kill()
+                self.player.sprite.enemy_hurt_sfx.stop()
+                self.enemy_death_sfx.play()
 
     def check_fall_death(self):
         """Check if the player is dead by a fall accident."""
         if self.player.sprite.collision_rect.top > 4 * screen_height:
-            self.player.sprite.get_damage(5, 'pure')
+            self.player.sprite.take_damage(5, 'pure')
             self.decrease_energy(random.randint(1, 25))
             self.reset_energy_overflow()
             self.player_death_sfx.play()
@@ -421,12 +427,10 @@ class Level:
             self.energy_sprites.draw(self.display_surface)
             self.check_energy_collisions()
         # Enemies
-        for group in self.enemy_sprites:
-            group.update(self.shift)
+        self.enemy_sprites.update(self.shift)
         self.border_sprites.update(self.shift)
         self.apply_enemy_border_collision()
-        for group in self.enemy_sprites:
-            group.draw(self.display_surface)
+        self.enemy_sprites.draw(self.display_surface)
         self.enemy_death_sprites.update(self.shift)
         self.enemy_death_sprites.draw(self.display_surface)
 
@@ -444,6 +448,7 @@ class Level:
 
         # Enemy routines
         self.check_enemy_collisions()
+        self.check_enemy_melee_collisions()
         self.check_enemy_death()
 
         # Level end

@@ -5,6 +5,26 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.10 - The Melee Update
+===============================
+Build 617
+Python 3.10.5
+Pygame 2.1.2
+*Released on June 17th, 2022*
+### Weapons
+- Added melee attacks
+- The player now stops when melee attacking
+- Added the Iron Knife: a short-ranged melee weapon that deals 1 Physical Damage and stays for 0.4 seconds
+### UI
+- Added the melee weapon overlay: it is displayed in the lower left corner of the screen
+### Player
+- The player can now make melee attacks (see how in the Controls section of the README)
+- Prepared character switching
+- Now the player assets are divided into characters
+- Now the sound assets are compressed with Vorbis (OGG) (previously they were uncompressed WAVs)
+### Camera
+- The camera now starts scrolling when the player is in the farthest thirds of the screen (previously it started when the player was is in the farthest quarters)
+
 Release 0.09a - The Sound Update
 ================================
 Build 611.1

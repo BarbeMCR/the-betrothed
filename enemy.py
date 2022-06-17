@@ -19,6 +19,8 @@ class Enemy(AnimatedTile):
         damage -- the damage the enemy deals
         """
         super().__init__(size, x, y, path)
+        self.invincible = False
+        self.hurt_time = 0
         self.speed = speed
         self.health = health
         self.damage = damage
@@ -36,6 +38,13 @@ class Enemy(AnimatedTile):
         """Invert the enemy speed."""
         self.speed *= -1
 
+    def tick_invincibility_timer(self):
+        """Tick down the invincibility timer."""
+        now = pygame.time.get_ticks()
+        if self.invincible:
+            if now - self.hurt_time >= 500:
+                self.invincible = False
+
     def update(self, shift):
         """Update the enemy tile.
 
@@ -45,6 +54,7 @@ class Enemy(AnimatedTile):
         super().update(shift)
         self.move()
         self.flip()
+        self.tick_invincibility_timer()
 
 class Skeleton(Enemy):
     """This class defines the skeletons."""

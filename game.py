@@ -3,6 +3,7 @@ from world import World
 from level import Level
 from controller import Controller
 from ui import UI
+from melee import *
 
 """This file contains the base game structure needed to switch between the world and the levels, as well as various global methods and attributes."""
 
@@ -34,6 +35,11 @@ class Game:
         self.max_energy = 100
         self.energy_overflow = 0
         self.max_energy_overflow = 25
+
+        # Inventory
+        self.selection = {
+            'melee': IronKnife()
+        }
 
     def create_level(self, current_level, current_subpart, current_part):
         """Build the selected level and update the status.
@@ -134,4 +140,5 @@ class Game:
             self.ui.display_health(self.health, self.max_health)
             self.ui.display_energy(self.energy, self.max_energy)
             self.ui.display_energy_overflow(self.energy_overflow, self.max_energy_overflow)
+            self.ui.display_melee_overlay(self.selection['melee'].icon_path)
             self.check_death()

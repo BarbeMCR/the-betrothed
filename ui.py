@@ -18,6 +18,8 @@ class UI:
         self.energy_rect = self.energy_bar.get_rect(topleft=(16, 80))
         self.energy_overflow_bar = pygame.image.load('./assets/ui/energy_overflow_bar.png').convert_alpha()
         self.energy_overflow_rect = self.energy_overflow_bar.get_rect(topleft=(64, 144))
+        self.melee_overlay = pygame.image.load('./assets/ui/overlay_melee.png').convert_alpha()
+        self.melee_overlay_rect = self.melee_overlay.get_rect(bottomleft=(16, 688))
 
     def display_health(self, health, max_health):
         """Display the health bar and statistics.
@@ -78,3 +80,14 @@ class UI:
         energy_overflow_width = int(energy_overflow_bar_width * energy_overflow_percentage)
         energy_overflow_bar_rect = pygame.Rect((energy_overflow_bar_topleft), (energy_overflow_width, energy_overflow_bar_height))
         pygame.draw.rect(self.display_surface, '#0098db', energy_overflow_bar_rect)
+
+    def display_melee_overlay(self, melee_weapon):
+        """Display the melee weapon overlay.
+
+        Arguments:
+        melee_weapon -- the path to the melee weapon icon
+        """
+        melee_weapon_icon = pygame.image.load(melee_weapon).convert_alpha()
+        melee_weapon_icon_rect = melee_weapon_icon.get_rect(center=self.melee_overlay_rect.center)
+        self.display_surface.blit(self.melee_overlay, self.melee_overlay_rect)
+        self.display_surface.blit(melee_weapon_icon, melee_weapon_icon_rect)
