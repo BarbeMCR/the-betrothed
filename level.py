@@ -7,6 +7,7 @@ from enemy import *  # lgtm [py/polluting-import]
 from bgstuff import *  # lgtm [py/polluting-import]
 from player import Player
 from particles import Particle
+from menu import PauseMenu
 from data import levels
 
 """This file contains the level builder and a few useful functions for various behavior."""
@@ -26,6 +27,7 @@ class Level:
         # Basic setup
         self.display_surface = display_surface
         self.parent = parent
+        self.status = 'level'
         self.controller = self.parent.controller
         self.shift = 0
 
@@ -119,8 +121,57 @@ class Level:
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1, fade_ms=2000)
 
+        # Fade
+        self.fade_surface = pygame.Surface((screen_width, screen_height))
+        self.fade_surface.fill('black')
+        self.fade_surface.set_alpha(255)
+
+    def resume_level(self):
+        """Resume the game."""
+        pygame.mixer.music.unpause()
+        self.player.sprite.game_resumed_sfx.play()
+        self.player.sprite.keydown_space = True
+        self.player.sprite.keydown_j = True
+        self.player.sprite.buttondown_a = True
+        self.player.sprite.buttondown_b = True
+        self.status = 'level'
+        for controller in self.controllers.values():
+            controller.rumble(0, 1, 250)
+
+    def create_pause_menu(self):
+        """Build the pause menu and pause the game."""
+        pygame.mixer.music.pause()
+        self.pause_menu = PauseMenu(self.display_surface, self)
+        self.status = 'pause'
+
+    def fade_in(self, amount):
+        """Fade in the screen.
+
+        Arguments:
+        amount -- the higher the value, the faster the fade in
+        """
+        alpha = self.fade_surface.get_alpha()
+        if alpha > 0:
+            self.display_surface.blit(self.fade_surface, (0, 0))
+            self.fade_surface.set_alpha(alpha - int(amount))
+            if self.fade_surface.get_alpha() < 0:
+                self.fade_surface.set_alpha(0)
+
+    def fade_out(self, amount):
+        """Fade out the screen.
+
+        Arguments:
+        amount -- the higher the value, the faster the fade out
+        """
+        alpha = self.fade_surface.get_alpha()
+        if alpha < 255:
+            self.display_surface.blit(self.fade_surface, (0, 0))
+            self.fade_surface.set_alpha(alpha + int(amount))
+            if self.fade_surface.get_alpha() > 255:
+                self.fade_surface.set_alpha(255)
+
     def setup_player(self, layout, parent):
-        """Place the player and the end-level cross based upon their position
+        """Place the player and the end-level cross based upon their position.
 
         Arguments:
         layout -- the level layout to use
@@ -240,10 +291,8 @@ class Level:
             if sprite.rect.colliderect(player.collision_rect):
                 if player.direction.x < 0:
                     player.collision_rect.left = sprite.rect.right
-                    player.on_left_wall = True
                 elif player.direction.x > 0:
                     player.collision_rect.right = sprite.rect.left
-                    player.on_right_wall = True
 
     def y_mov_coll(self):
         """Check the player vertical movement collision and set the correct flags."""
@@ -383,74 +432,78 @@ class Level:
             self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_subpart, self.current_part)
 
     def run(self):
-        """Run the level, update and draw everything (must be called every frame)."""
-        # Level barriers
-        self.barrier_sprites.update(self.shift)
+        """Run the level and the menus, update and draw everything (must be called every frame)."""
+        if self.status == 'level':
+            # Level barriers
+            self.barrier_sprites.update(self.shift)
 
-        # Background
-        self.sky.draw(self.display_surface)
-        self.mountains.draw(self.display_surface, self.shift / 3)
-        self.water.draw(self.display_surface, self.shift / 3)
-        self.clouds.draw(self.display_surface, self.shift / 3)
+            # Background
+            self.sky.draw(self.display_surface)
+            self.mountains.draw(self.display_surface, self.shift / 3)
+            self.water.draw(self.display_surface, self.shift / 3)
+            self.clouds.draw(self.display_surface, self.shift / 3)
 
-        # Particles
-        self.dust_sprite.update(self.shift)
-        self.dust_sprite.draw(self.display_surface)
+            # Particles
+            self.dust_sprite.update(self.shift)
+            self.dust_sprite.draw(self.display_surface)
 
-        # Terrain
-        self.terrain_sprites.update(self.shift)
-        self.terrain_sprites.draw(self.display_surface)
-        # Background terrain
-        self.background_sprites.update(self.shift)
-        self.background_sprites.draw(self.display_surface)
-        # Buildings
-        self.building_sprites.update(self.shift)
-        self.building_sprites.draw(self.display_surface)
-        # Roofs
-        self.roof_sprites.update(self.shift)
-        self.roof_sprites.draw(self.display_surface)
-        # Decoration
-        self.decoration_sprites.update(self.shift)
-        self.decoration_sprites.draw(self.display_surface)
-        # Roots
-        self.root_sprites.update(self.shift)
-        self.root_sprites.draw(self.display_surface)
-        # Grass
-        self.grass_sprites.update(self.shift)
-        self.grass_sprites.draw(self.display_surface)
-        # Trees
-        self.tree_sprites.update(self.shift)
-        self.tree_sprites.draw(self.display_surface)
-        # Energy
-        self.energy_sprites.update(self.shift)
-        if self.current_level >= self.end_level:
-            self.energy_sprites.draw(self.display_surface)
-            self.check_energy_collisions()
-        # Enemies
-        self.enemy_sprites.update(self.shift)
-        self.border_sprites.update(self.shift)
-        self.apply_enemy_border_collision()
-        self.enemy_sprites.draw(self.display_surface)
-        self.enemy_death_sprites.update(self.shift)
-        self.enemy_death_sprites.draw(self.display_surface)
+            # Terrain
+            self.terrain_sprites.update(self.shift)
+            self.terrain_sprites.draw(self.display_surface)
+            # Background terrain
+            self.background_sprites.update(self.shift)
+            self.background_sprites.draw(self.display_surface)
+            # Buildings
+            self.building_sprites.update(self.shift)
+            self.building_sprites.draw(self.display_surface)
+            # Roofs
+            self.roof_sprites.update(self.shift)
+            self.roof_sprites.draw(self.display_surface)
+            # Decoration
+            self.decoration_sprites.update(self.shift)
+            self.decoration_sprites.draw(self.display_surface)
+            # Roots
+            self.root_sprites.update(self.shift)
+            self.root_sprites.draw(self.display_surface)
+            # Grass
+            self.grass_sprites.update(self.shift)
+            self.grass_sprites.draw(self.display_surface)
+            # Trees
+            self.tree_sprites.update(self.shift)
+            self.tree_sprites.draw(self.display_surface)
+            # Energy
+            self.energy_sprites.update(self.shift)
+            if self.current_level >= self.end_level:
+                self.energy_sprites.draw(self.display_surface)
+                self.check_energy_collisions()
+            # Enemies
+            self.enemy_sprites.update(self.shift)
+            self.border_sprites.update(self.shift)
+            self.apply_enemy_border_collision()
+            self.enemy_sprites.draw(self.display_surface)
+            self.enemy_death_sprites.update(self.shift)
+            self.enemy_death_sprites.draw(self.display_surface)
 
-        # End tile
-        self.player_end.update(self.shift)
-        self.player_end.draw(self.display_surface)
-        # Player
-        self.player.update()
-        self.x_mov_coll()
-        self.get_player_on_ground()
-        self.y_mov_coll()
-        self.create_fall_particle()
-        self.scroll_x(6)
-        self.player.draw(self.display_surface)
+            # End tile
+            self.player_end.update(self.shift)
+            self.player_end.draw(self.display_surface)
+            # Player
+            self.player.update()
+            self.x_mov_coll()
+            self.get_player_on_ground()
+            self.y_mov_coll()
+            self.create_fall_particle()
+            self.scroll_x(6)
+            self.player.draw(self.display_surface)
 
-        # Enemy routines
-        self.check_enemy_collisions()
-        self.check_enemy_melee_collisions()
-        self.check_enemy_death()
+            # Enemy routines
+            self.check_enemy_collisions()
+            self.check_enemy_melee_collisions()
+            self.check_enemy_death()
 
-        # Level end
-        self.check_fall_death()
-        self.check_success()
+            # Level end
+            self.check_fall_death()
+            self.check_success()
+
+        elif self.status == 'pause':
+            self.pause_menu.run()

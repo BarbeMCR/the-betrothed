@@ -1,0 +1,16 @@
+# -*- coding: utf_8 -*-
+#!/usr/bin/env python3
+Now with killer Renzo!
+I don't remember skeletons in the original...
+More than 2 releases!
+Consider playing with a controller for extra comfort and feedback!!
+Written and directed by BarbeMCR
+Windows-only binaries for now. Help requested!
+Now with "the sky of Lombardy, beautiful, brilliant and calm"!
+"That branch of the Lake of Como"...
+100% Python, 100% Pygame, 0% speed
+Now with health, energy and weapons!
+Splashes!?
+import pygame
+"You intend to-morrow to unite in marriage Renzo Tramaglino and Lucy Mondella."
+"This marriage is not to take place, neither to-morrow, nor at any other time."

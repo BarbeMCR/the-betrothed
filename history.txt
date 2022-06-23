@@ -5,6 +5,29 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.11 - The Menu Update
+==============================
+Build 623
+Python 3.10.5
+Pygame 2.1.2
+*Released on June 23rd, 2022*
+### Menus
+- Added the main menu: it allows you to create a new game, open the quick controls cheat sheet, quit the game and soon it will allow you to change the settings
+- Added splashes: one of them (for now they are 16) is randomly displayed in the main menu
+- Added the quick controls cheat sheet: it displays the most useful controls
+- Added the pause menu: it allows you to resume the game or quit to the title screen
+### Audio
+- Added SFXs for pausing and resuming the game
+### Controller
+- Now it vibrates after melee-attacking and pausing or resuming the game
+### Camera
+- Added a fade in effect: it lasts about 2 seconds
+- Added a fade out effect: it lasts about 1 second
+### Bugfixes
+- The melee weapon rect is now placed correctly
+- Fixed potential undefined behavior when calling `ctypes.windll.user32.SetProcessDPIAware()` on Windows 8.1 and later versions
+- Now the game calls `ctypes.windll.shcore.SetProcessDpiAwareness(2)` when running on Windows 8.1 or later
+
 Release 0.10 - The Melee Update
 ===============================
 Build 617

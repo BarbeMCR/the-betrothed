@@ -1,6 +1,7 @@
 import pygame
 from world import World
 from level import Level
+from menu import MainMenu, Settings, Controls
 from controller import Controller
 from ui import UI
 from melee import *
@@ -25,8 +26,8 @@ class Game:
         self.end_level = 0
         self.current_subpart = 0
         self.current_part = 0
-        self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
-        self.status = 'world'
+        self.main_menu = MainMenu(self.display_surface, self)
+        self.status = 'main_menu'
 
         # Global variables
         self.health = 20
@@ -69,6 +70,21 @@ class Game:
         self.current_part = current_part
         self.world = World(self.first_level, start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
+
+    def create_main_menu(self):
+        """Build the main menu and update the status."""
+        self.main_menu = MainMenu(self.display_surface, self)
+        self.status = 'main_menu'
+
+    def create_settings(self):
+        """Build the settings menu and update the status."""
+        self.settings = Settings(self.display_surface, self)
+        self.status = 'settings'
+
+    def create_controls(self):
+        """Build the controls screen and update the status."""
+        self.controls = Controls(self.display_surface, self)
+        self.status = 'controls'
 
     def check_death(self):
         """Check if the player is dead."""
@@ -133,12 +149,23 @@ class Game:
     def run(self):
         """Pull the events and run the correct methods depending on the status."""
         self.events = pygame.event.get()
-        if self.status == 'world':
+        if self.status == 'main_menu':
+            self.main_menu.run()
+        elif self.status == 'settings':
+            self.settings.run()
+        elif self.status == 'controls':
+            self.controls.run()
+        elif self.status == 'world':
             self.world.run()
         elif self.status == 'level':
             self.level.run()
-            self.ui.display_health(self.health, self.max_health)
-            self.ui.display_energy(self.energy, self.max_energy)
-            self.ui.display_energy_overflow(self.energy_overflow, self.max_energy_overflow)
-            self.ui.display_melee_overlay(self.selection['melee'].icon_path)
-            self.check_death()
+            if self.level.status == 'level':
+                self.ui.display_health(self.health, self.max_health)
+                self.ui.display_energy(self.energy, self.max_energy)
+                self.ui.display_energy_overflow(self.energy_overflow, self.max_energy_overflow)
+                self.ui.display_melee_overlay(self.selection['melee'].icon_path)
+                self.check_death()
+                if not self.level.level_completed:
+                    self.level.fade_in(2)
+                else:
+                    self.level.fade_out(4)

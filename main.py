@@ -19,13 +19,14 @@ import pygame
 import sys
 if sys.platform.startswith('win32'):
     import ctypes
+    import platform
 from settings import *  # lgtm [py/polluting-import]
 from game import Game
 
 def main():
     # Build identification
-    version = "0.10"
-    build = 617  # lgtm [py/unused-local-variable]
+    version = "0.11"
+    build = 623  # lgtm [py/unused-local-variable]
     build_id = 0  # lgtm [py/unused-local-variable]
     stable = True
 
@@ -39,7 +40,10 @@ def main():
     else:  # lgtm [py/unreachable-statement]
         pygame.display.set_caption(f"The Betrothed {version} - Build {build}.{build_id}")  # lgtm [py/unreachable-statement]
     if sys.platform.startswith('win32'):
-        ctypes.windll.user32.SetProcessDPIAware()  # This makes the window the correct resolution
+        if platform.version().startswith(('10.0', '6.3')):
+            ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PROCESS_PER_MONITOR_DPI_AWARE
+        elif platform.version().startswith(('6.2', '6.1', '6.0')):
+            ctypes.windll.user32.SetProcessDPIAware()  # This makes the window the correct resolution
     screen = pygame.display.set_mode((screen_width, screen_height), pygame.SCALED, vsync=1)
     icon = pygame.image.load('./icon.png').convert_alpha()
     pygame.display.set_icon(icon)

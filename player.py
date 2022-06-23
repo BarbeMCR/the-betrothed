@@ -42,6 +42,8 @@ class Player(pygame.sprite.Sprite):
         self.melee_attack_sfx.set_volume(0.5)
         self.player_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_hurt.ogg')
         self.enemy_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_hurt.ogg')
+        self.game_paused_sfx = pygame.mixer.Sound('./assets/audio/sfx/game_paused.ogg')
+        self.game_resumed_sfx = pygame.mixer.Sound('./assets/audio/sfx/game_resumed.ogg')
 
         # Player movement
         self.direction = pygame.math.Vector2(0, 0)
@@ -72,8 +74,10 @@ class Player(pygame.sprite.Sprite):
         # Input initialization
         self.keydown_space = False
         self.keydown_j = False
+        self.keydown_esc = False
         self.buttondown_a = False
         self.buttondown_b = False
+        self.buttondown_menu = False
 
     def import_player_assets(self):
         """Place all the player assets in an easily accessible dictionary."""
@@ -91,7 +95,6 @@ class Player(pygame.sprite.Sprite):
         if self.melee_attacking:
             animation = import_folder(self.base_path + self.character + '/attack/melee' + self.game.selection['melee'].animation)
             self.animation_speed = self.game.selection['melee'].animation_speed
-            self.frame_index = 0
         else:
             animation = self.player_assets[self.status]
             self.animation_speed = 0.15
@@ -118,7 +121,10 @@ class Player(pygame.sprite.Sprite):
         else:
             self.image.set_alpha(255)
 
-        self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
+        if self.melee_attacking:
+            self.rect = pygame.Rect(self.rect.topleft, (self.image.get_width() - self.game.selection['melee'].range, self.image.get_height()))
+        else:
+            self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
 
     def animate_run_particles(self):
         """Animate the run particles if the player is on the ground."""
@@ -151,6 +157,7 @@ class Player(pygame.sprite.Sprite):
         controller_right = False
         controller_a = False
         controller_b = False
+        controller_menu = False
         for controller in self.controllers.values():
             if self.gamepad == 'ps4' or self.gamepad == 'switch_pro':
                 if controller.get_button(gamepad['buttons']['LEFT']):
@@ -166,6 +173,8 @@ class Player(pygame.sprite.Sprite):
                 controller_a = True
             if controller.get_button(gamepad['buttons']['B']):
                 controller_b = True
+            if controller.get_button(gamepad['buttons']['MENU']):
+                controller_menu = True
         keys = pygame.key.get_pressed()
         #mod_keys = pygame.key.get_mods()
         if (keys[pygame.K_a] or controller_left):
@@ -189,13 +198,25 @@ class Player(pygame.sprite.Sprite):
                 self.melee_attack_time = pygame.time.get_ticks()
                 self.melee_attack_sfx.play()
                 self.update_melee_weapon_rect(False)
+                self.frame_index = 0
+                for controller in self.controllers.values():
+                    controller.rumble(0, 0.5, int(self.game.selection['melee'].cooldown / 2))
             self.keydown_j = True
             self.buttondown_b = True
+        if (keys[pygame.K_ESCAPE] or controller_menu) and not (self.keydown_esc or self.buttondown_menu):
+            for controller in self.controllers.values():
+                controller.rumble(0, 1, 250)
+            self.game_paused_sfx.play()
+            self.parent.create_pause_menu()
+            self.keydown_esc = True
+            self.buttondown_menu = True
 
         if not keys[pygame.K_SPACE]: self.keydown_space = False
         if not keys[pygame.K_j]: self.keydown_j = False
+        if not keys[pygame.K_ESCAPE]: self.keydown_esc = False
         if not controller_a: self.buttondown_a = False
         if not controller_b: self.buttondown_b = False
+        if not controller_menu: self.buttondown_menu = False
 
     def get_status(self):
         """Check the current player status and update it."""
