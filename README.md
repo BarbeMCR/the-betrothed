@@ -105,6 +105,36 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | R     | Move to following level |
 | A     | Select level |
 
+### In the menus
+
+*__Keyboard__*
+| Input | Action |
+| ----- | ------ |
+| Left Arrow / Up Arrow | Move cursor back |
+| Right Arrow / Down Arrow | Move cursor forward |
+| Space | Select |
+
+*__Xbox 360 / Xbox One / Xbox Series X|S Controller__*
+| Input | Action |
+| ----- | ------ |
+| LB    | Move cursor back |
+| RB    | Move cursor forward |
+| A     | Select |
+
+*__Dualshock 4__*
+| Input | Action |
+| ----- | ------ |
+| L1    | Move cursor back |
+| R1    | Move cursor forward |
+| Cross | Select |
+
+*__Nintendo Switch Pro Controller__*
+| Input | Action |
+| ----- | ------ |
+| L     | Move cursor back |
+| R     | Move cursor forward |
+| A     | Select |
+
 ---
 ## Credits
 
