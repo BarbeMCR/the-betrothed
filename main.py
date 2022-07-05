@@ -25,8 +25,8 @@ from game import Game
 
 def main():
     # Build identification
-    version = "0.11"
-    build = 623  # lgtm [py/unused-local-variable]
+    version = "0.11a"
+    build = 705  # lgtm [py/unused-local-variable]
     build_id = 0  # lgtm [py/unused-local-variable]
     stable = True
 

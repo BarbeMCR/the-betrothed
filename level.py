@@ -29,6 +29,7 @@ class Level:
         self.parent = parent
         self.status = 'level'
         self.controller = self.parent.controller
+        self.controllers = self.controller.controllers
         self.shift = 0
 
         # Loading screen

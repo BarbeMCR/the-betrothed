@@ -5,6 +5,20 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.11a - The Menu Update
+===============================
+Build 705
+Python 3.10.5
+Pygame 2.1.2
+*Released on July 5th, 2022*
+### Menus
+- Now the progress gets completely reset after going back to the main menu
+### Technical details
+- Added an optional `save` argument to `create_main_menu` in `game.py` for future use
+### Bugfixes
+- The game no longer crashes on startup with a `FileNotFoundError` exception due to missing `splashes.txt`
+- The game no longer crashes after resuming
+
 Release 0.11 - The Menu Update
 ==============================
 Build 623

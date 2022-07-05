@@ -42,6 +42,16 @@ class Game:
             'melee': IronKnife()
         }
 
+    def reset(self):
+        """Reset the game."""
+        self.first_level = 0
+        self.start_level = 0
+        self.end_level = 0
+        self.current_part = 0
+        self.health = 20
+        self.energy = 0
+        self.energy_overflow = 0
+
     def create_level(self, current_level, current_subpart, current_part):
         """Build the selected level and update the status.
 
@@ -71,8 +81,13 @@ class Game:
         self.world = World(self.first_level, start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
 
-    def create_main_menu(self):
-        """Build the main menu and update the status."""
+    def create_main_menu(self, save=False):
+        """Build the main menu and update the status.
+
+        Arguments:
+        save -- specify whether to save the game before building the main menu
+        """
+        self.reset()
         self.main_menu = MainMenu(self.display_surface, self)
         self.status = 'main_menu'
 
@@ -89,20 +104,24 @@ class Game:
     def check_death(self):
         """Check if the player is dead."""
         if self.health <= 0:
-            self.first_level = 0
-            self.start_level = 0
-            self.end_level = 0
-            self.current_part = 0
-            self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
-            self.status = 'world'
-            self.health = 20
-            self.energy = int(self.energy / 2)
-            self.energy_overflow = 0
+            self.apply_death()
             pygame.mixer.stop()
             pygame.mixer.music.stop()
             pygame.mixer.music.load('./assets/audio/game_over.ogg')
             pygame.mixer.music.set_volume(1)
             pygame.mixer.music.play()
+
+    def apply_death(self):
+        """Apply the death penalties."""
+        self.first_level = 0
+        self.start_level = 0
+        self.end_level = 0
+        self.current_part = 0
+        self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
+        self.status = 'world'
+        self.health = 20
+        self.energy = int(self.energy / 2)
+        self.energy_overflow = 0
 
     def update_health(self, amount, damage):
         """Change the player health.
