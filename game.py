@@ -1,4 +1,7 @@
 import pygame
+import configparser
+import shelve
+import os
 from world import World
 from level import Level
 from menu import MainMenu, Settings, Controls
@@ -10,13 +13,24 @@ from melee import *
 
 class Game:
     """The main game class."""
-    def __init__(self, display_surface):
+    def __init__(self, display_surface, build):
         """Set the screen, the event puller, the world and the status.
         Also set all the global variables.
 
         Arguments:
         display_surface -- the screen
+        build -- the build string
         """
+        # Settings
+        self.settings = configparser.ConfigParser()
+        self.settings.read('./data/settings.ini')
+        self.gamepad = self.settings['controller']['gamepad']
+        # Savefile
+        self.savefile_path = ''
+        self.savefile = None
+        self.loaded_from_savefile = False
+        # Setup
+        self.version = build
         self.display_surface = display_surface
         self.events = pygame.event.get()
         self.controller = Controller()
@@ -51,6 +65,42 @@ class Game:
         self.health = 20
         self.energy = 0
         self.energy_overflow = 0
+        self.selection = {
+            'melee': IronKnife()
+        }
+
+    def save(self):
+        """Save the game to file."""
+        self.savefile = shelve.open(self.savefile_path, writeback=True)
+        self.savefile['version'] = self.version
+        self.savefile['first_level'] = self.first_level
+        self.savefile['start_level'] = self.start_level
+        self.savefile['end_level'] = self.end_level
+        self.savefile['current_subpart'] = self.current_subpart
+        self.savefile['current_part'] = self.current_part
+        self.savefile['health'] = self.health
+        self.savefile['energy'] = self.energy
+        self.savefile['energy_overflow'] = self.energy_overflow
+        self.savefile['selection'] = self.selection
+        self.savefile.close()
+
+    def load(self):
+        """Load the game from file."""
+        if os.path.isfile(self.savefile_path + '.dat'):
+            self.savefile = shelve.open(self.savefile_path, writeback=True)
+            self.version = self.savefile['version']
+            self.first_level = self.savefile['first_level']
+            self.start_level = self.savefile['start_level']
+            self.end_level = self.savefile['end_level']
+            self.current_subpart = self.savefile['current_subpart']
+            self.current_part = self.savefile['current_part']
+            self.health = self.savefile['health']
+            self.energy = self.savefile['energy']
+            self.energy_overflow = self.savefile['energy_overflow']
+            self.selection = self.savefile['selection']
+            self.savefile.close()
+            self.loaded_from_savefile = True
+            self.create_world(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part)
 
     def create_level(self, current_level, current_subpart, current_part):
         """Build the selected level and update the status.
@@ -81,7 +131,7 @@ class Game:
         self.world = World(self.first_level, start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
 
-    def create_main_menu(self, save=False):
+    def create_main_menu(self):
         """Build the main menu and update the status.
 
         Arguments:

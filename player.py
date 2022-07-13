@@ -22,7 +22,7 @@ class Player(pygame.sprite.Sprite):
         self.parent = parent
         self.game = self.parent.parent
         self.controllers = controller.controllers
-        self.gamepad = 'xbox_one'
+        self.gamepad = self.game.gamepad
         self.base_path = './assets/player/'
         self.character = 'renzo'
         self.import_player_assets()

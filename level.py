@@ -30,6 +30,7 @@ class Level:
         self.status = 'level'
         self.controller = self.parent.controller
         self.controllers = self.controller.controllers
+        self.gamepad = self.parent.gamepad
         self.shift = 0
 
         # Loading screen
@@ -430,6 +431,7 @@ class Level:
         if now - self.player_end.sprite.ticks >= 1000:
             if self.current_level >= self.end_level:
                 self.player.sprite.heal(10)
+                self.parent.loaded_from_savefile = False
             self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_subpart, self.current_part)
 
     def run(self):
@@ -474,7 +476,7 @@ class Level:
             self.tree_sprites.draw(self.display_surface)
             # Energy
             self.energy_sprites.update(self.shift)
-            if self.current_level >= self.end_level:
+            if self.current_level >= self.end_level and not self.parent.loaded_from_savefile:
                 self.energy_sprites.draw(self.display_surface)
                 self.check_energy_collisions()
             # Enemies

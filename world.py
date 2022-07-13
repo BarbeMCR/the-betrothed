@@ -67,7 +67,7 @@ class World:
         self.display_surface = display_surface
         self.parent = parent
         self.controllers = self.parent.controller.controllers
-        self.gamepad = 'xbox_one'
+        self.gamepad = self.parent.gamepad
         self.first_level = first_level
         self.current_level = start_level
         self.end_level = end_level

@@ -14,3 +14,7 @@ Splashes!?
 import pygame
 "You intend to-morrow to unite in marriage Renzo Tramaglino and Lucy Mondella."
 "This marriage is not to take place, neither to-morrow, nor at any other time."
+Now with DualShock 4 support!!
+Now with Nintendo Switch Pro support!!
+Save and load again! Can't you believe it? Neither can I.
+Set stuff as you want with the new Settings!!

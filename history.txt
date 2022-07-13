@@ -5,6 +5,34 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.12 - The Save Update
+==============================
+Build 713
+Python 3.10.5
+Pygame 2.1.2
+*Released on July 13th, 2022*
+### Savefile
+- Added save and load features: they keep global variables, NOT the game state
+- Now the player is asked to write an alphanumeric file name to save to or load from
+- Added an option to continue from a savefile
+- Added options to save the game and save and quit to title to the pause menu
+### Settings
+- Added settings screen
+- Added controller settings
+- Added a reset settings option
+- Added an option to delete a savefile
+### Crash screen
+- Added the crash screen: it displays the traceback of the crash
+- Added options to save and quit and quit without saving
+### Controller
+- Added support for DualShock 4 and Nintendo Switch Pro Controller via the new settings interface
+### Splashes
+- Added 4 new splashes
+### Technical details
+- Deleted the `save` argument from `create_main_menu` in `game.py`
+### Pyinstaller
+- Updated to Pyinstaller 5.2
+
 Release 0.11a - The Menu Update
 ===============================
 Build 705
