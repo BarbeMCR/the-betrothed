@@ -34,7 +34,8 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | 0.03                  | 4.9                 |
 | 0.04                  | 4.10                |
 | 0.05 - 0.06           | 5.0.1               |
-| 0.07 +                | 5.1                 |
+| 0.07 - 0.11a          | 5.1                 |
+| 0.12 +                | 5.2                 |
 
 3. Compile with Pyinstaller using the `--onefile` argument
 
