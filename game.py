@@ -2,11 +2,15 @@ import pygame
 import configparser
 import shelve
 import os
+import random
+import hashlib
+import datetime
 from world import World
 from level import Level
 from menu import MainMenu, Settings, Controls
 from controller import Controller
 from ui import UI
+from misc import take_screenshot
 from melee import *
 
 """This file contains the base game structure needed to switch between the world and the levels, as well as various global methods and attributes."""
@@ -44,12 +48,13 @@ class Game:
         self.status = 'main_menu'
 
         # Global variables
-        self.health = 20
-        self.max_health = 20
-        self.energy = 0
-        self.max_energy = 100
-        self.energy_overflow = 0
-        self.max_energy_overflow = 25
+        self.character = 'renzo'
+        self.health = {'renzo': 20}
+        self.max_health = {'renzo': 20}
+        self.energy = {'renzo': 0}
+        self.max_energy = {'renzo': 100}
+        self.energy_overflow = {'renzo': 0}
+        self.max_energy_overflow = {'renzo': 25}
 
         # Inventory
         self.selection = {
@@ -61,46 +66,72 @@ class Game:
         self.first_level = 0
         self.start_level = 0
         self.end_level = 0
+        self.current_subpart = 0
         self.current_part = 0
-        self.health = 20
-        self.energy = 0
-        self.energy_overflow = 0
+        self.health = {'renzo': 20}
+        self.energy = {'renzo': 0}
+        self.energy_overflow = {'renzo': 0}
         self.selection = {
             'melee': IronKnife()
         }
 
-    def save(self):
+    def save(self, first=False):
         """Save the game to file."""
-        self.savefile = shelve.open(self.savefile_path, writeback=True)
-        self.savefile['version'] = self.version
-        self.savefile['first_level'] = self.first_level
-        self.savefile['start_level'] = self.start_level
-        self.savefile['end_level'] = self.end_level
-        self.savefile['current_subpart'] = self.current_subpart
-        self.savefile['current_part'] = self.current_part
-        self.savefile['health'] = self.health
-        self.savefile['energy'] = self.energy
-        self.savefile['energy_overflow'] = self.energy_overflow
-        self.savefile['selection'] = self.selection
-        self.savefile.close()
+        if self.savefile_path != '':
+            self.savefile = shelve.open(self.savefile_path, writeback=True)
+            if first:
+                self.savefile['creation_version'] = self.version
+                self.savefile['creation_time'] = datetime.datetime.now().strftime('%B %d %Y, %H:%M:%S')
+                self.savefile['access_time'] = self.savefile['creation_time']
+            self.savefile['rng'] = random.getstate()
+            self.savefile['version'] = self.version
+            self.savefile['first_level'] = self.first_level
+            self.savefile['start_level'] = self.start_level
+            self.savefile['end_level'] = self.end_level
+            self.savefile['current_subpart'] = self.current_subpart
+            self.savefile['current_part'] = self.current_part
+            self.savefile['health'] = self.health
+            self.savefile['energy'] = self.energy
+            self.savefile['energy_overflow'] = self.energy_overflow
+            self.savefile['selection'] = self.selection
+            self.savefile.close()
+            hash = hashlib.sha256()
+            with open(self.savefile_path + '.dat', 'rb') as savefile:
+                hash.update(savefile.read())
+                with open(self.savefile_path + '.checksum', 'w') as checksum:
+                    checksum.write(hash.hexdigest())
 
     def load(self):
         """Load the game from file."""
         if os.path.isfile(self.savefile_path + '.dat'):
-            self.savefile = shelve.open(self.savefile_path, writeback=True)
-            self.version = self.savefile['version']
-            self.first_level = self.savefile['first_level']
-            self.start_level = self.savefile['start_level']
-            self.end_level = self.savefile['end_level']
-            self.current_subpart = self.savefile['current_subpart']
-            self.current_part = self.savefile['current_part']
-            self.health = self.savefile['health']
-            self.energy = self.savefile['energy']
-            self.energy_overflow = self.savefile['energy_overflow']
-            self.selection = self.savefile['selection']
-            self.savefile.close()
-            self.loaded_from_savefile = True
-            self.create_world(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part)
+            hash = hashlib.sha256()
+            with open(self.savefile_path + '.dat', 'rb') as savefile:
+                hash.update(savefile.read())
+            checksum = open(self.savefile_path + '.checksum', 'r')
+            if checksum.read() == hash.hexdigest():
+                self.savefile = shelve.open(self.savefile_path, writeback=True)
+                random.setstate(self.savefile['rng'])
+                self.savefile['version'] = self.version
+                self.savefile['access_time'] = datetime.datetime.now().strftime('%B %d %Y, %H:%M:%S')
+                self.first_level = self.savefile['first_level']
+                self.start_level = self.savefile['start_level']
+                self.end_level = self.savefile['end_level']
+                self.current_subpart = self.savefile['current_subpart']
+                self.current_part = self.savefile['current_part']
+                self.health = self.savefile['health']
+                self.energy = self.savefile['energy']
+                self.energy_overflow = self.savefile['energy_overflow']
+                self.selection = self.savefile['selection']
+                self.savefile.close()
+                with open(self.savefile_path + '.dat', 'rb') as savefile:
+                    hash.update(savefile.read())
+                    with open(self.savefile_path + '.checksum', 'w') as checksum:
+                        checksum.write(hash.hexdigest())
+                self.loaded_from_savefile = True
+                self.create_world(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part)
+            else:
+                message = "A checksum error occured in a savefile and the game was crashed on purpose to avoid potential damage."
+                raise Exception(message)
 
     def create_level(self, current_level, current_subpart, current_part):
         """Build the selected level and update the status.
@@ -153,7 +184,7 @@ class Game:
 
     def check_death(self):
         """Check if the player is dead."""
-        if self.health <= 0:
+        if self.health[self.character] <= 0:
             self.apply_death()
             pygame.mixer.stop()
             pygame.mixer.music.stop()
@@ -169,9 +200,9 @@ class Game:
         self.current_part = 0
         self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
-        self.health = 20
-        self.energy = int(self.energy / 2)
-        self.energy_overflow = 0
+        self.health[self.character] = self.max_health[self.character]
+        self.energy[self.character] = int(self.energy[self.character] / 2)
+        self.energy_overflow[self.character] = 0
 
     def update_health(self, amount, damage):
         """Change the player health.
@@ -181,13 +212,13 @@ class Game:
         damage -- if this flag is set to True the amount will be subtracted from the health, otherwise it will be added to the health.
         """
         if damage:
-            self.health -= amount
-            if self.health < 0:
-                self.health = 0
+            self.health[self.character] -= amount
+            if self.health[self.character] < 0:
+                self.health[self.character] = 0
         else:
-            self.health += amount
-            if self.health > self.max_health:
-                self.health = self.max_health
+            self.health[self.character] += amount
+            if self.health[self.character] > self.max_health[self.character]:
+                self.health[self.character] = self.max_health[self.character]
 
     def update_energy(self, amount, add):
         """Change the player energy.
@@ -197,23 +228,23 @@ class Game:
         add -- if this flag is set to True the amount will be added to the energy, otherwise it will be subracted from the energy.
         """
         if add:
-            self.energy += amount
-            if self.energy > self.max_energy:
-                self.energy_overflow += self.energy - self.max_energy
-                self.energy = self.max_energy
-                if self.energy_overflow >= self.max_energy_overflow:
-                    self.update_health(self.max_health, False)
-                    self.energy_overflow -= self.max_energy_overflow
+            self.energy[self.character] += amount
+            if self.energy[self.character] > self.max_energy[self.character]:
+                self.energy_overflow[self.character] += self.energy[self.character] - self.max_energy[self.character]
+                self.energy[self.character] = self.max_energy[self.character]
+                if self.energy_overflow[self.character] >= self.max_energy_overflow[self.character]:
+                    self.update_health(self.max_health[self.character], False)
+                    self.energy_overflow[self.character] -= self.max_energy_overflow[self.character]
         else:
-            self.energy -= amount
-            if self.energy < self.max_energy - int(self.max_energy / 10):
+            self.energy[self.character] -= amount
+            if self.energy[self.character] < self.max_energy[self.character] - int(self.max_energy[self.character] / 10):
                 self.reset_energy_overflow()
-            if self.energy < 0:
-                self.energy = 0
+            if self.energy[self.character] < 0:
+                self.energy[self.character] = 0
 
     def reset_energy_overflow(self):
         """Reset the energy overflow bar."""
-        self.energy_overflow = 0
+        self.energy_overflow[self.character] = 0
 
     def run(self):
         """Pull the events and run the correct methods depending on the status."""
@@ -229,11 +260,14 @@ class Game:
         elif self.status == 'level':
             self.level.run()
             if self.level.status == 'level':
-                self.ui.display_health(self.health, self.max_health)
-                self.ui.display_energy(self.energy, self.max_energy)
-                self.ui.display_energy_overflow(self.energy_overflow, self.max_energy_overflow)
+                self.ui.display_health(self.health[self.character], self.max_health[self.character])
+                self.ui.display_energy(self.energy[self.character], self.max_energy[self.character])
+                self.ui.display_energy_overflow(self.energy_overflow[self.character], self.max_energy_overflow[self.character])
                 self.ui.display_melee_overlay(self.selection['melee'].icon_path)
                 self.check_death()
+                if self.level.player.sprite.screenshot_taken:
+                    take_screenshot(self.display_surface)
+                    self.level.player.sprite.screenshot_taken = False
                 if not self.level.level_completed:
                     self.level.fade_in(2)
                 else:

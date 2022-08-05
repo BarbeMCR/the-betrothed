@@ -27,8 +27,8 @@ from crash import Crash
 
 def main():
     # Build identification
-    version = "0.12"
-    build = 713  # lgtm [py/unused-local-variable]
+    version = "0.13"
+    build = 805  # lgtm [py/unused-local-variable]
     build_id = 0  # lgtm [py/unused-local-variable]
     stable = True
 
@@ -50,7 +50,7 @@ def main():
     icon = pygame.image.load('./icon.png').convert_alpha()
     pygame.display.set_icon(icon)
     clock = pygame.time.Clock()
-    game = Game(screen, int(str(build)+str(build_id)))
+    game = Game(screen, int(str(build)+str(build_id) if build_id < 10 else str(build) + str(0)))
     crash = Crash(screen, game)
     crashed = False
     tb = None
@@ -59,6 +59,7 @@ def main():
     while True:
         for event in game.events:
             if event.type == pygame.QUIT:
+                game.save()
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.JOYDEVICEADDED:
@@ -75,10 +76,14 @@ def main():
             try:
                 game.run()
             except Exception:
+                if game.status == 'main_menu':
+                    game.main_menu.status = None
                 game.status = None
                 crashed = True
-                tb = traceback.format_exc(8).split('\n')[:-1]
+                crash.gen_time = pygame.time.get_ticks()
+                tb = traceback.format_exc().split('\n')[:-1]
                 tb.insert(0, "A game crash occured! Keep calm and report this crash with its traceback and info about when it occured.")
+                pygame.mixer.stop()
         else:
             crash.run(tb)
 

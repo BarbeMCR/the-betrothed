@@ -80,7 +80,11 @@ class Clouds:
         cloud_number -- the number of clouds to generate
         """
         self.level_width = level_width
-        cloud_surf = pygame.image.load('./assets/level/sky/cloud.png').convert_alpha()
+        clouds = [
+            './assets/level/sky/cloudsmall_day.png',
+            './assets/level/sky/cloudmedium_day.png',
+            './assets/level/sky/cloudlarge_day.png'
+        ]
         cloud_start = -screen_width
         cloud_stop = self.level_width + screen_width
         min_y = 0
@@ -89,6 +93,7 @@ class Clouds:
         for tile in range(cloud_number):
             x = random.randrange(cloud_start, cloud_stop, 8)
             y = random.randrange(min_y, max_y, 16)
+            cloud_surf = pygame.image.load(random.choice(clouds)).convert_alpha()
             sprite = StaticTile(0, x, y, cloud_surf)
             sprite.cooldown = random.randrange(300, 1500, 300)
             sprite.speed = random.randrange(1, 8)

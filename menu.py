@@ -3,9 +3,11 @@ import sys
 import random
 import configparser
 import os
+import shelve
 from text import render
 from settings import *  # lgtm [py/polluting-import]
-from box import TextBox
+from box import TextBox, SelectionBoxYN
+from versions import get_version
 
 """This file defines the menus."""
 
@@ -76,6 +78,10 @@ class Menu:
                 y += self.step
             elif self.layout == 'h':
                 x += self.step
+
+    def dummy(self):
+        """A dummy function."""
+        pass
 
     def get_input(self, funcs):
         """Get the input from the devices and do the correct actions.
@@ -199,9 +205,26 @@ class MainMenu(Menu):
         self.load_textbox = TextBox('./assets/ui/load_input_box.png', self.display_surface, self.parent)
         self.status = 'load_textbox'
 
+    def create_infobox(self):
+        """Create an infobox for the savefile information."""
+        if os.path.isfile(self.parent.savefile_path + '.dat'):
+            with shelve.open(self.parent.savefile_path, 'r') as savefile:
+                raw_creation_version = savefile['creation_version']
+                creation_time = savefile['creation_time']
+                raw_version = savefile['version']
+                access_time = savefile['access_time']
+            creation_version = get_version(raw_creation_version)
+            version = get_version(raw_version)
+            text = f"Are you sure to load savefile '{self.parent.savefile_path[7:]}'?\nCreated on {creation_time} in version {creation_version}\nLast accessed on {access_time} in version {version}\nKeep in mind that loading from a savefile could trigger\nsome dangerous Arbitrary Code Execution (ACE).\nOnly load a savefile if it comes from a trusted source (such as you).\nThe savefile will be upgraded to the latest version if necessary.".split('\n')
+            self.infobox = SelectionBoxYN(text, self.display_surface, self.parent)
+            self.infobox.font = pygame.font.Font('./font.ttf', 12)
+            self.status = 'infobox'
+        else:
+            self.status = None
+
     def create_game(self):
         """Create a new game."""
-        self.parent.save()
+        self.parent.save(True)
         self.parent.create_world(self.parent.first_level, self.parent.start_level, self.parent.end_level, self.parent.current_subpart, self.parent.current_part)
 
     def quit(self):
@@ -216,7 +239,9 @@ class MainMenu(Menu):
             self.save_textbox.run(self.create_game)
         elif self.status == 'load_textbox':
             self.display_surface.blit(self.background, (0, 0))
-            self.load_textbox.run(self.parent.load)
+            self.load_textbox.run(self.create_infobox)
+        elif self.status == 'infobox':
+            self.infobox.run(self.parent.load, lambda: setattr(self, 'status', None), small=True)
         else:
             super().run(self.tags, self.create_save_textbox, self.create_load_textbox, self.create_settings, self.create_controls, self.quit)
             self.display_splash()
@@ -248,7 +273,8 @@ class Controls(Menu):
             "Movement: 'WASD' / D-Pad / D-Pad / D-Pad",
             "Jump: 'Space' / A / Cross / A",
             "Attack: 'JKL' / B-X-Y / Circle-Square-Triangle / B-X-Y",
-            "Pause: 'Esc' / Menu / Options / +"
+            "Pause: 'Esc' / Menu / Options / +",
+            "Take screenshot: 'F2' / Share / Touchpad Click / Capture"
         ]
 
     def display_controls(self):
@@ -398,18 +424,22 @@ class Settings(Menu):
         with open('./data/settings.ini', 'w') as file:
             self.settings.write(file)
 
-    def dummy(self):
-        """A dummy function."""
-        pass
-
     def delete_game(self):
         """Delete a savefile."""
         if os.path.isfile(self.parent.savefile_path + '.dat'):
             os.remove(self.parent.savefile_path + '.dat')
+            # self.parent.savefile[7:] is done to avoid displaying the './data/' prefix
+            confirmation = self.font.render(f"Savefile '{self.parent.savefile_path[7:]}' was deleted.", False, 'white')
+            confirmation_rect = confirmation.get_rect(center=self.display_surface.get_rect().center)
+            self.display_surface.blit(confirmation, confirmation_rect)
+            pygame.display.flip()
+            pygame.time.wait(2000)
         if os.path.isfile(self.parent.savefile_path + '.dir'):
             os.remove(self.parent.savefile_path + '.dir')
         if os.path.isfile(self.parent.savefile_path + '.bak'):
             os.remove(self.parent.savefile_path + '.bak')
+        if os.path.isfile(self.parent.savefile_path + '.checksum'):
+            os.remove(self.parent.savefile_path + '.checksum')
         self.status = None
 
     def create_delete_textbox(self):
@@ -434,7 +464,7 @@ class Settings(Menu):
         else:
             super().run(self.tags, self.create_controller_settings, self.create_delete_textbox, self.reset_settings, self.create_main_menu)
 
-class ControllerSettings(Settings):
+class ControllerSettings(Settings):  #lgtm [py/missing-call-to-init]
     """The controller settings submenu."""
     def __init__(self, parent):
         """Initialize the base settings class.

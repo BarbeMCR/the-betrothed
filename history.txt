@@ -5,6 +5,47 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.13 - The Miscellaneous Update
+=======================================
+Build 805
+Python 3.10.6
+Pygame 2.1.2
+*Released on August 5th, 2022*
+### Enemies
+- Now enemies drop EPs: skeletons drop up to 3 EP
+- Added enemy toughness: 50% of enemies have this trait
+- Enemies can now have up to 2 toughness points
+- Each toughness point now gives enemies 1 extra HP and 0.5 extra damage
+- Enemies with toughness now give 1 extra EP for every toughness point
+- Now enemies drop a third of the normal amount of EP when repeating a level or immediately after loading from a savefile
+- Now enemies can't move for 0.5 seconds after being hit
+### Player
+- The player global variables now get stored in a dictionary to support multiple characters (not yet implemented)
+- The player now gets healed by 5 HP after finishing a new level (previously was 10)
+### Savefile
+- Now a checksum is saved (and verified when loading) along the savefile to avoid dangerous Arbitrary Code Execution (ACE)
+- Now a warning is displayed before loading a savefile
+- Now the game gets saved when quitting with the 'X' in the window controls
+- Now a confirmation gets displayed after deleting a savefile from the settings
+### Screenshots
+- Now screenshots can be taken and will be saved to './data/screenshots/'
+### Level
+- Now smaller and bigger version of the clouds can occasionally appear
+### Crash screen
+- Now playback of sounds will be stopped after crashing (previously only the music was stopped)
+- Now the traceback is no longer limited to 8 entries
+- Now the timer before input is 1000 milliseconds long (previously was 250)
+### Splashes
+- Added 4 new splashes
+### Technical details
+- Now the RNG state gets saved with the savefile
+- Now the game no longer saves if the path to save to is an empty string
+- `font.ttf` has been updated to version 1.2
+### Pyinstaller
+- Updated to Pyinstaller 5.3
+### Bugfixes
+- The input timer now works correctly in the crash screen
+
 Release 0.12 - The Save Update
 ==============================
 Build 713

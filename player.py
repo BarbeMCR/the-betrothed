@@ -24,7 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.controllers = controller.controllers
         self.gamepad = self.game.gamepad
         self.base_path = './assets/player/'
-        self.character = 'renzo'
+        self.character = self.game.character
         self.import_player_assets()
         self.frame_index = 0
         self.animation_speed = 0.15
@@ -44,6 +44,7 @@ class Player(pygame.sprite.Sprite):
         self.enemy_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_hurt.ogg')
         self.game_paused_sfx = pygame.mixer.Sound('./assets/audio/sfx/game_paused.ogg')
         self.game_resumed_sfx = pygame.mixer.Sound('./assets/audio/sfx/game_resumed.ogg')
+        self.screenshot_taken_sfx = pygame.mixer.Sound('./assets/audio/sfx/screenshot_taken.ogg')
 
         # Player movement
         self.direction = pygame.math.Vector2(0, 0)
@@ -70,14 +71,17 @@ class Player(pygame.sprite.Sprite):
         self.hurt_time = 0  # This is a timestamp, like self.gen_time
         self.melee_attacking = False
         self.melee_attack_time = 0
+        self.screenshot_taken = False
 
         # Input initialization
         self.keydown_space = False
         self.keydown_j = False
         self.keydown_esc = False
+        self.keydown_f2 = False
         self.buttondown_a = False
         self.buttondown_b = False
         self.buttondown_menu = False
+        self.buttondown_share = False
 
     def import_player_assets(self):
         """Place all the player assets in an easily accessible dictionary."""
@@ -158,6 +162,7 @@ class Player(pygame.sprite.Sprite):
         controller_a = False
         controller_b = False
         controller_menu = False
+        controller_share = False
         for controller in self.controllers.values():
             if self.gamepad == 'ps4' or self.gamepad == 'switch_pro':
                 if controller.get_button(gamepad['buttons']['LEFT']):
@@ -175,6 +180,8 @@ class Player(pygame.sprite.Sprite):
                 controller_b = True
             if controller.get_button(gamepad['buttons']['MENU']):
                 controller_menu = True
+            if controller.get_button(gamepad['buttons']['SHARE']):
+                controller_share = True
         keys = pygame.key.get_pressed()
         #mod_keys = pygame.key.get_mods()
         if (keys[pygame.K_a] or controller_left):
@@ -203,6 +210,8 @@ class Player(pygame.sprite.Sprite):
                     controller.rumble(0, 0.5, int(self.game.selection['melee'].cooldown / 2))
             self.keydown_j = True
             self.buttondown_b = True
+            #self.keydown_k = True
+            #self.buttondown_x = True
         if (keys[pygame.K_ESCAPE] or controller_menu) and not (self.keydown_esc or self.buttondown_menu):
             for controller in self.controllers.values():
                 controller.rumble(0, 1, 250)
@@ -210,13 +219,22 @@ class Player(pygame.sprite.Sprite):
             self.parent.create_pause_menu()
             self.keydown_esc = True
             self.buttondown_menu = True
+        if (keys[pygame.K_F2] or controller_share) and not (self.keydown_f2 or self.buttondown_share):
+            for controller in self.controllers.values():
+                controller.rumble(0.5, 0.5, 250)
+            self.screenshot_taken_sfx.play()
+            self.screenshot_taken = True
+            self.keydown_f2 = True
+            self.buttondown_share = True
 
         if not keys[pygame.K_SPACE]: self.keydown_space = False
         if not keys[pygame.K_j]: self.keydown_j = False
         if not keys[pygame.K_ESCAPE]: self.keydown_esc = False
+        if not keys[pygame.K_F2]: self.keydown_f2 = False
         if not controller_a: self.buttondown_a = False
         if not controller_b: self.buttondown_b = False
         if not controller_menu: self.buttondown_menu = False
+        if not controller_share: self.buttondown_share = False
 
     def get_status(self):
         """Check the current player status and update it."""

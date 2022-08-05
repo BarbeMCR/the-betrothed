@@ -1,6 +1,7 @@
 import csv
 import os
 import pygame
+import datetime
 from settings import tile_size
 
 """This file contains several miscellaneous functions."""
@@ -51,3 +52,12 @@ def import_sliced_graphics(path):
             tile_surface.blit(surface, (0, 0), pygame.Rect(x, y, tile_size, tile_size))
             sliced_tiles.append(tile_surface)
     return sliced_tiles
+
+def take_screenshot(display_surface):
+    """Take a screenshot of the screen and save it to file.
+
+    Arguments:
+    display_surface -- the screen
+    """
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
+    pygame.image.save(display_surface, f'./data/screenshots/screenshot_{timestamp}.png')

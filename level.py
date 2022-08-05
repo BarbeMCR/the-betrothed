@@ -397,6 +397,10 @@ class Level:
                 death_particle = Particle(enemy.rect.center, 'enemy_death')
                 self.enemy_death_sprites.add(death_particle)
                 enemy.kill()
+                if self.current_level >= self.end_level and not self.parent.loaded_from_savefile:
+                    self.increase_energy(enemy.energy + enemy.toughness)
+                else:
+                    self.increase_energy(int((enemy.energy + enemy.toughness) / 3))
                 self.player.sprite.enemy_hurt_sfx.stop()
                 self.enemy_death_sfx.play()
 
@@ -430,7 +434,7 @@ class Level:
             self.level_completed_music_started = True
         if now - self.player_end.sprite.ticks >= 1000:
             if self.current_level >= self.end_level:
-                self.player.sprite.heal(10)
+                self.player.sprite.heal(5)
                 self.parent.loaded_from_savefile = False
             self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_subpart, self.current_part)
 

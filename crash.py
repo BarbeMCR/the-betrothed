@@ -55,5 +55,10 @@ class Crash(Menu):
         """
         pygame.mixer.music.stop()
         self.parent.events = pygame.event.get()
-        super().run(self.tags, self.save_game, self.quit)
+        self.now = pygame.time.get_ticks()
+        self.display_surface.blit(self.background, (0, 0))
+        if self.now - self.gen_time >= 1000:
+            self.get_input((self.save_game, self.quit))
+        self.display_cursor()
+        self.display_text(self.tags)
         self.print_traceback(tb)
