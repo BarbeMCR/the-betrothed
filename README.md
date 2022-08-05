@@ -5,23 +5,23 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/BarbeMCR/the-betrothed.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/BarbeMCR/the-betrothed/alerts/)
 
 ## How do I run the code?
-**If you just want to play The Betrothed:**
+**If you just want to play BarbeMCR's The Betrothed:**
 1. Go on the `Releases` page and check for the latest stable version (or any other one, if you want)
 2. Download the file that best matches your system:
-   - Python 3.8.10 for **Windows Vista and higher**: for example `the_betrothed_001_py38.zip`
-   - The latest Python release for **Windows 8.1 and higher**: for example `the_betrothed_001_py310.zip`
+   - Python 3.8.10 for **Windows Vista and higher**: `the_betrothed_<version>_py38.zip`
+   - The latest Python release for **Windows 8.1 and higher**: `the_betrothed_<version>_py3x.zip`
 
    *__All executables are 32-bit, which means they are compatible with both x86 and x64 architectures.__*
-3. Extract the `zip` file
+3. Extract the `.zip` file
 4. Start `the_betrothed.exe`
 
-*Note: either your antivirus or Microsoft SmartScreen might block the file thinking it's a virus. The Betrothed is **not** a virus. If you don't trust me, check the code for yourself. Please make an exception for the folder you extracted The Betrothed in or ignore the Microsoft SmartScreen warning. Thank you!*
+*Note: either your antivirus or Microsoft SmartScreen might block the file thinking it's a virus. BarbeMCR's The Betrothed is **not** a virus. If you don't trust me, check the code for yourself. Please make an exception for the folder you extracted The Betrothed in or ignore the Microsoft SmartScreen warning. Thank you!*
 
 **If you instead want to run the source code:**
 1. Go on the `Releases` page and check for whatever version you want to run
 2. Download the `the_betrothed_<version>_source.zip`
 3. Extract the archive
-4. Run `main.py` with at least Python 3.8 (probably it works with previous versions but I don't guarantee)
+4. Run `main.py` with at least Python 3.8
 
 ## How do I compile the code?
 1. Make sure to have Python 3.8 or higher (32-bit Python for wider compatibility)
@@ -35,7 +35,8 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | 0.04                  | 4.10                |
 | 0.05 - 0.06           | 5.0.1               |
 | 0.07 - 0.11a          | 5.1                 |
-| 0.12 +                | 5.2                 |
+| 0.12                  | 5.2                 |
+| 0.13 +                | 5.3                 |
 
 3. Compile with Pyinstaller using the `--onefile` argument
 
@@ -136,6 +137,14 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 | R     | Move cursor forward |
 | A     | Select |
 
+### In the text input boxes
+
+*__Keyboard__*
+| Input | Action |
+| ----- | ------ |
+| Any key | Enter text |
+| Return | Confirm |
+
 ---
 ## Credits
 
@@ -143,4 +152,4 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 
 **But, most importantly, everybody who contributed with testing and various tidbits, like those folks:**
 
-- Aleee - Early testing, early controller testing
+- Aleee - Early testing
