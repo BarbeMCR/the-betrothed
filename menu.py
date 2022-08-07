@@ -345,7 +345,7 @@ class Settings(Menu):
         self.cursor = './assets/menu/cursor.png'
         self.layout = 'v'
         super().__init__(self.background, self.cursor, self.layout, self.display_surface, self.parent)
-        self.tags = ['Controller', 'Delete Game', 'Reset settings', 'Back to title']
+        self.tags = ['Controller', 'Autodownload', 'Delete Game', 'Reset settings', 'Back to title']
         self.x = 128
         self.y = 64
         self.step = 96
@@ -453,6 +453,12 @@ class Settings(Menu):
         self.status = 'controller'
         self.place_cursor(self.controller)
 
+    def create_autodownload_settings(self):
+        """Create the autodownload settings submenu."""
+        self.autodownload = AutodownloadSettings(self)
+        self.status = 'autodownload'
+        self.place_cursor(self.autodownload)
+
     def run(self):
         """Update and draw everything."""
         if self.status == 'delete_textbox':
@@ -461,8 +467,11 @@ class Settings(Menu):
         elif self.status == 'controller':
             self.controller.run()
             super().run(self.controller.options, self.dummy)
+        elif self.status == 'autodownload':
+            self.autodownload.run()
+            super().run(self.autodownload.options, self.dummy)
         else:
-            super().run(self.tags, self.create_controller_settings, self.create_delete_textbox, self.reset_settings, self.create_main_menu)
+            super().run(self.tags, self.create_controller_settings, self.create_autodownload_settings, self.create_delete_textbox, self.reset_settings, self.create_main_menu)
 
 class ControllerSettings(Settings):  #lgtm [py/missing-call-to-init]
     """The controller settings submenu."""
@@ -477,6 +486,25 @@ class ControllerSettings(Settings):  #lgtm [py/missing-call-to-init]
         self.strings = ['xbox_one', 'ps4', 'switch_pro']
         self.section = 'controller'
         self.key = 'gamepad'
+        self.selection = 0
+
+    def run(self):
+        """Update and draw everything."""
+        self.parent.select_option(self)
+
+class AutodownloadSettings(Settings):
+    """The autodownload settings submenu."""
+    def __init__(self, parent):
+        """Initialize the base settings class.
+
+        Arguments:
+        parent -- the parent class
+        """
+        self.parent = parent
+        self.options = ['Disabled', 'Enabled']
+        self.strings = ['false', 'true']
+        self.section = 'autodownload'
+        self.key = 'autodownload'
         self.selection = 0
 
     def run(self):

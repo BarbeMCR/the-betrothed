@@ -438,8 +438,12 @@ class Level:
                 self.parent.loaded_from_savefile = False
             self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_subpart, self.current_part)
 
-    def run(self):
-        """Run the level and the menus, update and draw everything (must be called every frame)."""
+    def run(self, delta):
+        """Run the level and the menus, update and draw everything (must be called every frame).
+
+        Arguments:
+        delta -- the time delta
+        """
         if self.status == 'level':
             # Level barriers
             self.barrier_sprites.update(self.shift)
@@ -500,7 +504,7 @@ class Level:
             self.get_player_on_ground()
             self.y_mov_coll()
             self.create_fall_particle()
-            self.scroll_x(6)
+            self.scroll_x(int(360*delta))
             self.player.draw(self.display_surface)
 
             # Enemy routines

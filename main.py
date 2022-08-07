@@ -24,11 +24,12 @@ if sys.platform.startswith('win32'):
 from settings import *  # lgtm [py/polluting-import]
 from game import Game
 from crash import Crash
+from update import check_updates
 
 def main():
     # Build identification
-    version = "0.13"
-    build = 805  # lgtm [py/unused-local-variable]
+    version = "0.14"
+    build = 807  # lgtm [py/unused-local-variable]
     build_id = 0  # lgtm [py/unused-local-variable]
     stable = True
 
@@ -50,10 +51,12 @@ def main():
     icon = pygame.image.load('./icon.png').convert_alpha()
     pygame.display.set_icon(icon)
     clock = pygame.time.Clock()
-    game = Game(screen, int(str(build)+str(build_id) if build_id < 10 else str(build) + str(0)))
+    version_id = int(str(build)+str(build_id) if build_id < 10 else str(build) + str(0))
+    game = Game(screen, version_id)
     crash = Crash(screen, game)
     crashed = False
     tb = None
+    check_updates(version_id, screen)
 
     # Event loop
     while True:
@@ -74,7 +77,8 @@ def main():
         screen.fill('black')
         if not crashed:
             try:
-                game.run()
+                delta = clock.get_time() / 1000
+                game.run(delta)
             except Exception:
                 if game.status == 'main_menu':
                     game.main_menu.status = None
@@ -82,7 +86,7 @@ def main():
                 crashed = True
                 crash.gen_time = pygame.time.get_ticks()
                 tb = traceback.format_exc().split('\n')[:-1]
-                tb.insert(0, "A game crash occured! Keep calm and report this crash with its traceback and info about when it occured.")
+                tb.insert(0, "A game crash occured! Keep calm and report this crash with its traceback after generating a crash report.")
                 pygame.mixer.stop()
         else:
             crash.run(tb)

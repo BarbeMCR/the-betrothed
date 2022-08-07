@@ -246,8 +246,12 @@ class Game:
         """Reset the energy overflow bar."""
         self.energy_overflow[self.character] = 0
 
-    def run(self):
-        """Pull the events and run the correct methods depending on the status."""
+    def run(self, delta):
+        """Pull the events and run the correct methods depending on the status.
+
+        Arguments:
+        delta -- the time delta
+        """
         self.events = pygame.event.get()
         if self.status == 'main_menu':
             self.main_menu.run()
@@ -258,7 +262,7 @@ class Game:
         elif self.status == 'world':
             self.world.run()
         elif self.status == 'level':
-            self.level.run()
+            self.level.run(delta)
             if self.level.status == 'level':
                 self.ui.display_health(self.health[self.character], self.max_health[self.character])
                 self.ui.display_energy(self.energy[self.character], self.max_energy[self.character])

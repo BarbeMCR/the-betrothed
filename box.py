@@ -1,5 +1,4 @@
 import pygame
-import os
 from text import render
 from settings import *  # lgtm [py/polluting-import]
 

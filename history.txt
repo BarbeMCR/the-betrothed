@@ -5,6 +5,26 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.14 - The Delta Update
+===============================
+Build 807
+Python 3.10.6
+Pygame 2.1.2
+*Released on August 7th, 2022*
+### Delta
+- Added a delta time calculation to `self.scroll_x` in `level.py` that propagates from `main.py`
+- Now the game simulates 60 FPS even if it doesn't run at 60 FPS: this allows for a smoother gameplay experience
+### Updates
+- Now the game automatically tries to check for updates: if it fails to do so, it will silently continue startup
+- Now the game displays a message for a few seconds if an update is found
+- Now the game automatically downloads the update and saves it to './data' if autoupdate is enabled (by default it is not)
+### Settings
+- Now autodownload can be toggled in the settings
+### Crash screen
+- Added an option to save a crash report to './data/reports'
+- Now a timestamp is saved with the crash report
+- Now a randomly chosen Minecraft-style witty comment is put at the beginning of the crash report
+
 Release 0.13 - The Miscellaneous Update
 =======================================
 Build 805
