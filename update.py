@@ -2,6 +2,7 @@ import urllib.request
 import shutil
 import configparser
 import pygame
+import sys
 
 """This file defines some functions used for various tasks involved with updating."""
 
@@ -20,7 +21,16 @@ def check_updates(version_id, display_surface):
         latest = config['latest']
         id = latest['id']
         version = latest['version']
-        download_file = f"the_betrothed_{latest['download_version']}_py{latest['download_python_version']}.zip"
+        if sys.platform.startswith('win32'):
+            import platform
+            if platform.version().startswith(('10.0', '6.3')):
+                download_file = f"the_betrothed_{latest['download_version']}_py{latest['download_python_version']}.zip"
+            elif platform.version().startswith(('6.2', '6.1', '6.0')):
+                download_file = f"the_betrothed_{latest['download_version']}_py38.zip"
+            else:
+                download_file = f"the_betrothed_{latest['download_version']}_source.zip"
+        else:
+            download_file = f"the_betrothed_{latest['download_version']}_source.zip"
         download_url = 'https://github.com/BarbeMCR/the-betrothed/releases/latest/download/' + download_file
         settings = configparser.ConfigParser()
         settings.read('./data/settings.ini')

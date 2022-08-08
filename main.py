@@ -28,8 +28,8 @@ from update import check_updates
 
 def main():
     # Build identification
-    version = "0.14"
-    build = 807  # lgtm [py/unused-local-variable]
+    version = "0.14a"
+    build = 808  # lgtm [py/unused-local-variable]
     build_id = 0  # lgtm [py/unused-local-variable]
     stable = True
 
