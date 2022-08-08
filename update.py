@@ -3,6 +3,7 @@ import shutil
 import configparser
 import pygame
 import sys
+import os
 
 """This file defines some functions used for various tasks involved with updating."""
 
@@ -35,7 +36,7 @@ def check_updates(version_id, display_surface):
         settings = configparser.ConfigParser()
         settings.read('./data/settings.ini')
         autodownload = settings.getboolean('autodownload', 'autodownload')
-        if version_id < int(id):
+        if version_id < int(id) and not os.path.isfile('./data/' + download_file):
             show_banner(version, display_surface)
             if autodownload:
                 download_update(download_url, download_file)

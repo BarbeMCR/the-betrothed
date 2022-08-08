@@ -5,6 +5,15 @@
 HISTORY OF "THE BETROTHED"
 ++++++++++++++++++++++++++
 
+Release 0.14b - The Delta Update
+================================
+Build 808.1
+Python 3.10.6
+Pygame 2.1.2
+*Released on August 8th, 2022*
+### Updates
+- The game no longer notifies updates and downloads them if they have already been downloaded
+
 Release 0.14a - The Delta Update
 ================================
 Build 808
