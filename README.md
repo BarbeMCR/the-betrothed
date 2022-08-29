@@ -74,6 +74,7 @@ In the settings screen, you'll find various options, listed below.
 | D     | Walk right |
 | Space | Jump |
 | J     | Melee attack |
+| K     | Ranged attack |
 | F2    | Take screenshot |
 | F11   | Toggle fullscreen |
 
@@ -84,6 +85,7 @@ In the settings screen, you'll find various options, listed below.
 | D-Pad Right | Walk right |
 | A     | Jump |
 | B     | Melee attack |
+| X     | Ranged attack |
 | SHARE (if available) | Take screenshot |
 
 *__DualShock 4__*
@@ -93,6 +95,7 @@ In the settings screen, you'll find various options, listed below.
 | Right | Walk right |
 | Cross | Jump |
 | Circle | Melee attack |
+| Square | Ranged attack |
 | TOUCHPAD CLICK | Take screenshot |
 
 *__Nintendo Switch Pro Controller__*
@@ -102,6 +105,7 @@ In the settings screen, you'll find various options, listed below.
 | Right | Walk right |
 | A     | Jump |
 | B     | Melee attack |
+| X     | Ranged attack |
 | CAPTURE | Take screenshot |
 
 ### In the level selection screen
