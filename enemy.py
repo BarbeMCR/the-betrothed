@@ -21,7 +21,9 @@ class Enemy(AnimatedTile):
         """
         super().__init__(size, x, y, path)
         self.invincible = False
+        self.now = pygame.time.get_ticks()
         self.hurt_time = 0
+        self.stun_duration = 750
         self.speed = speed
         self.health = health
         self.damage = damage
@@ -33,7 +35,8 @@ class Enemy(AnimatedTile):
     def move(self):
         """Move the enemy based on their speed."""
         if not self.invincible:
-            self.rect.x += self.speed
+            if self.now - self.hurt_time >= self.stun_duration:
+                self.rect.x += self.speed
 
     def flip(self):
         """Flip the enemy if it is going left."""
@@ -46,9 +49,9 @@ class Enemy(AnimatedTile):
 
     def tick_invincibility_timer(self):
         """Tick down the invincibility timer."""
-        now = pygame.time.get_ticks()
+        self.now = pygame.time.get_ticks()
         if self.invincible:
-            if now - self.hurt_time >= 500:
+            if self.now - self.hurt_time >= 500:
                 self.invincible = False
 
     def update(self, shift):

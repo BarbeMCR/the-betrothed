@@ -1,9 +1,56 @@
 # The Betrothed, a Python platformer built with pygame
 # Copyright (C) 2022  BarbeMCR
 
-++++++++++++++++++++++++++
-HISTORY OF "THE BETROTHED"
-++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++
+HISTORY OF "BarbeMCR's THE BETROTHED"
++++++++++++++++++++++++++++++++++++++
+
+Release 0.15 - The Ranged Update
+================================
+Build 829
+Python 3.10.6
+Pygame 2.1.2
+*Released on August 29th, 2022*
+### Weapons
+- Added ranged weapons: unlike melee attacks, the player doesn't stop moving horizontally when attacking
+- Ranged weapons cannot fire infinitely: instead, they can fire up to 50 times (for now)
+- However, ranged weapons have a much higher range of attack than melee weapons
+- The enemies now get stunned for the cooldown time of the ranged weapon used
+- Added the Makeshift Bow: a decent ranged weapon that deals 1 Ranged Damage, has a cooldown of 0.3 seconds and uses Flint Arrows
+### UI
+- Added the ranged weapon overlay: it is displayed next to the melee weapon overlay
+### Player
+- The player can now make ranged attacks (see how in the Controls section of the README)
+### World
+- Now the code to change parts and subparts has been implemented: it is not possible to switch between parts manually and you can only go to previous subparts (and not get back to where you were without completing at least the last level of each subpart), so make sure you think carefully about it first
+- The `World` class in `world.py` no longer accepts the `first_level` argument, which has been completely removed
+### Savefile
+- Now the game automatically upgrades savefiles to the latest version
+- Now the game autosaves each time a level is completed to avoid losing progress
+- Now the game accepts empty savefile names: it is useful if you want to avoid creating a savefile when starting a new game
+### Window
+- Now the window title has been changed to `BarbeMCR's The Betrothed` to reflect the change of name in the official documentation (the same thing is now also true for the heading of `history.txt`)
+### Enemies
+- Now enemies get stunned after being hit by a melee weapon attack for the duration of the melee weapon cooldown (and an additional 250 milliseconds if the cooldown is less than 750 milliseconds)
+- Now enemies get stunned for at least 750 milliseconds
+### Delta
+- A delta cap has been implemented to avoid sudden movement when lag spikes occur: this delta cap takes effect when the game is running slower than around 35 FPS
+### Weapons
+- Added weapon levels (at least technically: no weapon upgrade system... yet!)
+- Weapons now store their damage values in a dictionary to allow for a future weapon level system implementation
+### UI
+- Now the quantity of energy present in the energy overflow bar is displayed
+- The energy overflow bar has been moved: it is now placed below the energy bar (in the right side)
+### Splashes
+- Added 12 new splashes
+### Bugfixes
+- The game now resets the path to the savefile after deleting one to avoid accidentally rewriting to it
+- Background object no longer move erraticaly when some lag is present
+### Technical details
+- Changed the savefile loading algorithm to use a new `Game._load` method for the actual loading part to allow for a correct upgrading procedure
+- Removed redundant code in file `player.py`, in class `Player`, in method `take_damage`
+- In `./assets/level/ground/ground_day.png` and `./assets/level/ground/bg_day.png` color #000000 has been replaced with color #010101 to avoid side effects when transforming the image (might be useful in future in-game, right now this reduces the amount of work I have to do in external tools)
+- Now the dictionary `versions` in `versions.py` has its entries listed backwards to facilitate reading it (also, key `7122` with value `0.12-build712(2)` was removed as it doesn't and didn't serve any particular purpose)
 
 Release 0.14b - The Delta Update
 ================================

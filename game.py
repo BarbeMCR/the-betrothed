@@ -6,12 +6,15 @@ import random
 import hashlib
 import datetime
 from world import World
+from data import levels
 from level import Level
 from menu import MainMenu, Settings, Controls
 from controller import Controller
 from ui import UI
 from misc import take_screenshot
+from upgrade import upgrade
 from melee import *
+from ranged import *
 
 """This file contains the base game structure needed to switch between the world and the levels, as well as various global methods and attributes."""
 
@@ -39,7 +42,6 @@ class Game:
         self.events = pygame.event.get()
         self.controller = Controller()
         self.ui = UI(self.display_surface)
-        self.first_level = 0
         self.start_level = 0
         self.end_level = 0
         self.current_subpart = 0
@@ -58,7 +60,8 @@ class Game:
 
         # Inventory
         self.selection = {
-            'melee': IronKnife()
+            'melee': IronKnife(),
+            'ranged': MakeshiftBow()
         }
 
     def reset(self):
@@ -72,11 +75,16 @@ class Game:
         self.energy = {'renzo': 0}
         self.energy_overflow = {'renzo': 0}
         self.selection = {
-            'melee': IronKnife()
+            'melee': IronKnife(),
+            'ranged': MakeshiftBow()
         }
 
     def save(self, first=False):
-        """Save the game to file."""
+        """Save the game to file.
+
+        Arguments:
+        first -- this flag is used to set whether it is the first time the savefile is saved
+        """
         if self.savefile_path != '':
             self.savefile = shelve.open(self.savefile_path, writeback=True)
             if first:
@@ -85,7 +93,6 @@ class Game:
                 self.savefile['access_time'] = self.savefile['creation_time']
             self.savefile['rng'] = random.getstate()
             self.savefile['version'] = self.version
-            self.savefile['first_level'] = self.first_level
             self.savefile['start_level'] = self.start_level
             self.savefile['end_level'] = self.end_level
             self.savefile['current_subpart'] = self.current_subpart
@@ -101,6 +108,29 @@ class Game:
                 with open(self.savefile_path + '.checksum', 'w') as checksum:
                     checksum.write(hash.hexdigest())
 
+    def _load(self):
+        """Savefile loading routine. Returns the original version data contained in the savefile."""
+        hash = hashlib.sha256()
+        self.savefile = shelve.open(self.savefile_path, writeback=True)
+        random.setstate(self.savefile['rng'])
+        savefile_version = self.savefile['version']
+        self.savefile['version'] = self.version
+        self.savefile['access_time'] = datetime.datetime.now().strftime('%B %d %Y, %H:%M:%S')
+        self.start_level = self.savefile['start_level']
+        self.end_level = self.savefile['end_level']
+        self.current_subpart = self.savefile['current_subpart']
+        self.current_part = self.savefile['current_part']
+        self.health = self.savefile['health']
+        self.energy = self.savefile['energy']
+        self.energy_overflow = self.savefile['energy_overflow']
+        self.selection = self.savefile['selection']
+        self.savefile.close()
+        with open(self.savefile_path + '.dat', 'rb') as savefile:
+            hash.update(savefile.read())
+            with open(self.savefile_path + '.checksum', 'w') as checksum:
+                checksum.write(hash.hexdigest())
+        return savefile_version
+
     def load(self):
         """Load the game from file."""
         if os.path.isfile(self.savefile_path + '.dat'):
@@ -109,26 +139,12 @@ class Game:
                 hash.update(savefile.read())
             checksum = open(self.savefile_path + '.checksum', 'r')
             if checksum.read() == hash.hexdigest():
-                self.savefile = shelve.open(self.savefile_path, writeback=True)
-                random.setstate(self.savefile['rng'])
-                self.savefile['version'] = self.version
-                self.savefile['access_time'] = datetime.datetime.now().strftime('%B %d %Y, %H:%M:%S')
-                self.first_level = self.savefile['first_level']
-                self.start_level = self.savefile['start_level']
-                self.end_level = self.savefile['end_level']
-                self.current_subpart = self.savefile['current_subpart']
-                self.current_part = self.savefile['current_part']
-                self.health = self.savefile['health']
-                self.energy = self.savefile['energy']
-                self.energy_overflow = self.savefile['energy_overflow']
-                self.selection = self.savefile['selection']
-                self.savefile.close()
-                with open(self.savefile_path + '.dat', 'rb') as savefile:
-                    hash.update(savefile.read())
-                    with open(self.savefile_path + '.checksum', 'w') as checksum:
-                        checksum.write(hash.hexdigest())
+                savefile_version = self._load()
+                if savefile_version < self.version:
+                    upgrade(savefile_version, self.savefile_path)
+                    savefile_version = self._load()
                 self.loaded_from_savefile = True
-                self.create_world(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part)
+                self.create_world(self.start_level, self.end_level, self.current_subpart, self.current_part)
             else:
                 message = "A checksum error occured in a savefile and the game was crashed on purpose to avoid potential damage."
                 raise Exception(message)
@@ -144,11 +160,10 @@ class Game:
         self.level = Level(self.display_surface, current_level, current_subpart, current_part, self)
         self.status = 'level'
 
-    def create_world(self, first_level, start_level, end_level, current_subpart, current_part):
+    def create_world(self, start_level, end_level, current_subpart, current_part):
         """Build the world map and update the status.
 
         Arguments:
-        first_level -- the lowest level the player can select
         start_level -- the level to place the cursor on
         end_level -- the highest level the player can select
         current_subpart -- the subpart to load
@@ -156,10 +171,21 @@ class Game:
         """
         if end_level > self.end_level:
             self.end_level = end_level
-        self.first_level = first_level
         self.current_subpart = current_subpart
         self.current_part = current_part
-        self.world = World(self.first_level, start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
+        if self.end_level >= len(levels[self.current_part][self.current_subpart]):
+            self.current_subpart += 1
+            start_level = 0
+            self.end_level = 0
+        # This code is used to exclude from the lenght non-dict items
+        current_part_lenght = 0
+        for value in levels[self.current_part].values():
+            if isinstance(value, dict):
+                current_part_lenght += 1
+        if self.current_subpart >= current_part_lenght:
+            self.current_part += 1
+            self.current_subpart = 0
+        self.world = World(start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
 
     def create_main_menu(self):
@@ -198,7 +224,7 @@ class Game:
         self.start_level = 0
         self.end_level = 0
         self.current_part = 0
-        self.world = World(self.first_level, self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
+        self.world = World(self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
         self.health[self.character] = self.max_health[self.character]
         self.energy[self.character] = int(self.energy[self.character] / 2)
@@ -268,6 +294,7 @@ class Game:
                 self.ui.display_energy(self.energy[self.character], self.max_energy[self.character])
                 self.ui.display_energy_overflow(self.energy_overflow[self.character], self.max_energy_overflow[self.character])
                 self.ui.display_melee_overlay(self.selection['melee'].icon_path)
+                self.ui.display_ranged_overlay(self.selection['ranged'].icon_path, self.selection['ranged'].projectile.count)
                 self.check_death()
                 if self.level.player.sprite.screenshot_taken:
                     take_screenshot(self.display_surface)

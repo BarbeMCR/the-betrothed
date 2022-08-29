@@ -51,11 +51,10 @@ class LevelSelector(pygame.sprite.Sprite):
 
 class World:
     """The world builder class."""
-    def __init__(self, first_level, start_level, end_level, current_subpart, current_part, display_surface, parent):
+    def __init__(self, start_level, end_level, current_subpart, current_part, display_surface, parent):
         """Setup the level selector screen, the movement of the cursor and the sprites.
 
         Arguments:
-        first_level -- the lowest level the player can select
         start_level -- the level to place the cursor on
         end_level -- the highest level the player can select
         current_subpart -- the subpart to load
@@ -68,7 +67,6 @@ class World:
         self.parent = parent
         self.controllers = self.parent.controller.controllers
         self.gamepad = self.parent.gamepad
-        self.first_level = first_level
         self.current_level = start_level
         self.end_level = end_level
         self.current_subpart = current_subpart
@@ -109,8 +107,9 @@ class World:
 
     def draw_paths(self):
         """Draw the lines joining the nodes together."""
-        points = [node['node_pos'] for index, node in enumerate(levels[self.current_part][self.current_subpart].values()) if index <= self.end_level + 1 and isinstance(node, dict)]
-        pygame.draw.lines(self.display_surface, '#daab76', False, points, 6)
+        if len(levels[self.current_part][self.current_subpart]) > 1:
+            points = [node['node_pos'] for index, node in enumerate(levels[self.current_part][self.current_subpart].values()) if index <= self.end_level + 1 and isinstance(node, dict)]
+            pygame.draw.lines(self.display_surface, '#daab76', False, points, 6)
 
     def setup_level_selector(self):
         """Create the level selector sprite."""
@@ -142,11 +141,22 @@ class World:
                 controller_a = True
         keys = pygame.key.get_pressed()
         if not self.moving:
-            if (keys[pygame.K_LEFT] or controller_lb) and self.current_level > self.first_level:
-                self.movement_direction = self.get_movement_data(False)
+            if (keys[pygame.K_LEFT] or controller_lb):
                 self.current_level -= 1
-                self.moving = True
-                self.menu_sfx.play()
+                if self.current_level < 0:
+                    if self.current_subpart > 0:
+                        self.current_subpart -= 1
+                        self.current_level = len(levels[self.current_part][self.current_subpart]) - 1
+                        self.setup_nodes()
+                        self.setup_level_selector()
+                        self.menu_sfx.play()
+                    else:
+                        self.current_level = 0
+                    self.gen_time = pygame.time.get_ticks()
+                else:
+                    self.movement_direction = self.get_movement_data(False)
+                    self.moving = True
+                    self.menu_sfx.play()
             elif (keys[pygame.K_RIGHT] or controller_rb) and self.current_level < self.end_level:
                 self.movement_direction = self.get_movement_data(True)
                 self.current_level += 1
@@ -163,16 +173,19 @@ class World:
         Arguments:
         next -- if this flag is set to True the vector will be generated based on the next node position.
         """
-        start_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level].rect.center)
         if next:
+            start_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level].rect.center)
             end_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level + 1].rect.center)
         else:
-            end_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level - 1].rect.center)
+            # This code takes in consideration the fact that the current level gets already calculated when moving left
+            start_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level + 1].rect.center)
+            end_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level].rect.center)
         return (end_vector - start_vector).normalize()
 
     def run(self):
         """Run the level selector, update and draw everything (must be called every frame)."""
         self.now = pygame.time.get_ticks()
+        self.background = pygame.image.load(levels[self.current_part]['background']).convert_alpha()
         self.display_surface.blit(self.background, (0, 0))
         if self.now - self.gen_time >= 250:
             self.get_input()

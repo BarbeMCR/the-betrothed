@@ -29,7 +29,7 @@ def import_csv_layout(path):
     """
     terrain_map = []
     with open(path) as map:
-        level = csv.reader(map, delimiter = ',')
+        level = csv.reader(map, delimiter=',')
         for row in level:
             terrain_map.append(list(row))
         return terrain_map
@@ -41,11 +41,11 @@ def import_sliced_graphics(path):
     path -- the image atlas to slice
     """
     surface = pygame.image.load(path).convert_alpha()
-    tile_num_x = int(surface.get_size()[0]) / tile_size
-    tile_num_y = int(surface.get_size()[1]) / tile_size
+    tile_num_x = int(surface.get_width() / tile_size)
+    tile_num_y = int(surface.get_height() / tile_size)
     sliced_tiles = []
-    for row in range(int(tile_num_y)):
-        for col in range(int(tile_num_x)):
+    for row in range(tile_num_y):
+        for col in range(tile_num_x):
             x = col * tile_size
             y = row * tile_size
             tile_surface = pygame.Surface((tile_size, tile_size), flags = pygame.SRCALPHA)

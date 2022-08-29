@@ -38,9 +38,10 @@ class TextBox:
         """
         for event in self.parent.events:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and self.text != '':
+                if event.key == pygame.K_RETURN:
                     self.parent.main_menu.status = None
-                    self.parent.savefile_path = './data/' + self.text
+                    if self.text != '':
+                        self.parent.savefile_path = './data/' + self.text
                     self.menu_sfx.play()
                     func()
                 elif event.key == pygame.K_BACKSPACE:

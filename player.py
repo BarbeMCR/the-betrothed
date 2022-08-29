@@ -40,6 +40,8 @@ class Player(pygame.sprite.Sprite):
         self.jump_sfx.set_volume(0.25)
         self.melee_attack_sfx = pygame.mixer.Sound('./assets/audio/sfx/attack_melee.ogg')
         self.melee_attack_sfx.set_volume(0.5)
+        self.ranged_attack_sfx = pygame.mixer.Sound('./assets/audio/sfx/attack_ranged.ogg')
+        self.ranged_attack_sfx.set_volume(0.5)
         self.player_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_hurt.ogg')
         self.enemy_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_hurt.ogg')
         self.game_paused_sfx = pygame.mixer.Sound('./assets/audio/sfx/game_paused.ogg')
@@ -71,15 +73,18 @@ class Player(pygame.sprite.Sprite):
         self.hurt_time = 0  # This is a timestamp, like self.gen_time
         self.melee_attacking = False
         self.melee_attack_time = 0
+        self.ranged_attack_time = 0
         self.screenshot_taken = False
 
         # Input initialization
         self.keydown_space = False
         self.keydown_j = False
+        self.keydown_k = False
         self.keydown_esc = False
         self.keydown_f2 = False
         self.buttondown_a = False
         self.buttondown_b = False
+        self.buttondown_x = False
         self.buttondown_menu = False
         self.buttondown_share = False
 
@@ -97,7 +102,7 @@ class Player(pygame.sprite.Sprite):
     def animate(self):
         """Animate the player and setup the player rect correctly."""
         if self.melee_attacking:
-            animation = import_folder(self.base_path + self.character + '/attack/melee' + self.game.selection['melee'].animation)
+            animation = import_folder(self.base_path + self.character + '/attack' + self.game.selection['melee'].animation)
             self.animation_speed = self.game.selection['melee'].animation_speed
         else:
             animation = self.player_assets[self.status]
@@ -161,6 +166,7 @@ class Player(pygame.sprite.Sprite):
         controller_right = False
         controller_a = False
         controller_b = False
+        controller_x = False
         controller_menu = False
         controller_share = False
         for controller in self.controllers.values():
@@ -178,6 +184,8 @@ class Player(pygame.sprite.Sprite):
                 controller_a = True
             if controller.get_button(gamepad['buttons']['B']):
                 controller_b = True
+            if controller.get_button(gamepad['buttons']['X']):
+                controller_x = True
             if controller.get_button(gamepad['buttons']['MENU']):
                 controller_menu = True
             if controller.get_button(gamepad['buttons']['SHARE']):
@@ -199,7 +207,7 @@ class Player(pygame.sprite.Sprite):
             self.create_jump_particles(self.rect.midbottom)
             self.keydown_space = True
             self.buttondown_a = True
-        if (keys[pygame.K_j] or controller_b) and not (self.keydown_j or self.buttondown_b):
+        if (keys[pygame.K_j] or controller_b) and not (self.keydown_j or self.buttondown_b or self.keydown_k or self.buttondown_x):
             if self.now - self.melee_attack_time >= self.game.selection['melee'].cooldown:
                 self.melee_attacking = True
                 self.melee_attack_time = pygame.time.get_ticks()
@@ -210,8 +218,20 @@ class Player(pygame.sprite.Sprite):
                     controller.rumble(0, 0.5, int(self.game.selection['melee'].cooldown / 2))
             self.keydown_j = True
             self.buttondown_b = True
-            #self.keydown_k = True
-            #self.buttondown_x = True
+            self.keydown_k = True
+            self.buttondown_x = True
+        if (keys[pygame.K_k] or controller_x) and not (self.keydown_k or self.buttondown_x or self.keydown_j or self.buttondown_b) and self.game.selection['ranged'].projectile.count > 0:
+            if self.now - self.ranged_attack_time >= self.game.selection['ranged'].cooldown:
+                self.ranged_attack_time = pygame.time.get_ticks()
+                self.ranged_attack_sfx.play()
+                self.game.selection['ranged'].projectile.count -= 1
+                self.parent.create_ranged_projectile()
+                for controller in self.controllers.values():
+                    controller.rumble(0.5, 0.5, int(self.game.selection['ranged'].cooldown / 1.5))
+            self.keydown_k = True
+            self.buttondown_x = True
+            self.keydown_j = True
+            self.buttondown_b = True
         if (keys[pygame.K_ESCAPE] or controller_menu) and not (self.keydown_esc or self.buttondown_menu):
             for controller in self.controllers.values():
                 controller.rumble(0, 1, 250)
@@ -229,10 +249,12 @@ class Player(pygame.sprite.Sprite):
 
         if not keys[pygame.K_SPACE]: self.keydown_space = False
         if not keys[pygame.K_j]: self.keydown_j = False
+        if not keys[pygame.K_k]: self.keydown_k = False
         if not keys[pygame.K_ESCAPE]: self.keydown_esc = False
         if not keys[pygame.K_F2]: self.keydown_f2 = False
         if not controller_a: self.buttondown_a = False
         if not controller_b: self.buttondown_b = False
+        if not controller_x: self.buttondown_x = False
         if not controller_menu: self.buttondown_menu = False
         if not controller_share: self.buttondown_share = False
 
@@ -274,9 +296,6 @@ class Player(pygame.sprite.Sprite):
                 self.player_hurt_sfx.play()
         elif type == 'pure':
             self.update_health(damage, True)
-
-        if not type == 'physical':
-            self.player_hurt_sfx.play()
 
     def heal(self, healing):
         """Heal the player.

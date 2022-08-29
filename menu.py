@@ -225,7 +225,7 @@ class MainMenu(Menu):
     def create_game(self):
         """Create a new game."""
         self.parent.save(True)
-        self.parent.create_world(self.parent.first_level, self.parent.start_level, self.parent.end_level, self.parent.current_subpart, self.parent.current_part)
+        self.parent.create_world(self.parent.start_level, self.parent.end_level, self.parent.current_subpart, self.parent.current_part)
 
     def quit(self):
         """A function for quitting the game."""
@@ -440,6 +440,7 @@ class Settings(Menu):
             os.remove(self.parent.savefile_path + '.bak')
         if os.path.isfile(self.parent.savefile_path + '.checksum'):
             os.remove(self.parent.savefile_path + '.checksum')
+        self.parent.savefile_path = ''
         self.status = None
 
     def create_delete_textbox(self):
@@ -492,7 +493,7 @@ class ControllerSettings(Settings):  #lgtm [py/missing-call-to-init]
         """Update and draw everything."""
         self.parent.select_option(self)
 
-class AutodownloadSettings(Settings):
+class AutodownloadSettings(Settings):  #lgtm [py/missing-call-to-init]
     """The autodownload settings submenu."""
     def __init__(self, parent):
         """Initialize the base settings class.

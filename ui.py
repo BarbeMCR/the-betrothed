@@ -17,9 +17,11 @@ class UI:
         self.energy_bar = pygame.image.load('./assets/ui/energy_bar.png').convert_alpha()
         self.energy_rect = self.energy_bar.get_rect(topleft=(16, 80))
         self.energy_overflow_bar = pygame.image.load('./assets/ui/energy_overflow_bar.png').convert_alpha()
-        self.energy_overflow_rect = self.energy_overflow_bar.get_rect(topleft=(64, 144))
+        self.energy_overflow_rect = self.energy_overflow_bar.get_rect(topright=(self.energy_rect.right, 144))
         self.melee_overlay = pygame.image.load('./assets/ui/overlay_melee.png').convert_alpha()
         self.melee_overlay_rect = self.melee_overlay.get_rect(bottomleft=(16, 688))
+        self.ranged_overlay = pygame.image.load('./assets/ui/overlay_ranged.png').convert_alpha()
+        self.ranged_overlay_rect = self.ranged_overlay.get_rect(bottomleft=self.melee_overlay_rect.bottomright)
 
     def display_health(self, health, max_health):
         """Display the health bar and statistics.
@@ -76,6 +78,9 @@ class UI:
         energy_overflow_bar_height = 12
         # Drawing
         self.display_surface.blit(self.energy_overflow_bar, self.energy_overflow_rect)
+        energy_overflow_statistics_surface = self.font.render(f'{energy_overflow}', False, 'white')
+        energy_overflow_statistics_rect = energy_overflow_statistics_surface.get_rect(midleft=(self.energy_overflow_rect.right+8, self.energy_overflow_rect.centery))
+        self.display_surface.blit(energy_overflow_statistics_surface, energy_overflow_statistics_rect)
         energy_overflow_percentage = energy_overflow / max_energy_overflow
         energy_overflow_width = int(energy_overflow_bar_width * energy_overflow_percentage)
         energy_overflow_bar_rect = pygame.Rect((energy_overflow_bar_topleft), (energy_overflow_width, energy_overflow_bar_height))
@@ -91,3 +96,19 @@ class UI:
         melee_weapon_icon_rect = melee_weapon_icon.get_rect(center=self.melee_overlay_rect.center)
         self.display_surface.blit(self.melee_overlay, self.melee_overlay_rect)
         self.display_surface.blit(melee_weapon_icon, melee_weapon_icon_rect)
+
+    def display_ranged_overlay(self, ranged_weapon, ranged_projectile_count):
+        """Display the ranged weapon overlay.
+
+        Arguments:
+        ranged_weapon -- the path to the ranged weapon icon
+        ranged_projectile_count -- the ranged projectile count
+        """
+        ranged_weapon_icon = pygame.image.load(ranged_weapon).convert_alpha()
+        ranged_weapon_icon_rect = ranged_weapon_icon.get_rect(center=self.ranged_overlay_rect.center)
+        self.display_surface.blit(self.ranged_overlay, self.ranged_overlay_rect)
+        self.display_surface.blit(ranged_weapon_icon, ranged_weapon_icon_rect)
+        ranged_projectile_count_font = pygame.font.Font('./font.ttf', 6)
+        ranged_projectile_count_surface = ranged_projectile_count_font.render(str(ranged_projectile_count), False, 'white')
+        ranged_projectile_count_rect = ranged_projectile_count_surface.get_rect(bottomleft=(self.ranged_overlay_rect.left+4, self.ranged_overlay_rect.bottom-4))
+        self.display_surface.blit(ranged_projectile_count_surface, ranged_projectile_count_rect)

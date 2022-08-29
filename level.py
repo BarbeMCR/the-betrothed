@@ -7,10 +7,11 @@ from enemy import *  # lgtm [py/polluting-import]
 from bgstuff import *  # lgtm [py/polluting-import]
 from player import Player
 from particles import Particle
+from weapons import Projectile
 from menu import PauseMenu
 from data import levels
 
-"""This file contains the level builder and a few useful functions for various behavior."""
+"""This file contains the level builder and numerous functions to control the game behavior."""
 
 class Level:
     """The level builder class."""
@@ -32,6 +33,7 @@ class Level:
         self.controllers = self.controller.controllers
         self.gamepad = self.parent.gamepad
         self.shift = 0
+        self.start_x = 0
 
         # Loading screen
         self.display_surface.fill('black')
@@ -47,7 +49,6 @@ class Level:
 
         # World setup
         self.create_world = self.parent.create_world
-        self.first_level = self.parent.first_level
         self.end_level = self.parent.end_level
         self.current_level = current_level
         self.current_subpart = current_subpart
@@ -66,6 +67,7 @@ class Level:
         self.player = pygame.sprite.GroupSingle()
         self.player_end = pygame.sprite.GroupSingle()
         self.setup_player(player_layout, self)
+        self.ranged_sprites = pygame.sprite.Group()
         # Player particles
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.player_on_ground = False
@@ -385,10 +387,51 @@ class Level:
         for enemy in self.enemy_sprites:
             if self.player.sprite.melee_weapon_rect.colliderect(enemy.rect):
                 if not enemy.invincible:
-                    enemy.health -= self.parent.selection['melee'].damage
+                    enemy.health -= self.parent.selection['melee'].damage[self.parent.selection['melee'].level]
                     self.player.sprite.enemy_hurt_sfx.play()
                     enemy.invincible = True
                     enemy.hurt_time = pygame.time.get_ticks()
+                    melee_weapon_cooldown = self.parent.selection['melee'].cooldown
+                    if melee_weapon_cooldown >= 500:
+                        if melee_weapon_cooldown <= 750:
+                            enemy.stun_duration = melee_weapon_cooldown + 250
+                        else:
+                            enemy.stun_duration = melee_weapon_cooldown
+
+    def check_enemy_ranged_collisions(self):
+        """Check if the ranged weapon projectiles are valid, then check if they collide with the enemies."""
+        for projectile in self.ranged_sprites:
+            if abs((self.start_x-projectile.rect.x)*-1 - projectile.start_x) > self.parent.selection['ranged'].range:
+                projectile.kill()
+            collidables = self.terrain_sprites.sprites() + self.barrier_sprites.sprites()
+            if pygame.sprite.spritecollideany(projectile, collidables) is not None:
+                projectile.kill()
+        enemy_collisions = pygame.sprite.groupcollide(self.ranged_sprites, self.enemy_sprites, False, False)
+        if enemy_collisions:
+            for projectile, enemies in enemy_collisions.items():
+                for enemy in enemies:
+                    if not enemy.invincible:
+                        enemy.health -= self.parent.selection['ranged'].damage[self.parent.selection['ranged'].level]
+                        self.player.sprite.enemy_hurt_sfx.play()
+                        enemy.invincible = True
+                        enemy.hurt_time = pygame.time.get_ticks()
+                        enemy.stun_duration = self.parent.selection['ranged'].cooldown
+                projectile.kill()
+
+    def create_ranged_projectile(self):
+        """Create a ranged projectile sprite and add it to the correct group."""
+        image = self.parent.selection['ranged'].projectile.image
+        if self.player.sprite.facing_right:
+            pos = self.player.sprite.rect.midright
+            facing_right = True
+        else:
+            pos = self.player.sprite.rect.midleft
+            facing_right = False
+        pos -= pygame.math.Vector2(0, 16)
+        speed = self.parent.selection['ranged'].speed
+        start_x = (self.start_x - pos[0]) * -1
+        ranged_projectile = Projectile(image, pos, speed, facing_right, start_x)
+        self.ranged_sprites.add(ranged_projectile)
 
     def check_enemy_death(self):
         """Check if the enemies should be dead and kill their sprites if that is the case."""
@@ -436,7 +479,8 @@ class Level:
             if self.current_level >= self.end_level:
                 self.player.sprite.heal(5)
                 self.parent.loaded_from_savefile = False
-            self.create_world(self.first_level, self.level_unlocked, self.level_unlocked, self.current_subpart, self.current_part)
+            self.parent.save()
+            self.create_world(self.level_unlocked, self.level_unlocked, self.current_subpart, self.current_part)
 
     def run(self, delta):
         """Run the level and the menus, update and draw everything (must be called every frame).
@@ -450,9 +494,9 @@ class Level:
 
             # Background
             self.sky.draw(self.display_surface)
-            self.mountains.draw(self.display_surface, self.shift / 3)
-            self.water.draw(self.display_surface, self.shift / 3)
-            self.clouds.draw(self.display_surface, self.shift / 3)
+            self.mountains.draw(self.display_surface, int(self.shift / 3))
+            self.water.draw(self.display_surface, int(self.shift / 3))
+            self.clouds.draw(self.display_surface, int(self.shift / 3))
 
             # Particles
             self.dust_sprite.update(self.shift)
@@ -505,11 +549,15 @@ class Level:
             self.y_mov_coll()
             self.create_fall_particle()
             self.scroll_x(int(360*delta))
+            self.start_x += self.shift
             self.player.draw(self.display_surface)
+            self.ranged_sprites.update(self.shift)
+            self.ranged_sprites.draw(self.display_surface)
 
             # Enemy routines
             self.check_enemy_collisions()
             self.check_enemy_melee_collisions()
+            self.check_enemy_ranged_collisions()
             self.check_enemy_death()
 
             # Level end

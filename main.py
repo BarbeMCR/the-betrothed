@@ -28,20 +28,20 @@ from update import check_updates
 
 def main():
     # Build identification
-    version = "0.14b"
-    build = 808  # lgtm [py/unused-local-variable]
-    build_id = 1  # lgtm [py/unused-local-variable]
+    version = "0.15"
+    build = 829  # lgtm [py/unused-local-variable]
+    build_id = 0  # lgtm [py/unused-local-variable]
     stable = True
 
     # Pygame initialization
     # The comments below the if-elif-else statements are used to suppress LGTM warnings about build identification
     pygame.init()
     if stable:  # lgtm [py/unreachable-statement]
-        pygame.display.set_caption(f"The Betrothed {version}")  # lgtm [py/unreachable-statement]
+        pygame.display.set_caption(f"BarbeMCR's The Betrothed {version}")  # lgtm [py/unreachable-statement]
     elif build_id == 0:  # lgtm [py/unreachable-statement]
-        pygame.display.set_caption(f"The Betrothed {version} - Build {build}")  # lgtm [py/unreachable-statement]
+        pygame.display.set_caption(f"BarbeMCR's The Betrothed {version} - Build {build}")  # lgtm [py/unreachable-statement]
     else:  # lgtm [py/unreachable-statement]
-        pygame.display.set_caption(f"The Betrothed {version} - Build {build}.{build_id}")  # lgtm [py/unreachable-statement]
+        pygame.display.set_caption(f"BarbeMCR's The Betrothed {version} - Build {build}.{build_id}")  # lgtm [py/unreachable-statement]
     if sys.platform.startswith('win32'):
         if platform.version().startswith(('10.0', '6.3')):
             ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PROCESS_PER_MONITOR_DPI_AWARE
@@ -78,6 +78,8 @@ def main():
         if not crashed:
             try:
                 delta = clock.get_time() / 1000
+                if delta > 0.03:
+                    delta = 0.03
                 game.run(delta)
             except Exception:
                 if game.status == 'main_menu':
