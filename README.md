@@ -75,6 +75,7 @@ In the settings screen, you'll find various options, listed below.
 | Space | Jump |
 | J     | Melee attack |
 | K     | Ranged attack |
+| Left Ctrl | Toggle overlay |
 | F2    | Take screenshot |
 | F11   | Toggle fullscreen |
 
@@ -86,6 +87,7 @@ In the settings screen, you'll find various options, listed below.
 | A     | Jump |
 | B     | Melee attack |
 | X     | Ranged attack |
+| XBOX  | Toggle overlay |
 | SHARE (if available) | Take screenshot |
 
 *__DualShock 4__*
@@ -96,6 +98,7 @@ In the settings screen, you'll find various options, listed below.
 | Cross | Jump |
 | Circle | Melee attack |
 | Square | Ranged attack |
+| PLAYSTATION | Toggle overlay |
 | TOUCHPAD CLICK | Take screenshot |
 
 *__Nintendo Switch Pro Controller__*
@@ -106,6 +109,7 @@ In the settings screen, you'll find various options, listed below.
 | A     | Jump |
 | B     | Melee attack |
 | X     | Ranged attack |
+| HOME  | Toggle overlay |
 | CAPTURE | Take screenshot |
 
 ### In the level selection screen
