@@ -67,7 +67,7 @@ In the settings screen, you'll find various options, listed below.
 ## Controls
 ### While playing
 
-*__Keyboard__*
+*__Keyboard + Mouse__*
 | Input | Action |
 | ----- | ------ |
 | A     | Walk left |
