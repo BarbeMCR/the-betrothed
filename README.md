@@ -51,7 +51,8 @@ If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 | 0.05 - 0.06           | 5.0.1               |
 | 0.07 - 0.11a          | 5.1                 |
 | 0.12                  | 5.2                 |
-| 0.13 +                | 5.3                 |
+| 0.13 - 0.15           | 5.3                 |
+| 0.16 +                | 5.6.1               |
 
 3. Compile with Pyinstaller using the `--onefile` argument
 
@@ -183,8 +184,8 @@ In the settings screen, you'll find various options, listed below.
 ---
 ## Credits
 
-@BarbeMCR (aka myself) - Programming, graphics, music, SFXs, font, level design, mechanics... (I created the game and since this is a solo project don't expect many people working on the actual game)
+@BarbeMCR (aka myself) - Programming, graphics, music, SFXs, font, level design, mechanics... (I created the game and since this is a solo project don't expect many people working on development)
 
 **But, most importantly, everybody who contributed with testing and various tidbits, like those folks:**
 
-- Aleee - Early testing
+-  No one for now
