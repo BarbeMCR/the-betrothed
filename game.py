@@ -5,6 +5,7 @@ import os
 import random
 import hashlib
 import datetime
+from math import modf
 from world import World
 from data import levels
 from level import Level
@@ -142,7 +143,7 @@ class Game:
                 savefile_version = self._load()
                 if savefile_version < self.version:
                     upgrade(savefile_version, self.savefile_path)
-                    savefile_version = self._load()
+                    self._load()
                 self.loaded_from_savefile = True
                 self.create_world(self.start_level, self.end_level, self.current_subpart, self.current_part)
             else:
@@ -290,11 +291,15 @@ class Game:
         elif self.status == 'level':
             self.level.run(delta)
             if self.level.status == 'level':
-                self.ui.display_health(self.health[self.character], self.max_health[self.character])
-                self.ui.display_energy(self.energy[self.character], self.max_energy[self.character])
-                self.ui.display_energy_overflow(self.energy_overflow[self.character], self.max_energy_overflow[self.character])
-                self.ui.display_melee_overlay(self.selection['melee'].icon_path)
-                self.ui.display_ranged_overlay(self.selection['ranged'].icon_path, self.selection['ranged'].projectile.count)
+                health = modf(self.health[self.character])
+                self.ui.display_health(int(health[1]), self.max_health[self.character])
+                if self.level.display_overlay:
+                    health_remainder = int(modf(float(format(health[0]*100, '.2f')))[1])  # This expression gets an integer from the rounding of the decimal part of the player health
+                    self.ui.display_health_remainder(health_remainder, 100)
+                    self.ui.display_energy(self.energy[self.character], self.max_energy[self.character])
+                    self.ui.display_energy_overflow(self.energy_overflow[self.character], self.max_energy_overflow[self.character])
+                    self.ui.display_melee_overlay(self.selection['melee'].icon_path)
+                    self.ui.display_ranged_overlay(self.selection['ranged'].icon_path, self.selection['ranged'].projectile.count)
                 self.check_death()
                 if self.level.player.sprite.screenshot_taken:
                     take_screenshot(self.display_surface)

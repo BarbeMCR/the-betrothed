@@ -14,6 +14,8 @@ class UI:
         self.font = pygame.font.Font('./font.ttf', 20)
         self.health_bar = pygame.image.load('./assets/ui/health_bar.png').convert_alpha()
         self.health_rect = self.health_bar.get_rect(topleft=(16, 16))
+        self.health_remainder_bar = pygame.image.load('./assets/ui/health_remainder_bar.png').convert_alpha()
+        self.health_remainder_rect = self.health_remainder_bar.get_rect(topleft=(16, 144))
         self.energy_bar = pygame.image.load('./assets/ui/energy_bar.png').convert_alpha()
         self.energy_rect = self.energy_bar.get_rect(topleft=(16, 80))
         self.energy_overflow_bar = pygame.image.load('./assets/ui/energy_overflow_bar.png').convert_alpha()
@@ -41,8 +43,32 @@ class UI:
         self.display_surface.blit(health_statistics_surface, health_statistics_rect)
         health_percentage = health / max_health
         health_width = int(health_bar_width * health_percentage)
-        health_bar_rect = pygame.Rect((health_bar_topleft), (health_width, health_bar_height))
+        health_bar_rect = pygame.Rect(health_bar_topleft, (health_width, health_bar_height))
         pygame.draw.rect(self.display_surface, '#dc4949', health_bar_rect)
+
+    def display_health_remainder(self, health_remainder, max_health_remainder):
+        """Display the health remainder bar and statistics.
+
+        Arguments:
+        health_remainder -- the current health remainder value
+        max_health_remainder -- the maximum health remainder value
+        """
+        # Preparation
+        health_remainder_bar_topleft = (self.health_remainder_rect.topleft[0]+4, self.health_remainder_rect.topleft[1]+4)
+        health_remainder_bar_width = 112
+        health_remainder_bar_height = 12
+        # Drawing
+        self.display_surface.blit(self.health_remainder_bar, self.health_remainder_rect)
+        health_remainder_statistics_surface = self.font.render(f'{health_remainder}', False, 'white')
+        health_remainder_statistics_rect = health_remainder_statistics_surface.get_rect(midleft=(self.health_remainder_rect.right+8, self.health_remainder_rect.centery))
+        self.display_surface.blit(health_remainder_statistics_surface, health_remainder_statistics_rect)
+        if health_remainder == 0:
+            health_remainder_percentage = 1  # If the health remainder is 0, show the bar as full instead of empty
+        else:
+            health_remainder_percentage = health_remainder / max_health_remainder
+        health_remainder_width = int(health_remainder_bar_width * health_remainder_percentage)
+        health_remainder_bar_rect = pygame.Rect(health_remainder_bar_topleft, (health_remainder_width, health_remainder_bar_height))
+        pygame.draw.rect(self.display_surface, '#dc4949', health_remainder_bar_rect)
 
     def display_energy(self, energy, max_energy):
         """Display the energy bar and statistics.
@@ -62,11 +88,11 @@ class UI:
         self.display_surface.blit(energy_statistics_surface, energy_statistics_rect)
         energy_percentage = energy / max_energy
         energy_width = int(energy_bar_width * energy_percentage)
-        energy_bar_rect = pygame.Rect((energy_bar_topleft), (energy_width, energy_bar_height))
+        energy_bar_rect = pygame.Rect(energy_bar_topleft, (energy_width, energy_bar_height))
         pygame.draw.rect(self.display_surface, '#0098db', energy_bar_rect)
 
     def display_energy_overflow(self, energy_overflow, max_energy_overflow):
-        """Display the energy overflow bar.
+        """Display the energy overflow bar and statistics.
 
         Arguments:
         energy_overflow -- the current energy overflow value
@@ -83,7 +109,7 @@ class UI:
         self.display_surface.blit(energy_overflow_statistics_surface, energy_overflow_statistics_rect)
         energy_overflow_percentage = energy_overflow / max_energy_overflow
         energy_overflow_width = int(energy_overflow_bar_width * energy_overflow_percentage)
-        energy_overflow_bar_rect = pygame.Rect((energy_overflow_bar_topleft), (energy_overflow_width, energy_overflow_bar_height))
+        energy_overflow_bar_rect = pygame.Rect(energy_overflow_bar_topleft, (energy_overflow_width, energy_overflow_bar_height))
         pygame.draw.rect(self.display_surface, '#0098db', energy_overflow_bar_rect)
 
     def display_melee_overlay(self, melee_weapon):

@@ -81,11 +81,13 @@ class Player(pygame.sprite.Sprite):
         self.keydown_j = False
         self.keydown_k = False
         self.keydown_esc = False
+        self.keydown_lctrl = False
         self.keydown_f2 = False
         self.buttondown_a = False
         self.buttondown_b = False
         self.buttondown_x = False
         self.buttondown_menu = False
+        self.buttondown_logo = False
         self.buttondown_share = False
 
     def import_player_assets(self):
@@ -154,13 +156,22 @@ class Player(pygame.sprite.Sprite):
 
     def get_input(self):
         """Get the input from the devices and do the correct actions."""
-        # To avoid using pygame.KEYDOWN events whilst keeping the same behavior:
+        # To avoid using pygame.KEYDOWN events while keeping the same behavior:
         # if keys[key] and not keydown_key:
         #     ...
         #     keydown_key = True
         # if not keys[key]:
         #     keydown_key = False
         # where keydown_key is initialized as False
+        #
+        # To decode key modifiers:
+        # key_mods = pygame.key.get_mods()
+        # if key_mods == pygame.KMOD_NONE:
+        #     ...
+        # if key_mods & pygame.KMOD_SHIFT:
+        #     ...
+        # if key_mods & (pygame.KMOD_CTRL | pygame.KMOD_ALT):
+        #     ...
         gamepad = controllers[self.gamepad]  # controllers is a value defined in settings
         controller_left = False
         controller_right = False
@@ -168,6 +179,7 @@ class Player(pygame.sprite.Sprite):
         controller_b = False
         controller_x = False
         controller_menu = False
+        controller_logo = False
         controller_share = False
         for controller in self.controllers.values():
             if self.gamepad == 'ps4' or self.gamepad == 'switch_pro':
@@ -188,18 +200,17 @@ class Player(pygame.sprite.Sprite):
                 controller_x = True
             if controller.get_button(gamepad['buttons']['MENU']):
                 controller_menu = True
+            if controller.get_button(gamepad['buttons']['LOGO']):
+                controller_logo = True
             if controller.get_button(gamepad['buttons']['SHARE']):
                 controller_share = True
         keys = pygame.key.get_pressed()
-        #mod_keys = pygame.key.get_mods()
         if (keys[pygame.K_a] or controller_left):
             self.direction.x = -1  # Left movement
             self.facing_right = False
-            #if mod_keys & pygame.KMOD_ALT
         elif (keys[pygame.K_d] or controller_right):
             self.direction.x = 1  # Right movement
             self.facing_right = True
-            #if mod_keys & pygame.KMOD_ALT
         else:
             self.direction.x = 0
         if (keys[pygame.K_SPACE] or controller_a) and not (self.keydown_space or self.buttondown_a) and self.on_ground and not self.jumping:
@@ -239,6 +250,12 @@ class Player(pygame.sprite.Sprite):
             self.parent.create_pause_menu()
             self.keydown_esc = True
             self.buttondown_menu = True
+        if (keys[pygame.K_LCTRL] or controller_logo) and not (self.keydown_lctrl or self.buttondown_logo):
+            for controller in self.controllers.values():
+                controller.rumble(0.5, 0.5, 250)
+            self.parent.display_overlay = not self.parent.display_overlay
+            self.keydown_lctrl = True
+            self.buttondown_logo = True
         if (keys[pygame.K_F2] or controller_share) and not (self.keydown_f2 or self.buttondown_share):
             for controller in self.controllers.values():
                 controller.rumble(0.5, 0.5, 250)
@@ -251,11 +268,13 @@ class Player(pygame.sprite.Sprite):
         if not keys[pygame.K_j]: self.keydown_j = False
         if not keys[pygame.K_k]: self.keydown_k = False
         if not keys[pygame.K_ESCAPE]: self.keydown_esc = False
+        if not keys[pygame.K_LCTRL]: self.keydown_lctrl = False
         if not keys[pygame.K_F2]: self.keydown_f2 = False
         if not controller_a: self.buttondown_a = False
         if not controller_b: self.buttondown_b = False
         if not controller_x: self.buttondown_x = False
         if not controller_menu: self.buttondown_menu = False
+        if not controller_logo: self.buttondown_logo = False
         if not controller_share: self.buttondown_share = False
 
     def get_status(self):
@@ -288,14 +307,16 @@ class Player(pygame.sprite.Sprite):
         damage -- the amount of damage to deal
         type -- the damage type
         """
-        if type == 'physical':
-            if not self.invincible and damage > 0:
+        if damage > 0:
+            if type == 'physical':
+                if not self.invincible:
+                    self.update_health(damage, True)
+                    self.invincible = True
+                    self.hurt_time = pygame.time.get_ticks()
+                    self.player_hurt_sfx.play()  # This is repeated for each type of damage to avoid looping on each frame
+            elif type == 'pure':
                 self.update_health(damage, True)
-                self.invincible = True
-                self.hurt_time = pygame.time.get_ticks()
                 self.player_hurt_sfx.play()
-        elif type == 'pure':
-            self.update_health(damage, True)
 
     def heal(self, healing):
         """Heal the player.
@@ -336,13 +357,13 @@ class Player(pygame.sprite.Sprite):
         self.now = pygame.time.get_ticks()
         if self.now - self.gen_time >= 100:
             self.get_input()
-        self.get_status()
-        self.animate()
-        self.animate_run_particles()
-        self.tick_invincibility_timer()
-        self.create_sin_wave()
         if self.melee_attacking:
             self.direction.x = 0
         if self.now - self.melee_attack_time >= self.game.selection['melee'].cooldown:
             self.melee_attacking = False
             self.update_melee_weapon_rect(True)
+        self.get_status()
+        self.animate()
+        self.animate_run_particles()
+        self.tick_invincibility_timer()
+        self.create_sin_wave()

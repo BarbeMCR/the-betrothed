@@ -13,7 +13,7 @@ def import_folder(path):
     path -- the folder to import
     """
     surface_list = []
-    for _, __, image_list in os.walk(path):
+    for _, _, image_list in os.walk(path):
         for image in image_list:
             full_path = path + '/' + image
             image_surface = pygame.image.load(full_path).convert_alpha()

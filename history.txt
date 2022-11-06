@@ -5,6 +5,53 @@
 HISTORY OF "BarbeMCR's THE BETROTHED"
 +++++++++++++++++++++++++++++++++++++
 
+Release 0.16 - The Enemy Update
+===============================
+Build 1106
+Python 3.11.0
+Pygame 2.1.3.dev8
+*Released on November 6th, 2022*
+### Enemies
+- Added Melee and Ranged Resistance to enemies: in certain types of enemies, they are present and reduce the amount of damage received by the enemies when using the respective weapon types. Each level of resistance reduces damage by 20%, with level 5 being immunity. For example, zombies, who have Ranged Resistance I, will be dealt 20% less damage from ranged weapons
+- Added zombies: they have 2 HP and deal 2 Physical Damage. They also have Ranged Resistance I
+- Now stomping on an enemy can (in 25% of the cases) deal 1/10 of the normal damage (however, it deals Pure Damage). Previously it dealt 1/4 of the normal damage (way too much)
+- The enemy invulnerability has been slightly reduced to avoid spamming: now the default stun duration ranges between 400 and 500 milliseconds (previously was 750). The stun duration with slower weapons (which have not yet been introduced) has been affected as well, although it is pretty complex to explain
+### Health
+- Now fractional damage can be applied to the player: in order to get the actual health value, you must put together a number that has for integer part the value displayed next to the health bar and for decimal part the value displayed next to the health remainder bar
+### UI
+- Now you can toggle the overlay between the default one and a minimal one (with only the health bar shown): this is especially useful when traveling from right to left, like when exiting one-way caves
+- Now the health remainder is displayed below the energy bar
+### Camera
+- Now the camera starts moving when the player gets past two fifths of the screen width from each window border (in other words, the camera does not move when the player is in the central fifth of the screen)
+### Levels
+- Slightly tweaked a few levels to reduce the occurance of a stubborn teleporation bug
+### Textboxes
+- Now key presses will be repeated every 50 milliseconds after 0.5 seconds of holding them down
+- Now the controller `A` or `Cross` button can be pressed to confirm the input
+### Terrain
+- Now only the outermost layer of terrain tiles is checked for player collisions: this saves quite a bit of time each frame, especially in levels where there are huge extensions of terrain (like Chapter I-A)
+### Controls
+- The controls screen has been revamped: now the font is smaller, the lines are closer together, the `Back` button has been moved to the bottom right corner and the controls are described more in-depth
+### Mouse
+- Now the mouse cursor is hidden when hovering over the game window
+### Splashes
+- Added 4 new splashes
+- Changed 2 splashes
+### Bugfixes
+- Now timers work correctly when pausing and resuming
+- The player no longer slides back when melee attacking while facing left
+- The player now takes the correct amount of damage when stomping
+### Technical details
+- Updated to Pyinstaller 5.6.2
+- The game is no longer capped at 60 FPS (thanks to `delta`!)
+- Now `FlintArrows.__init__` initializes its parent object through `RangedProjectilePack.__init__`
+- Now the collision between the player and the enemies is checked using the `Player.collision_rect` instead of the `Player.rect`
+- Now the code to get whether the player is melee attacking is run before the animation code to avoid single-frame blitting inconsistencies
+- Now `Level.check_enemy_collisions` uses the `Player.collision_rect.bottom` instead of the `Player.rect.bottom`
+- Now `Game.load` no longer stores an unnecessary local variable `savefile_version` after upgrading
+- Now the `Player.player_hurt_sfx` plays regardless of the type of damage
+- The Pixel Madness embedded font has been updated to version 2.0: more latin glyphs and a few updated ones in this release
+
 Release 0.15 - The Ranged Update
 ================================
 Build 829
@@ -17,6 +64,8 @@ Pygame 2.1.2
 - However, ranged weapons have a much higher range of attack than melee weapons
 - The enemies now get stunned for the cooldown time of the ranged weapon used
 - Added the Makeshift Bow: a decent ranged weapon that deals 1 Ranged Damage, has a cooldown of 0.3 seconds and uses Flint Arrows
+- Added weapon levels (at least technically: no weapon upgrade system... yet!)
+- Weapons now store their damage values in a dictionary to allow for a future weapon level system implementation
 ### UI
 - Added the ranged weapon overlay: it is displayed next to the melee weapon overlay
 ### Player
@@ -35,9 +84,6 @@ Pygame 2.1.2
 - Now enemies get stunned for at least 750 milliseconds
 ### Delta
 - A delta cap has been implemented to avoid sudden movement when lag spikes occur: this delta cap takes effect when the game is running slower than around 35 FPS
-### Weapons
-- Added weapon levels (at least technically: no weapon upgrade system... yet!)
-- Weapons now store their damage values in a dictionary to allow for a future weapon level system implementation
 ### UI
 - Now the quantity of energy present in the energy overflow bar is displayed
 - The energy overflow bar has been moved: it is now placed below the energy bar (in the right side)

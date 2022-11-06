@@ -36,15 +36,19 @@ class TextBox:
         Arguments:
         func -- the function to run after finishing input
         """
+        pygame.key.set_repeat(500, 50)
         for event in self.parent.events:
+            # Readability hack below
+            if (event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN) or\
+            (event.type == pygame.JOYBUTTONDOWN and event.button == controllers[self.parent.gamepad]['buttons']['A']):
+                self.parent.main_menu.status = None
+                if self.text != '':
+                    self.parent.savefile_path = './data/' + self.text
+                self.menu_sfx.play()
+                pygame.key.set_repeat()
+                func()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    self.parent.main_menu.status = None
-                    if self.text != '':
-                        self.parent.savefile_path = './data/' + self.text
-                    self.menu_sfx.play()
-                    func()
-                elif event.key == pygame.K_BACKSPACE:
+                if event.key == pygame.K_BACKSPACE:
                     self.text = self.text[:-1]
                 else:
                     if self.font.size(self.text)[0] <= 700:

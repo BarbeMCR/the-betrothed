@@ -264,26 +264,32 @@ class Controls(Menu):
         self.layout = 'v'
         super().__init__(self.background, self.cursor, self.layout, self.display_surface, self.parent)
         self.tags = ['Back']
-        self.x = int((screen_width - self.font.size(self.tags[0])[0]) / 2)
-        self.y = screen_height - self.font.size(self.tags[0])[1] - 64
+        self.x = screen_width - self.font.size(self.tags[0])[0] - 32
+        self.y = screen_height - self.font.size(self.tags[0])[1] - 16
         self.step = 64
         self.create_main_menu = self.parent.create_main_menu
-        self.controls_font = pygame.font.Font(self.font_file, 18)
+        self.controls_font = pygame.font.Font(self.font_file, 12)
         self.controls = [
-            "Movement: 'WASD' / D-Pad / D-Pad / D-Pad",
-            "Jump: 'Space' / A / Cross / A",
-            "Attack: 'JKL' / B-X-Y / Circle-Square-Triangle / B-X-Y",
-            "Pause: 'Esc' / Menu / Options / +",
-            "Take screenshot: 'F2' / Share / Touchpad Click / Capture"
+            "Action:   Keyboard + Mouse   /   Xbox X|S, One, 360   /   DualShock 4   /   Nintendo Switch Pro",
+            "",
+            "Move left:   'A'   /   D-Pad Left   /   D-Pad Left   /   D-Pad Left",
+            "Move right:   'D'   /   D-Pad Right   /   D-Pad Right   /   D-Pad Right",
+            "Jump:   'Space'   /   A   /   Cross   /   A",
+            "Melee attack:   'J'   /   B   /   Circle   /   B",
+            "Ranged attack:   'K'   /   X   /   Square   /   X",
+            "Pause:   'Esc'   /   Menu   /   Options   /   +",
+            "Toggle overlay:   'Left Ctrl'   /   Xbox   /   PlayStation   /   Home",
+            "Take screenshot:   'F2'   /   Share   /   Touchpad Click   /   Capture",
+            "Toggle fullscreen:   'F11'",
         ]
 
     def display_controls(self):
         """Display the control information."""
-        y = 64
+        y = 32
         for control in self.controls:
             control_surface = self.controls_font.render(control, False, 'white')
             self.display_surface.blit(control_surface, (64, y))
-            y += 32
+            y += 24
 
     def run(self):
         """Update and draw everything."""

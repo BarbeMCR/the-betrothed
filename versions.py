@@ -1,6 +1,13 @@
 """This files defines the translations of version codes."""
 
 versions = {
+    11060: "0.16",
+    10160: "0.16-build1016",
+    9070: "0.16-build907",
+    9060: "0.16-build906",
+    9050: "0.16-build905",
+    9040: "0.16-build904",
+    9030: "0.16-build903",
     8290: "0.15",
     8231: "0.15-build823(1)",
     8230: "0.15-build823",

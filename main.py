@@ -28,8 +28,8 @@ from update import check_updates
 
 def main():
     # Build identification
-    version = "0.15"
-    build = 829  # lgtm [py/unused-local-variable]
+    version = "0.16"
+    build = 1106  # lgtm [py/unused-local-variable]
     build_id = 0  # lgtm [py/unused-local-variable]
     stable = True
 
@@ -57,6 +57,7 @@ def main():
     crashed = False
     tb = None
     check_updates(version_id, screen)
+    pygame.mouse.set_visible(False)
 
     # Event loop
     while True:
@@ -94,7 +95,7 @@ def main():
             crash.run(tb)
 
         pygame.display.update()
-        clock.tick(60)
+        clock.tick()
 
 if __name__ == '__main__':
     main()

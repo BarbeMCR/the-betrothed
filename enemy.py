@@ -6,7 +6,7 @@ from tile import AnimatedTile
 
 class Enemy(AnimatedTile):
     """The base enemy class."""
-    def __init__(self, size, x, y, path, speed, health, damage, energy):
+    def __init__(self, size, x, y, path, speed, health, damage, energy, melee_resistance, ranged_resistance):
         """Initialize the parent AnimatedTile class.
 
         Arguments:
@@ -18,16 +18,20 @@ class Enemy(AnimatedTile):
         health -- the enemy health
         damage -- the damage the enemy deals
         energy -- the energy dropped by enemies
+        melee_resistance -- the level of melee resistance
+        ranged_resistance -- the level of ranged resistance
         """
         super().__init__(size, x, y, path)
-        self.invincible = False
         self.now = pygame.time.get_ticks()
+        self.invincible = False
         self.hurt_time = 0
-        self.stun_duration = 750
+        self.stun_duration = random.randint(400, 500)
         self.speed = speed
         self.health = health
         self.damage = damage
         self.energy = energy
+        self.melee_resistance = melee_resistance
+        self.ranged_resistance = ranged_resistance
         self.toughness = random.choices([i for i in range(3)], [50, 25, 25])[0]
         self.health += self.toughness
         self.damage += int(self.toughness / 2)
@@ -73,11 +77,34 @@ class Skeleton(Enemy):
         self.health = 1
         self.damage = 1
         self.energy = random.randint(0, 3)
-        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy)
+        self.melee_resistance = 0
+        self.ranged_resistance = 0
+        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance)
         self.rect.y -= offset
 
     def update(self, shift):
-        """Call Enemy().update()
+        """Call 'Enemy.update'
+
+        Arguments:
+        shift -- the camera shift
+        """
+        super().update(shift)
+
+class Zombie(Enemy):
+    """This class defines the zombies."""
+    def __init__(self, size, x, y, path, offset):
+        """Set the speed and the offset and initialize the parent Enemy class."""
+        self.speed = random.randint(4, 8)
+        self.health = 2
+        self.damage = 2
+        self.energy = random.randint(0, 4)
+        self.melee_resistance = 0
+        self.ranged_resistance = 1
+        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance)
+        self.rect.y -= offset
+
+    def update(self, shift):
+        """Call 'Enemy.update'
 
         Arguments:
         shift -- the camera shift

@@ -21,3 +21,4 @@ class FlintArrows(RangedProjectilePack):
         self.name = "Flint Arrows"
         self.image = './assets/weapon/flint_arrow.png'
         self.count = 50
+        super().__init__(self.name, self.image, self.count)

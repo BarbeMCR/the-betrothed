@@ -34,6 +34,8 @@ class Level:
         self.gamepad = self.parent.gamepad
         self.shift = 0
         self.start_x = 0
+        self.pause_start = 0
+        self.time_paused = 0
 
         # Loading screen
         self.display_surface.fill('black')
@@ -77,6 +79,7 @@ class Level:
         # UI
         self.update_energy = self.parent.update_energy
         self.reset_energy_overflow = self.parent.reset_energy_overflow
+        self.display_overlay = True
 
         # Terrain setup
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -120,6 +123,12 @@ class Level:
         self.clouds = Clouds(320, level_width, random.randint(0, 32))
         self.mountains = Mountains(192, level_width, level_data['enable_mountains'])
 
+        # Terrain optimization
+        self.internal_terrain_sprites = pygame.sprite.Group()
+        self.optimize_internal_terrain()
+        for sprite in self.internal_terrain_sprites.sprites():
+            self.terrain_sprites.remove(sprite)
+
         # Music
         pygame.mixer.music.load(level_data['music'])
         pygame.mixer.music.set_volume(0.5)
@@ -133,6 +142,9 @@ class Level:
     def resume_level(self):
         """Resume the game."""
         pygame.mixer.music.unpause()
+        now = pygame.time.get_ticks()
+        self.time_paused = now - self.pause_start
+        self._update_timestamps()
         self.player.sprite.game_resumed_sfx.play()
         self.player.sprite.keydown_space = True
         self.player.sprite.keydown_j = True
@@ -142,9 +154,21 @@ class Level:
         for controller in self.controllers.values():
             controller.rumble(0, 1, 250)
 
+    def _update_timestamps(self):
+        """Update the timestamps so that they work as expected after resuming."""
+        self.player.sprite.melee_attack_time += self.time_paused
+        self.player.sprite.ranged_attack_time += self.time_paused
+        self.player.sprite.hurt_time += self.time_paused
+        self.player.sprite.gen_time += self.time_paused
+        for enemy in self.enemy_sprites:
+            enemy.hurt_time += self.time_paused
+        if hasattr(self.player_end.sprite, 'ticks'):
+            self.player_end.sprite.ticks += self.time_paused
+
     def create_pause_menu(self):
         """Build the pause menu and pause the game."""
         pygame.mixer.music.pause()
+        self.pause_start = pygame.time.get_ticks()
         self.pause_menu = PauseMenu(self.display_surface, self)
         self.status = 'pause'
 
@@ -272,11 +296,46 @@ class Level:
                     if type == 'enemies':
                         if col == '1':
                             sprite = Skeleton(tile_size, x, y, './assets/enemy/skeleton', 64)
+                        elif col == '2':
+                            sprite = Zombie(tile_size, x, y, './assets/enemy/zombie', 64)
                     if type == 'borders':
                         sprite = Tile(tile_size, x, y)
                     sprite_group.add(sprite)
             pygame.event.pump()
         return sprite_group
+
+    def optimize_internal_terrain(self):
+        """Optimize the internal terrain by detecting it and putting it in a separate group where collision isn't checked."""
+        for target_tile in self.terrain_sprites.sprites():
+            topleft_tile = False
+            top_tile = False
+            topright_tile = False
+            left_tile = False
+            right_tile = False
+            bottomleft_tile = False
+            bottom_tile = False
+            bottomright_tile = False
+            for sprite in self.terrain_sprites.sprites():
+                if sprite.rect.collidepoint(target_tile.rect.topleft - pygame.math.Vector2(32, 32)):
+                    topleft_tile = True
+                elif sprite.rect.collidepoint(target_tile.rect.midtop - pygame.math.Vector2(0, 32)):
+                    top_tile = True
+                elif sprite.rect.collidepoint(target_tile.rect.topright - pygame.math.Vector2(-32, 32)):
+                    topright_tile = True
+                elif sprite.rect.collidepoint(target_tile.rect.midleft - pygame.math.Vector2(32, 0)):
+                    left_tile = True
+                elif sprite.rect.collidepoint(target_tile.rect.midright + pygame.math.Vector2(32, 0)):
+                    right_tile = True
+                elif sprite.rect.collidepoint(target_tile.rect.bottomleft + pygame.math.Vector2(-32, 32)):
+                    bottomleft_tile = True
+                elif sprite.rect.collidepoint(target_tile.rect.midbottom + pygame.math.Vector2(0, 32)):
+                    bottom_tile = True
+                elif sprite.rect.collidepoint(target_tile.rect.bottomright + pygame.math.Vector2(32, 32)):
+                    bottomright_tile = True
+            if topleft_tile and top_tile and topright_tile and left_tile and right_tile and bottomleft_tile and bottom_tile and bottomright_tile:
+                self.internal_terrain_sprites.add(target_tile)
+            elif target_tile.rect.bottom == screen_height and topleft_tile and top_tile and topright_tile and left_tile and right_tile:
+                self.internal_terrain_sprites.add(target_tile)
 
     def apply_enemy_border_collision(self):
         """Reverse the enemies if they run into a border tile."""
@@ -328,10 +387,10 @@ class Level:
         player = self.player.sprite
         player_x = player.rect.centerx
         direction_x = player.direction.x
-        if player_x < screen_width / 3 and direction_x < 0:
+        if player_x < screen_width / 2.5 and direction_x < 0:
             self.shift = speed
             player.speed = 0
-        elif player_x > screen_width - (screen_width / 3) and direction_x > 0:
+        elif player_x > screen_width - (screen_width / 2.5) and direction_x > 0:
             self.shift = -speed
             player.speed = 0
         else:
@@ -364,12 +423,11 @@ class Level:
 
     def check_enemy_collisions(self):
         """Check if the player collides with the enemies and do actions accordingly."""
-        enemy_collisions = pygame.sprite.spritecollide(self.player.sprite, self.enemy_sprites, False)
-        if enemy_collisions:
-            for enemy in enemy_collisions:
+        for enemy in self.enemy_sprites:
+            if self.player.sprite.collision_rect.colliderect(enemy.rect):
                 enemy_center = enemy.rect.centery
                 enemy_top = enemy.rect.top
-                player_bottom = self.player.sprite.rect.bottom
+                player_bottom = self.player.sprite.collision_rect.bottom
                 if enemy_top < player_bottom < enemy_center and self.player.sprite.direction.y > 1:
                     self.player.sprite.direction.y = int(self.player.sprite.jump_height / 2)
                     enemy.health -= 1
@@ -378,7 +436,7 @@ class Level:
                     self.player.sprite.invincible = True
                     self.player.sprite.hurt_time = pygame.time.get_ticks()
                     if random.randint(1, 4) == 1:
-                        self.player.sprite.take_damage(int(enemy.damage / 4), 'pure')
+                        self.player.sprite.take_damage(enemy.damage / 10, 'pure')
                 else:
                     self.player.sprite.take_damage(enemy.damage, 'physical')
 
@@ -386,17 +444,20 @@ class Level:
         """Check if the melee weapon collides with the enemies and damage them if so."""
         for enemy in self.enemy_sprites:
             if self.player.sprite.melee_weapon_rect.colliderect(enemy.rect):
-                if not enemy.invincible:
-                    enemy.health -= self.parent.selection['melee'].damage[self.parent.selection['melee'].level]
-                    self.player.sprite.enemy_hurt_sfx.play()
-                    enemy.invincible = True
-                    enemy.hurt_time = pygame.time.get_ticks()
-                    melee_weapon_cooldown = self.parent.selection['melee'].cooldown
-                    if melee_weapon_cooldown >= 500:
-                        if melee_weapon_cooldown <= 750:
-                            enemy.stun_duration = melee_weapon_cooldown + 250
-                        else:
-                            enemy.stun_duration = melee_weapon_cooldown
+                if enemy.melee_resistance < 5:
+                    if not enemy.invincible:
+                        damage = self.parent.selection['melee'].damage[self.parent.selection['melee'].level]
+                        damage -= 20*enemy.melee_resistance/100 * damage
+                        enemy.health -= damage
+                        self.player.sprite.enemy_hurt_sfx.play()
+                        enemy.invincible = True
+                        enemy.hurt_time = pygame.time.get_ticks()
+                        melee_weapon_cooldown = self.parent.selection['melee'].cooldown
+                        if melee_weapon_cooldown >= 500:
+                            if melee_weapon_cooldown <= 750:
+                                enemy.stun_duration = random.randint(melee_weapon_cooldown, melee_weapon_cooldown+100)
+                            else:
+                                enemy.stun_duration = random.randint(melee_weapon_cooldown-100, melee_weapon_cooldown)
 
     def check_enemy_ranged_collisions(self):
         """Check if the ranged weapon projectiles are valid, then check if they collide with the enemies."""
@@ -410,12 +471,15 @@ class Level:
         if enemy_collisions:
             for projectile, enemies in enemy_collisions.items():
                 for enemy in enemies:
-                    if not enemy.invincible:
-                        enemy.health -= self.parent.selection['ranged'].damage[self.parent.selection['ranged'].level]
-                        self.player.sprite.enemy_hurt_sfx.play()
-                        enemy.invincible = True
-                        enemy.hurt_time = pygame.time.get_ticks()
-                        enemy.stun_duration = self.parent.selection['ranged'].cooldown
+                    if enemy.ranged_resistance < 5:
+                        if not enemy.invincible:
+                            damage = self.parent.selection['ranged'].damage[self.parent.selection['ranged'].level]
+                            damage -= 20*enemy.ranged_resistance/100 * damage
+                            enemy.health -= damage
+                            self.player.sprite.enemy_hurt_sfx.play()
+                            enemy.invincible = True
+                            enemy.hurt_time = pygame.time.get_ticks()
+                            enemy.stun_duration = self.parent.selection['ranged'].cooldown
                 projectile.kill()
 
     def create_ranged_projectile(self):
@@ -427,7 +491,7 @@ class Level:
         else:
             pos = self.player.sprite.rect.midleft
             facing_right = False
-        pos -= pygame.math.Vector2(0, 16)
+        pos -= pygame.math.Vector2(0, 16)  # This allows for the projectile to be shot from higher up
         speed = self.parent.selection['ranged'].speed
         start_x = (self.start_x - pos[0]) * -1
         ranged_projectile = Projectile(image, pos, speed, facing_right, start_x)
@@ -448,7 +512,7 @@ class Level:
                 self.enemy_death_sfx.play()
 
     def check_fall_death(self):
-        """Check if the player is dead by a fall accident."""
+        """Check if the player has fallen and should be dead."""
         if self.player.sprite.collision_rect.top > 4 * screen_height:
             self.player.sprite.take_damage(5, 'pure')
             self.decrease_energy(random.randint(1, 25))
@@ -505,6 +569,8 @@ class Level:
             # Terrain
             self.terrain_sprites.update(self.shift)
             self.terrain_sprites.draw(self.display_surface)
+            self.internal_terrain_sprites.update(self.shift)
+            self.internal_terrain_sprites.draw(self.display_surface)
             # Background terrain
             self.background_sprites.update(self.shift)
             self.background_sprites.draw(self.display_surface)
@@ -550,7 +616,11 @@ class Level:
             self.create_fall_particle()
             self.scroll_x(int(360*delta))
             self.start_x += self.shift
-            self.player.draw(self.display_surface)
+            # The code below allows for adjusting the player blitting position when melee attacking and facing left so that the player doesn't "slide" right
+            if self.player.sprite.melee_attacking and not self.player.sprite.facing_right:
+                self.display_surface.blit(self.player.sprite.image, self.player.sprite.rect.topleft - pygame.math.Vector2(self.parent.selection['melee'].range, 0))
+            else:
+                self.player.draw(self.display_surface)  # Normal draw routine
             self.ranged_sprites.update(self.shift)
             self.ranged_sprites.draw(self.display_surface)
 
