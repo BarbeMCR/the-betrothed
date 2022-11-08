@@ -16,15 +16,13 @@ jobs:
       matrix:
         os-version: [ubuntu-20.04, ubuntu-22.04]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
-        architecture: ['x86', 'x64']
-    name: ubuntu ${{ matrix.os-version }}, Py ${{ matrix.python-version }} ${{ matrix.architecture }}
+    name: ubuntu (${{ matrix.os-version }}), Py ${{ matrix.python-version }} x64
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture}}
       - name: Upgrade pip, setuptools and wheel
         run: python -m pip install pip setuptools wheel --upgrade
       - name: Install flake8
@@ -43,7 +41,7 @@ jobs:
         os-version: [windows-2019, windows-2022]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
         architecture: ['x86', 'x64']
-    name: win ${{ matrix.os-version }}, Py ${{ matrix.python-version }} ${{ matrix.architecture }}
+    name: win32 (${{ matrix.os-version }}), Py ${{ matrix.python-version }} ${{ matrix.architecture }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -68,15 +66,13 @@ jobs:
       matrix:
         os-version: [macos-11, macos-12]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
-        architecture: ['x86', 'x64']
-    name: macos ${{ matrix.os-version }}, Py ${{ matrix.python-version }} ${{ matrix.architecture }}
+    name: macos (${{ matrix.os-version }}), Py ${{ matrix.python-version }} x64
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: ${{ matrix.architecture }}
       - name: Upgrade pip, setuptools and wheel
         run: python -m pip install pip setuptools wheel --upgrade
       - name: Install flake8
