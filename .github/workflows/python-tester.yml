@@ -5,14 +5,14 @@ name: Python Tester
 on:
   push:
     branches: [main]
-  pull_requests:
+  pull_request:
     branches: [main]
 
 jobs:
   build-ubuntu:
     runs-on: ${{ matrix.os-version }}
     strategy:
-      fail-test: false
+      fail-fast: false
       matrix:
         os-version: [ubuntu-20.04, ubuntu-22.04]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
@@ -37,7 +37,7 @@ jobs:
   build-windows:
     runs-on: ${{ matrix.os-version }}
     strategy:
-      fail-test: false
+      fail-fast: false
       matrix:
         os-version: [windows-2019, windows-2022]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
@@ -62,7 +62,7 @@ jobs:
   build-macos:
     runs-on: ${{ matrix.os-version }}
     strategy:
-      fail-test: false
+      fail-fast: false
       matrix:
         os-version: [macos-11, macos-12]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
