@@ -23,18 +23,23 @@ class Particle(pygame.sprite.Sprite):
             self.frames = import_folder('./assets/enemy/death')
         self.image = self.frames[self.frame_index]
         self.rect = self.image.get_rect(center = pos)
-    def animate(self):
-        """Animate the particle."""
-        self.frame_index += self.animation_speed
+    def animate(self, delta):
+        """Animate the particle.
+
+        Arguments:
+        delta -- the time delta
+        """
+        self.frame_index += self.animation_speed*60*delta
         if self.frame_index >= len(self.frames):
             self.kill()
         else:
             self.image = self.frames[int(self.frame_index)]
-    def update(self, shift):
+    def update(self, shift, delta):
         """Update the particle.
 
         Arguments:
         shift -- the camera shift
+        delta -- the time delta
         """
-        self.animate()
+        self.animate(delta)
         self.rect.x += shift

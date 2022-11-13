@@ -20,6 +20,8 @@ class UI:
         self.energy_rect = self.energy_bar.get_rect(topleft=(16, 80))
         self.energy_overflow_bar = pygame.image.load('./assets/ui/energy_overflow_bar.png').convert_alpha()
         self.energy_overflow_rect = self.energy_overflow_bar.get_rect(topright=(self.energy_rect.right, 144))
+        self.stamina_bar = pygame.image.load('./assets/ui/stamina_bar.png').convert_alpha()
+        self.stamina_rect = self.stamina_bar.get_rect(topleft=(16, 176))
         self.melee_overlay = pygame.image.load('./assets/ui/overlay_melee.png').convert_alpha()
         self.melee_overlay_rect = self.melee_overlay.get_rect(bottomleft=(16, 688))
         self.ranged_overlay = pygame.image.load('./assets/ui/overlay_ranged.png').convert_alpha()
@@ -111,6 +113,24 @@ class UI:
         energy_overflow_width = int(energy_overflow_bar_width * energy_overflow_percentage)
         energy_overflow_bar_rect = pygame.Rect(energy_overflow_bar_topleft, (energy_overflow_width, energy_overflow_bar_height))
         pygame.draw.rect(self.display_surface, '#0098db', energy_overflow_bar_rect)
+
+    def display_stamina(self, stamina, max_stamina):
+        """Display the stamina bar.
+
+        Arguments:
+        stamina -- the current stamina value
+        max_stamina -- the maximum stamina value
+        """
+        # Preparation
+        stamina_bar_topleft = (self.stamina_rect.topleft[0]+52, self.stamina_rect.topleft[1]+28)
+        stamina_bar_width = 200
+        stamina_bar_height = 12
+        # Drawing
+        self.display_surface.blit(self.stamina_bar, self.stamina_rect)
+        stamina_percentage = stamina / max_stamina
+        stamina_width = int(stamina_bar_width * stamina_percentage)
+        stamina_bar_rect = pygame.Rect(stamina_bar_topleft, (stamina_width, stamina_bar_height))
+        pygame.draw.rect(self.display_surface, '#ebeced', stamina_bar_rect)
 
     def display_melee_overlay(self, melee_weapon):
         """Display the melee weapon overlay.

@@ -73,20 +73,25 @@ class AnimatedTile(Tile):
         self.image = self.frames[self.frame_index]
         self.rect = self.image.get_rect(topleft = (x, y))
 
-    def animate(self):
-        """Animate the tile."""
-        self.frame_index += 0.1
+    def animate(self, delta):
+        """Animate the tile.
+
+        Arguments:
+        delta -- the time delta
+        """
+        self.frame_index += 0.1*60*delta
         if self.frame_index >= len(self.frames):
             self.frame_index = 0
         self.image = self.frames[int(self.frame_index)]
 
-    def update(self, shift):
+    def update(self, shift, delta):
         """Update the tile.
 
         Arguments:
         shift -- the camera shift
+        delta -- the time delta
         """
-        self.animate()
+        self.animate(delta)
         super().update(shift)
 
 class Energy(AnimatedTile):
@@ -104,10 +109,11 @@ class Energy(AnimatedTile):
         super().__init__(size, x, y, path)
         self.value = value
 
-    def update(self, shift):
+    def update(self, shift, delta):
         """Update the energy tile.
 
         Arguments:
         shift -- the camera shift
+        delta -- the time delta
         """
-        super().update(shift)
+        super().update(shift, delta)

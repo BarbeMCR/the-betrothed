@@ -5,7 +5,7 @@ import configparser
 import os
 import shelve
 from text import render
-from settings import *  # lgtm [py/polluting-import]
+from settings import controllers, screen_height, screen_width
 from box import TextBox, SelectionBoxYN
 from versions import get_version
 
@@ -81,7 +81,6 @@ class Menu:
 
     def dummy(self):
         """A dummy function."""
-        pass
 
     def get_input(self, funcs):
         """Get the input from the devices and do the correct actions.
@@ -150,7 +149,7 @@ class MainMenu(Menu):
         self.display_surface = display_surface
         self.parent = parent
         self.background = './assets/menu/title_bg.png'
-        self.cursor = './assets/menu/cursor_gray.png'
+        self.cursor = './assets/menu/cursor.png'
         self.layout = 'v'
         super().__init__(self.background, self.cursor, self.layout, self.display_surface, self.parent)
         self.x = 128
@@ -178,7 +177,7 @@ class MainMenu(Menu):
         x = self.x
         y = self.y
         for text in tags:
-            text_surface = self.font.render(text, False, 'gray50')
+            text_surface = self.font.render(text, False, 'white')
             self.display_surface.blit(text_surface, (x, y))
             if self.layout == 'v':
                 y += self.step
@@ -277,8 +276,9 @@ class Controls(Menu):
             "Jump:   'Space'   /   A   /   Cross   /   A",
             "Melee attack:   'J'   /   B   /   Circle   /   B",
             "Ranged attack:   'K'   /   X   /   Square   /   X",
+            "Run:   'Left CTRL' [+ 'Left ALT'] + 'A/D'   /   RT + D-Pad   /   R2 + D-Pad   /   ZR + D-Pad",
             "Pause:   'Esc'   /   Menu   /   Options   /   +",
-            "Toggle overlay:   'Left Ctrl'   /   Xbox   /   PlayStation   /   Home",
+            "Toggle overlay:   'Backslash'   /   Xbox   /   PlayStation   /   Home",
             "Take screenshot:   'F2'   /   Share   /   Touchpad Click   /   Capture",
             "Toggle fullscreen:   'F11'",
         ]
@@ -480,7 +480,7 @@ class Settings(Menu):
         else:
             super().run(self.tags, self.create_controller_settings, self.create_autodownload_settings, self.create_delete_textbox, self.reset_settings, self.create_main_menu)
 
-class ControllerSettings(Settings):  #lgtm [py/missing-call-to-init]
+class ControllerSettings(Settings):
     """The controller settings submenu."""
     def __init__(self, parent):
         """Initialize the base settings class.
@@ -499,7 +499,7 @@ class ControllerSettings(Settings):  #lgtm [py/missing-call-to-init]
         """Update and draw everything."""
         self.parent.select_option(self)
 
-class AutodownloadSettings(Settings):  #lgtm [py/missing-call-to-init]
+class AutodownloadSettings(Settings):
     """The autodownload settings submenu."""
     def __init__(self, parent):
         """Initialize the base settings class.

@@ -1,6 +1,6 @@
 import pygame
 from math import sin
-from settings import *  # lgtm [py/polluting-import]
+from settings import controllers
 from misc import import_folder
 
 """This file defines the player behavior."""
@@ -29,7 +29,7 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
         self.animation_speed = 0.15
         self.image = self.player_assets['idle'][self.frame_index]
-        self.rect = self.image.get_rect(topleft = pos)
+        self.rect = self.image.get_rect(topleft=pos)
         self.collision_rect = pygame.Rect((self.rect.top - 2, self.rect.left - 2), (self.rect.width - 2, self.rect.height - 2))
         self.melee_weapon_rect = pygame.Rect(self.rect.topright, (0, 0))
         self.now = 0  # This is a dummy value
@@ -50,8 +50,10 @@ class Player(pygame.sprite.Sprite):
 
         # Player movement
         self.direction = pygame.math.Vector2(0, 0)
+        self.base_speed = 360
         self.speed = 360
-        self.gravity = 1
+        self.target_speed = 360
+        self.gravity = 60
         self.jump_height = -22
 
         # Methods
@@ -71,6 +73,7 @@ class Player(pygame.sprite.Sprite):
         self.invincible = False
         self.invincibility_ticks = 1000
         self.hurt_time = 0  # This is a timestamp, like self.gen_time
+        self.stamina_depleted_time = 0
         self.melee_attacking = False
         self.melee_attack_time = 0
         self.ranged_attack_time = 0
@@ -81,7 +84,7 @@ class Player(pygame.sprite.Sprite):
         self.keydown_j = False
         self.keydown_k = False
         self.keydown_esc = False
-        self.keydown_lctrl = False
+        self.keydown_backslash = False
         self.keydown_f2 = False
         self.buttondown_a = False
         self.buttondown_b = False
@@ -108,9 +111,9 @@ class Player(pygame.sprite.Sprite):
             self.animation_speed = self.game.selection['melee'].animation_speed
         else:
             animation = self.player_assets[self.status]
-            self.animation_speed = 0.15
+            self.animation_speed = 0.15 * (self.speed / self.base_speed)
         # Frame index loop
-        self.frame_index += self.animation_speed
+        self.frame_index += self.animation_speed*60*self.parent.delta
         if self.frame_index >= len(animation):
             self.frame_index = 0
 
@@ -140,7 +143,7 @@ class Player(pygame.sprite.Sprite):
     def animate_run_particles(self):
         """Animate the run particles if the player is on the ground."""
         if self.status == 'run' and self.on_ground:
-            self.dust_frame_index += self.dust_animation_speed
+            self.dust_frame_index += self.dust_animation_speed*60*self.parent.delta
             if self.dust_frame_index >= len(self.run_particles):
                 self.dust_frame_index = 0
 
@@ -181,6 +184,7 @@ class Player(pygame.sprite.Sprite):
         controller_menu = False
         controller_logo = False
         controller_share = False
+        controller_rt = -1
         for controller in self.controllers.values():
             if self.gamepad == 'ps4' or self.gamepad == 'switch_pro':
                 if controller.get_button(gamepad['buttons']['LEFT']):
@@ -204,13 +208,16 @@ class Player(pygame.sprite.Sprite):
                 controller_logo = True
             if controller.get_button(gamepad['buttons']['SHARE']):
                 controller_share = True
+            controller_rt = controller.get_axis(gamepad['axes']['RT'])
         keys = pygame.key.get_pressed()
         if (keys[pygame.K_a] or controller_left):
             self.direction.x = -1  # Left movement
             self.facing_right = False
+            self.check_player_running(keys, controller_rt)
         elif (keys[pygame.K_d] or controller_right):
             self.direction.x = 1  # Right movement
             self.facing_right = True
+            self.check_player_running(keys, controller_rt)
         else:
             self.direction.x = 0
         if (keys[pygame.K_SPACE] or controller_a) and not (self.keydown_space or self.buttondown_a) and self.on_ground and not self.jumping:
@@ -250,11 +257,11 @@ class Player(pygame.sprite.Sprite):
             self.parent.create_pause_menu()
             self.keydown_esc = True
             self.buttondown_menu = True
-        if (keys[pygame.K_LCTRL] or controller_logo) and not (self.keydown_lctrl or self.buttondown_logo):
+        if (keys[pygame.K_BACKSLASH] or controller_logo) and not (self.keydown_backslash or self.buttondown_logo):
             for controller in self.controllers.values():
                 controller.rumble(0.5, 0.5, 250)
             self.parent.display_overlay = not self.parent.display_overlay
-            self.keydown_lctrl = True
+            self.keydown_backslash = True
             self.buttondown_logo = True
         if (keys[pygame.K_F2] or controller_share) and not (self.keydown_f2 or self.buttondown_share):
             for controller in self.controllers.values():
@@ -268,7 +275,7 @@ class Player(pygame.sprite.Sprite):
         if not keys[pygame.K_j]: self.keydown_j = False
         if not keys[pygame.K_k]: self.keydown_k = False
         if not keys[pygame.K_ESCAPE]: self.keydown_esc = False
-        if not keys[pygame.K_LCTRL]: self.keydown_lctrl = False
+        if not keys[pygame.K_BACKSLASH]: self.keydown_backslash = False
         if not keys[pygame.K_F2]: self.keydown_f2 = False
         if not controller_a: self.buttondown_a = False
         if not controller_b: self.buttondown_b = False
@@ -289,6 +296,60 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.status = 'idle'
 
+    def _reset_speed(self):
+        """Reset the player speed if no direction key is pressed."""
+        for event in self.game.events:
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_a or event.key == pygame.K_d:
+                    self.speed = self.base_speed
+
+    def check_player_running(self, keys, controller_rt):
+        """Check whether the player is running and apply the additional speed.
+
+        Arguments:
+        keys -- the currently pressed keys
+        controller_rt -- the current value of the right trigger
+        """
+        if self.game.stamina[self.character] > 0:
+            if keys[pygame.K_LCTRL]:
+                if keys[pygame.K_LALT]:
+                    self.speed = int(self.base_speed * 2)
+                else:
+                    self.speed = int(self.base_speed * 1.5)
+            else:
+                self.speed = self.base_speed
+            if controller_rt > -1:
+                controller_rt += 1  # Range: -1 to 1 -> 0 to 2
+                controller_rt /= 2  # Range: 0 to 2 -> 0 to 1
+                controller_rt += 1  # Range: 0 to 1 -> 1 to 2
+                if controller_rt > 1.05:  # Takes drifting into account
+                    self.speed = int(self.base_speed * controller_rt)
+                    for controller in self.controllers.values():
+                        controller.rumble(0, controller_rt-1, 50)
+                else:
+                    self.speed = self.base_speed
+        else:
+            self.speed = self.base_speed
+
+    def decrease_stamina(self):
+        """Decrease the stamina if needed."""
+        if self.speed > self.base_speed:
+            self.game.stamina[self.character] -= int((self.speed-self.base_speed)*self.parent.delta)
+
+    def refill_stamina(self):
+        """Gradually refill the stamina and limit it."""
+        if self.now - self.stamina_depleted_time >= 1000:
+            if self.speed <= self.base_speed:
+                if self.direction.x == 0:
+                    self.game.stamina[self.character] += int(180*self.parent.delta)
+                else:
+                    self.game.stamina[self.character] += int(60*self.parent.delta)
+            if self.game.stamina[self.character] > self.game.max_stamina[self.character]:
+                self.game.stamina[self.character] = self.game.max_stamina[self.character]
+            if self.game.stamina[self.character] < 0:
+                self.stamina_depleted_time = pygame.time.get_ticks()
+                self.game.stamina[self.character] = 0
+
     def jump(self):
         """Make the player jump."""
         self.direction.y = self.jump_height
@@ -297,8 +358,8 @@ class Player(pygame.sprite.Sprite):
 
     def apply_gravity(self):
         """Apply gravity to the player."""
-        self.direction.y += self.gravity
-        self.collision_rect.y += self.direction.y
+        self.direction.y += self.gravity * self.parent.delta
+        self.collision_rect.y += self.direction.y*60*self.parent.delta
 
     def take_damage(self, damage, type):
         """Deal damage to the player and play the hurt SFX.
@@ -367,3 +428,6 @@ class Player(pygame.sprite.Sprite):
         self.animate_run_particles()
         self.tick_invincibility_timer()
         self.create_sin_wave()
+        self._reset_speed()
+        self.decrease_stamina()
+        self.refill_stamina()

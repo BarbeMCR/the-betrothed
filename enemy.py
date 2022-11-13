@@ -25,6 +25,8 @@ class Enemy(AnimatedTile):
         self.now = pygame.time.get_ticks()
         self.invincible = False
         self.hurt_time = 0
+        self.just_flipped = False  # This is used to fix a bug where the enemies get "caught" on the border tiles
+        self.flip_time = 0  # Dummy value
         self.stun_duration = random.randint(400, 500)
         self.speed = speed
         self.health = health
@@ -36,11 +38,15 @@ class Enemy(AnimatedTile):
         self.health += self.toughness
         self.damage += int(self.toughness / 2)
 
-    def move(self):
-        """Move the enemy based on their speed."""
+    def move(self, delta):
+        """Move the enemy based on their speed.
+
+        Arguments:
+        delta -- the time delta
+        """
         if not self.invincible:
             if self.now - self.hurt_time >= self.stun_duration:
-                self.rect.x += self.speed
+                self.rect.x += int(self.speed*60*delta)
 
     def flip(self):
         """Flip the enemy if it is going left."""
@@ -49,25 +55,32 @@ class Enemy(AnimatedTile):
 
     def reverse(self):
         """Invert the enemy speed."""
-        self.speed *= -1
+        if not self.just_flipped:
+            self.speed *= -1
+            self.just_flipped = True
+            self.flip_time = pygame.time.get_ticks()
 
-    def tick_invincibility_timer(self):
-        """Tick down the invincibility timer."""
+    def tick_timers(self):
+        """Tick down the internal timers."""
         self.now = pygame.time.get_ticks()
+        if self.just_flipped:
+            if self.now - self.flip_time >= 50:
+                self.just_flipped = False
         if self.invincible:
             if self.now - self.hurt_time >= 500:
                 self.invincible = False
 
-    def update(self, shift):
+    def update(self, shift, delta):
         """Update the enemy tile.
 
         Arguments:
         shift -- the camera shift
+        delta -- the time delta
         """
-        super().update(shift)
-        self.move()
+        super().update(shift, delta)
+        self.move(delta)
         self.flip()
-        self.tick_invincibility_timer()
+        self.tick_timers()
 
 class Skeleton(Enemy):
     """This class defines the skeletons."""
@@ -82,13 +95,14 @@ class Skeleton(Enemy):
         super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance)
         self.rect.y -= offset
 
-    def update(self, shift):
-        """Call 'Enemy.update'
+    def update(self, shift, delta):
+        """Call 'Enemy.update'.
 
         Arguments:
         shift -- the camera shift
+        delta -- the time delta
         """
-        super().update(shift)
+        super().update(shift, delta)
 
 class Zombie(Enemy):
     """This class defines the zombies."""
@@ -103,10 +117,11 @@ class Zombie(Enemy):
         super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance)
         self.rect.y -= offset
 
-    def update(self, shift):
-        """Call 'Enemy.update'
+    def update(self, shift, delta):
+        """Call 'Enemy.update'.
 
         Arguments:
         shift -- the camera shift
+        delta -- the time delta
         """
-        super().update(shift)
+        super().update(shift, delta)

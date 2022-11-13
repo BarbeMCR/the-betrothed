@@ -1,5 +1,5 @@
 import pygame
-from settings import *  # lgtm [py/polluting-import]
+from settings import controllers
 from data import levels
 
 """This file defines the level selection screen."""
@@ -81,7 +81,7 @@ class World:
 
         # Movement logic
         self.movement_direction = pygame.math.Vector2(0, 0)
-        self.movement_speed = 6
+        self.movement_speed = 12
         self.moving = False
 
         # Sprites

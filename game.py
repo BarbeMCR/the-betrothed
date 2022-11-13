@@ -23,6 +23,7 @@ class Game:
     """The main game class."""
     def __init__(self, display_surface, build):
         """Set the screen, the event puller, the world and the status.
+
         Also set all the global variables.
 
         Arguments:
@@ -58,6 +59,8 @@ class Game:
         self.max_energy = {'renzo': 100}
         self.energy_overflow = {'renzo': 0}
         self.max_energy_overflow = {'renzo': 25}
+        self.stamina = {'renzo': 1800}
+        self.max_stamina = {'renzo': 1800}
 
         # Inventory
         self.selection = {
@@ -75,6 +78,7 @@ class Game:
         self.health = {'renzo': 20}
         self.energy = {'renzo': 0}
         self.energy_overflow = {'renzo': 0}
+        self.stamina = {'renzo': 1800}
         self.selection = {
             'melee': IronKnife(),
             'ranged': MakeshiftBow()
@@ -101,6 +105,7 @@ class Game:
             self.savefile['health'] = self.health
             self.savefile['energy'] = self.energy
             self.savefile['energy_overflow'] = self.energy_overflow
+            self.savefile['stamina'] = self.stamina
             self.savefile['selection'] = self.selection
             self.savefile.close()
             hash = hashlib.sha256()
@@ -124,6 +129,7 @@ class Game:
         self.health = self.savefile['health']
         self.energy = self.savefile['energy']
         self.energy_overflow = self.savefile['energy_overflow']
+        self.stamina = self.savefile['stamina']
         self.selection = self.savefile['selection']
         self.savefile.close()
         with open(self.savefile_path + '.dat', 'rb') as savefile:
@@ -298,6 +304,7 @@ class Game:
                     self.ui.display_health_remainder(health_remainder, 100)
                     self.ui.display_energy(self.energy[self.character], self.max_energy[self.character])
                     self.ui.display_energy_overflow(self.energy_overflow[self.character], self.max_energy_overflow[self.character])
+                    self.ui.display_stamina(self.stamina[self.character], self.max_stamina[self.character])
                     self.ui.display_melee_overlay(self.selection['melee'].icon_path)
                     self.ui.display_ranged_overlay(self.selection['ranged'].icon_path, self.selection['ranged'].projectile.count)
                 self.check_death()

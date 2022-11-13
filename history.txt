@@ -5,6 +5,37 @@
 HISTORY OF "BarbeMCR's THE BETROTHED"
 +++++++++++++++++++++++++++++++++++++
 
+Release 0.17 - The Run Update
+=============================
+Build 1113
+Python 3.11.0
+Pygame 2.1.3.dev8
+*Released on November 13th, 2022*
+### Running
+- Now the player can run for a substantial speed boost: you can change your speed by pressing the right trigger of your controller alongside the left/right D-Pad button, up to 2x speed with the trigger fully pushed in. On the keyboard, you can press both A/D and the Left CTRL for a 1.5x speed boost or the Left CTRL and the Left ALT for a 2x speed boost
+### Stamina
+- Added stamina: the player can't run if their stamina bar is empty
+- Now the stamina bar gets depleted if the player runs
+- Now the stamina bar slowly increases if the player is not running (walking will make it increase more slowly than idlingm though)
+### Delta
+- Now the delta is passed to a variety of things, so that the core gameplay works decently even at very low framerates (delta stops working as expected at around 10-12 fps), and the game is smoother than ever at high framerates
+- Increased the delta cap to 0.08 seconds between frames (previously was 0.03): this causes the game to run fine even at framerates as low as 12 fps (lower than that it would risk breaking the physics engine)
+### Main menu
+- Changed the main menu background (much better, in my opinion)
+- Changed the text color for the options to white (previously was gray)
+### Levels
+- Removed the top layer of barriers in all levels: turns out it was the cause of some teleportation glitches
+- Changed the spawn point of Chapter I-B to avoid an occasional teleportation glitch immediately after spawning in the player
+### Overlay
+- Now the overlay gets toggled using the `backslash` key, instead of the left `ctrl`
+### World
+- The level selector now moves at a speed of 12 pixels per frame (previously was 6): unfortunately, we cannot easily apply the delta here as there would be strange collision glitches between the level selector and the level icons
+### Technical details
+- Removed LGTM comments (Rest In Peace LGTM!): a Github Action workflow will be used from now on to lint all the Python files in the repository
+- Cleaned up `versions.py` as development versions are not public
+## Known issues
+- Now that delta gets passed to many objects, the game is more prone to breaking the physics engine at low framerates: you'll probably see more teleportation glitches when running at 20 fps than when running at 60 fps. However, this can't be easily fixed and will probably stay that way forever. It's just the price to pay for framerate independency!
+
 Release 0.16 - The Enemy Update
 ===============================
 Build 1106

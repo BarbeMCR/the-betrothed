@@ -1,10 +1,10 @@
 import pygame
 import random
-from misc import *  # lgtm [py/polluting-import]
-from settings import *  # lgtm [py/polluting-import]
-from tile import *  # lgtm [py/polluting-import]
-from enemy import *  # lgtm [py/polluting-import]
-from bgstuff import *  # lgtm [py/polluting-import]
+from misc import *
+from settings import *
+from tile import *
+from enemy import *
+from bgstuff import *
 from player import Player
 from particles import Particle
 from weapons import Projectile
@@ -36,6 +36,7 @@ class Level:
         self.start_x = 0
         self.pause_start = 0
         self.time_paused = 0
+        self.delta = 0
 
         # Loading screen
         self.display_surface.fill('black')
@@ -160,8 +161,10 @@ class Level:
         self.player.sprite.ranged_attack_time += self.time_paused
         self.player.sprite.hurt_time += self.time_paused
         self.player.sprite.gen_time += self.time_paused
+        self.player.sprite.stamina_depleted_time += self.time_paused
         for enemy in self.enemy_sprites:
             enemy.hurt_time += self.time_paused
+            enemy.flip_time += self.time_paused
         if hasattr(self.player_end.sprite, 'ticks'):
             self.player_end.sprite.ticks += self.time_paused
 
@@ -181,7 +184,7 @@ class Level:
         alpha = self.fade_surface.get_alpha()
         if alpha > 0:
             self.display_surface.blit(self.fade_surface, (0, 0))
-            self.fade_surface.set_alpha(alpha - int(amount))
+            self.fade_surface.set_alpha(alpha - int(amount*60*self.delta))
             if self.fade_surface.get_alpha() < 0:
                 self.fade_surface.set_alpha(0)
 
@@ -194,7 +197,7 @@ class Level:
         alpha = self.fade_surface.get_alpha()
         if alpha < 255:
             self.display_surface.blit(self.fade_surface, (0, 0))
-            self.fade_surface.set_alpha(alpha + int(amount))
+            self.fade_surface.set_alpha(alpha + int(amount*60*self.delta))
             if self.fade_surface.get_alpha() > 255:
                 self.fade_surface.set_alpha(255)
 
@@ -262,7 +265,7 @@ class Level:
                     y = row_index * tile_size
 
                     if type == 'barriers':
-                        sprite = Tile(tile_size, x, y - (tile_size * 3))
+                        sprite = Tile(tile_size, x, y)
 
                     if type == 'terrain':
                         terrain_list = import_sliced_graphics('./assets/level/ground/ground_day.png')
@@ -346,7 +349,7 @@ class Level:
     def x_mov_coll(self):
         """Check the player horizontal movement collision and set the correct flags."""
         player = self.player.sprite
-        player.collision_rect.x += player.direction.x * player.speed
+        player.collision_rect.x += player.direction.x * player.target_speed
         # collidables = self.terrain_sprites.sprites() + self.whatever.sprites()
         # for sprite in collidables: collision code
         collidables = self.terrain_sprites.sprites() + self.barrier_sprites.sprites()
@@ -389,13 +392,13 @@ class Level:
         direction_x = player.direction.x
         if player_x < screen_width / 2.5 and direction_x < 0:
             self.shift = speed
-            player.speed = 0
+            player.target_speed = 0
         elif player_x > screen_width - (screen_width / 2.5) and direction_x > 0:
             self.shift = -speed
-            player.speed = 0
+            player.target_speed = 0
         else:
             self.shift = 0
-            player.speed = speed
+            player.target_speed = speed
 
     def increase_energy(self, amount):
         """Add energy to the player.
@@ -519,7 +522,7 @@ class Level:
             self.reset_energy_overflow()
             self.player_death_sfx.play()
             self.player.sprite.collision_rect.top = -2 * tile_size
-            self.player.sprite.gravity = 1
+            self.player.sprite.gravity = 60
             self.player.sprite.direction.y = 0
 
     def check_success(self):
@@ -552,6 +555,7 @@ class Level:
         Arguments:
         delta -- the time delta
         """
+        self.delta = delta
         if self.status == 'level':
             # Level barriers
             self.barrier_sprites.update(self.shift)
@@ -559,11 +563,11 @@ class Level:
             # Background
             self.sky.draw(self.display_surface)
             self.mountains.draw(self.display_surface, int(self.shift / 3))
-            self.water.draw(self.display_surface, int(self.shift / 3))
+            self.water.draw(self.display_surface, int(self.shift / 3), self.delta)
             self.clouds.draw(self.display_surface, int(self.shift / 3))
 
             # Particles
-            self.dust_sprite.update(self.shift)
+            self.dust_sprite.update(self.shift, self.delta)
             self.dust_sprite.draw(self.display_surface)
 
             # Terrain
@@ -593,16 +597,16 @@ class Level:
             self.tree_sprites.update(self.shift)
             self.tree_sprites.draw(self.display_surface)
             # Energy
-            self.energy_sprites.update(self.shift)
+            self.energy_sprites.update(self.shift, self.delta)
             if self.current_level >= self.end_level and not self.parent.loaded_from_savefile:
                 self.energy_sprites.draw(self.display_surface)
                 self.check_energy_collisions()
             # Enemies
-            self.enemy_sprites.update(self.shift)
+            self.enemy_sprites.update(self.shift, self.delta)
             self.border_sprites.update(self.shift)
             self.apply_enemy_border_collision()
             self.enemy_sprites.draw(self.display_surface)
-            self.enemy_death_sprites.update(self.shift)
+            self.enemy_death_sprites.update(self.shift, self.delta)
             self.enemy_death_sprites.draw(self.display_surface)
 
             # End tile
@@ -614,14 +618,14 @@ class Level:
             self.get_player_on_ground()
             self.y_mov_coll()
             self.create_fall_particle()
-            self.scroll_x(int(360*delta))
+            self.scroll_x(int(self.player.sprite.speed*self.delta))
             self.start_x += self.shift
             # The code below allows for adjusting the player blitting position when melee attacking and facing left so that the player doesn't "slide" right
             if self.player.sprite.melee_attacking and not self.player.sprite.facing_right:
                 self.display_surface.blit(self.player.sprite.image, self.player.sprite.rect.topleft - pygame.math.Vector2(self.parent.selection['melee'].range, 0))
             else:
                 self.player.draw(self.display_surface)  # Normal draw routine
-            self.ranged_sprites.update(self.shift)
+            self.ranged_sprites.update(self.shift, self.delta)
             self.ranged_sprites.draw(self.display_surface)
 
             # Enemy routines

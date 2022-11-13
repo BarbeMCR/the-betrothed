@@ -101,14 +101,15 @@ class Projectile(pygame.sprite.Sprite):
             self.image = pygame.transform.flip(self.image, True, False)
         self.start_x = start_x
 
-    def update(self, shift):
+    def update(self, shift, delta):
         """Update the projectile.
 
         Arguments:
         shift -- the camera shift
+        delta -- the time delta
         """
         self.rect.x += shift
         if self.facing_right:
-            self.rect.x += self.speed
+            self.rect.x += self.speed*60*delta
         else:
-            self.rect.x -= self.speed
+            self.rect.x -= self.speed*60*delta

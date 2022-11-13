@@ -1,7 +1,7 @@
 import pygame
 import random
-from settings import *  # lgtm [py/polluting-import]
-from tile import *  # lgtm [py/polluting-import]
+from settings import *
+from tile import *
 
 """This file defines all the background elements."""
 
@@ -59,14 +59,15 @@ class Water:
                 sprite = AnimatedTile(water_width, x, y, './assets/level/water')
                 self.water_sprites.add(sprite)
 
-    def draw(self, display_surface, shift):
+    def draw(self, display_surface, shift, delta):
         """Draw the water tiles to screen.
 
         Arguments:
         display_surface -- the screen
         shift -- the camera shift
+        delta -- the time delta
         """
-        self.water_sprites.update(shift)
+        self.water_sprites.update(shift, delta)
         self.water_sprites.draw(display_surface)
 
 class Clouds:

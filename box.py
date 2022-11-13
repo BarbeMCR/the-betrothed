@@ -1,6 +1,6 @@
 import pygame
 from text import render
-from settings import *  # lgtm [py/polluting-import]
+from settings import controllers
 
 """This file defines all user interaction boxes."""
 
@@ -153,6 +153,7 @@ class SelectionBox:
 
     def get_input(self, funcs):
         """Get the input from the devices and do the correct actions.
+
         Arguments:
 
         funcs -- the functions to run
