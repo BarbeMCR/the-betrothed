@@ -6,6 +6,7 @@ HISTORY OF "BarbeMCR's THE BETROTHED"
 +++++++++++++++++++++++++++++++++++++
 
 Release 0.18 - The Magical Update
+=================================
 Build 1120
 Python 3.11.0
 Pygame 2.1.3.dev8
