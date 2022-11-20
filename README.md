@@ -29,15 +29,15 @@ If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 
 ### If you instead want the source code:
 1. Download and install Python 3.8 or higher from [python.org](https://python.org), if you haven't already
-2. Install pygame 2.1.2 or higher: `python -m pip install pygame`, if you haven't already
+2. Install the right version of pygame for your target version (table below): `python -m pip install pygame==x.y.z`, if you haven't already
 3. Go on the `Releases` page and check for whatever version you want to run
 4. Download the `the_betrothed_<version>_source.zip`
 5. Extract the archive
 6. To start BarbeMCR's The Betrothed, run `main.py`
 
 ## How do I compile the code?
-1. Make sure to have Python 3.8 or higher and pygame 2.1.2 or higher (use a 32-bit Python version for wider compatibility)
-2. Grab the Pyinstaller version that matches what is used with your target game version if you want (probably you can just use the latest version):
+1. Make sure to have Python 3.8 or higher and the right version of pygame, as in the table below (use a 32-bit Python version for wider compatibility)
+2. Grab the Pyinstaller version that matches what is used with your target game version, if you want (probably you can just use the latest version):
 
 | The Betrothed version | Pyinstaller version |
 | --------------------- | ------------------- |
@@ -52,6 +52,12 @@ If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 | 0.16 +                | 5.6.2               |
 
 3. Compile with Pyinstaller using the `--onefile` argument
+
+**Game version to pygame version conversion table**
+| The Betrothed version | pygame version |
+| --------------------- | -------------- |
+| 0.01 - 0.15           | 2.1.2          |
+| 0.16 +                | 2.1.3.dev8 / 2.1.3 |
 
 ---
 ## Settings
