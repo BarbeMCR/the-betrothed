@@ -73,7 +73,9 @@ In the settings screen, you'll find various options, listed below.
 | Space | Jump |
 | J     | Melee attack |
 | K     | Ranged attack |
-| Left Ctrl | Toggle overlay |
+| L     | Magical attack |
+| A/D + Left Ctrl [+ Left Alt] | Run (changes speed) |
+| Backslash | Toggle overlay |
 | F2    | Take screenshot |
 | F11   | Toggle fullscreen |
 
@@ -85,6 +87,8 @@ In the settings screen, you'll find various options, listed below.
 | A     | Jump |
 | B     | Melee attack |
 | X     | Ranged attack |
+| Y     | Magical attack |
+| RT    | Run |
 | XBOX  | Toggle overlay |
 | SHARE (if available) | Take screenshot |
 
@@ -96,6 +100,8 @@ In the settings screen, you'll find various options, listed below.
 | Cross | Jump |
 | Circle | Melee attack |
 | Square | Ranged attack |
+| Triangle | Magical attack |
+| R2    | Run |
 | PLAYSTATION | Toggle overlay |
 | TOUCHPAD CLICK | Take screenshot |
 
@@ -107,6 +113,8 @@ In the settings screen, you'll find various options, listed below.
 | A     | Jump |
 | B     | Melee attack |
 | X     | Ranged attack |
+| Y     | Magical attack |
+| ZR    | Run |
 | HOME  | Toggle overlay |
 | CAPTURE | Take screenshot |
 
