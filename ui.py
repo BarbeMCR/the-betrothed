@@ -26,6 +26,8 @@ class UI:
         self.melee_overlay_rect = self.melee_overlay.get_rect(bottomleft=(16, 688))
         self.ranged_overlay = pygame.image.load('./assets/ui/overlay_ranged.png').convert_alpha()
         self.ranged_overlay_rect = self.ranged_overlay.get_rect(bottomleft=self.melee_overlay_rect.bottomright)
+        self.magical_overlay = pygame.image.load('./assets/ui/overlay_magical.png').convert_alpha()
+        self.magical_overlay_rect = self.magical_overlay.get_rect(bottomleft=self.ranged_overlay_rect.bottomright)
 
     def display_health(self, health, max_health):
         """Display the health bar and statistics.
@@ -130,18 +132,24 @@ class UI:
         stamina_percentage = stamina / max_stamina
         stamina_width = int(stamina_bar_width * stamina_percentage)
         stamina_bar_rect = pygame.Rect(stamina_bar_topleft, (stamina_width, stamina_bar_height))
-        pygame.draw.rect(self.display_surface, '#ebeced', stamina_bar_rect)
+        pygame.draw.rect(self.display_surface, '#aeda48', stamina_bar_rect)
 
-    def display_melee_overlay(self, melee_weapon):
+    def display_melee_overlay(self, melee_weapon, melee_durability, max_melee_durability):
         """Display the melee weapon overlay.
 
         Arguments:
         melee_weapon -- the path to the melee weapon icon
+        melee_durability -- the current melee weapon durability
+        max_melee_durability -- the maximum melee weapon durability
         """
         melee_weapon_icon = pygame.image.load(melee_weapon).convert_alpha()
         melee_weapon_icon_rect = melee_weapon_icon.get_rect(center=self.melee_overlay_rect.center)
         self.display_surface.blit(self.melee_overlay, self.melee_overlay_rect)
         self.display_surface.blit(melee_weapon_icon, melee_weapon_icon_rect)
+        melee_durability_percentage = melee_durability / max_melee_durability
+        melee_durability_width = int(48 * melee_durability_percentage)
+        melee_durability_rect = pygame.Rect((self.melee_overlay_rect.topleft[0]+5, self.melee_overlay_rect.topleft[1]+72), (melee_durability_width, 4))
+        pygame.draw.rect(self.display_surface, '#14a02e', melee_durability_rect)
 
     def display_ranged_overlay(self, ranged_weapon, ranged_projectile_count):
         """Display the ranged weapon overlay.
@@ -158,3 +166,20 @@ class UI:
         ranged_projectile_count_surface = ranged_projectile_count_font.render(str(ranged_projectile_count), False, 'white')
         ranged_projectile_count_rect = ranged_projectile_count_surface.get_rect(bottomleft=(self.ranged_overlay_rect.left+4, self.ranged_overlay_rect.bottom-4))
         self.display_surface.blit(ranged_projectile_count_surface, ranged_projectile_count_rect)
+
+    def display_magical_overlay(self, magical_weapon, magical_power, max_magical_power):
+        """Display the magical weapon overlay.
+
+        Arguments:
+        magical_weapon -- the path to the magical weapon icon
+        magical_power -- the current magical weapon power
+        max_magical_power -- the maximum magical weapon power
+        """
+        magical_weapon_icon = pygame.image.load(magical_weapon).convert_alpha()
+        magical_weapon_icon_rect = magical_weapon_icon.get_rect(center=self.magical_overlay_rect.center)
+        self.display_surface.blit(self.magical_overlay, self.magical_overlay_rect)
+        self.display_surface.blit(magical_weapon_icon, magical_weapon_icon_rect)
+        magical_power_percentage = magical_power / max_magical_power
+        magical_power_width = int(48 * magical_power_percentage)
+        magical_power_rect = pygame.Rect((self.magical_overlay_rect.topleft[0]+5, self.magical_overlay_rect.topleft[1]+72), (magical_power_width, 4))
+        pygame.draw.rect(self.display_surface, '#ffe320', magical_power_rect)

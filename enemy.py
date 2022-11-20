@@ -6,7 +6,7 @@ from tile import AnimatedTile
 
 class Enemy(AnimatedTile):
     """The base enemy class."""
-    def __init__(self, size, x, y, path, speed, health, damage, energy, melee_resistance, ranged_resistance):
+    def __init__(self, size, x, y, path, speed, health, damage, energy, melee_resistance, ranged_resistance, magical_resistance):
         """Initialize the parent AnimatedTile class.
 
         Arguments:
@@ -20,6 +20,7 @@ class Enemy(AnimatedTile):
         energy -- the energy dropped by enemies
         melee_resistance -- the level of melee resistance
         ranged_resistance -- the level of ranged resistance
+        magical_resistance -- the level of magical resistance
         """
         super().__init__(size, x, y, path)
         self.now = pygame.time.get_ticks()
@@ -34,6 +35,7 @@ class Enemy(AnimatedTile):
         self.energy = energy
         self.melee_resistance = melee_resistance
         self.ranged_resistance = ranged_resistance
+        self.magical_resistance = magical_resistance
         self.toughness = random.choices([i for i in range(3)], [50, 25, 25])[0]
         self.health += self.toughness
         self.damage += int(self.toughness / 2)
@@ -92,7 +94,8 @@ class Skeleton(Enemy):
         self.energy = random.randint(0, 3)
         self.melee_resistance = 0
         self.ranged_resistance = 0
-        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance)
+        self.magical_resistance = 0
+        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance, self.magical_resistance)
         self.rect.y -= offset
 
     def update(self, shift, delta):
@@ -114,7 +117,8 @@ class Zombie(Enemy):
         self.energy = random.randint(0, 4)
         self.melee_resistance = 0
         self.ranged_resistance = 1
-        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance)
+        self.magical_resistance = 1
+        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance, self.magical_resistance)
         self.rect.y -= offset
 
     def update(self, shift, delta):

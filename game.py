@@ -16,6 +16,7 @@ from misc import take_screenshot
 from upgrade import upgrade
 from melee import *
 from ranged import *
+from magical import *
 
 """This file contains the base game structure needed to switch between the world and the levels, as well as various global methods and attributes."""
 
@@ -65,7 +66,8 @@ class Game:
         # Inventory
         self.selection = {
             'melee': IronKnife(),
-            'ranged': MakeshiftBow()
+            'ranged': MakeshiftBow(),
+            'magical': StarterStaff()
         }
 
     def reset(self):
@@ -81,7 +83,8 @@ class Game:
         self.stamina = {'renzo': 1800}
         self.selection = {
             'melee': IronKnife(),
-            'ranged': MakeshiftBow()
+            'ranged': MakeshiftBow(),
+            'magical': StarterStaff()
         }
 
     def save(self, first=False):
@@ -114,12 +117,17 @@ class Game:
                 with open(self.savefile_path + '.checksum', 'w') as checksum:
                     checksum.write(hash.hexdigest())
 
+    def _get_savefile_version(self):
+        """Return the savefile version."""
+        self.savefile = shelve.open(self.savefile_path)
+        savefile_version = self.savefile['version']
+        return savefile_version
+
     def _load(self):
-        """Savefile loading routine. Returns the original version data contained in the savefile."""
+        """Savefile loading routine."""
         hash = hashlib.sha256()
         self.savefile = shelve.open(self.savefile_path, writeback=True)
         random.setstate(self.savefile['rng'])
-        savefile_version = self.savefile['version']
         self.savefile['version'] = self.version
         self.savefile['access_time'] = datetime.datetime.now().strftime('%B %d %Y, %H:%M:%S')
         self.start_level = self.savefile['start_level']
@@ -136,7 +144,6 @@ class Game:
             hash.update(savefile.read())
             with open(self.savefile_path + '.checksum', 'w') as checksum:
                 checksum.write(hash.hexdigest())
-        return savefile_version
 
     def load(self):
         """Load the game from file."""
@@ -146,10 +153,10 @@ class Game:
                 hash.update(savefile.read())
             checksum = open(self.savefile_path + '.checksum', 'r')
             if checksum.read() == hash.hexdigest():
-                savefile_version = self._load()
+                savefile_version = self._get_savefile_version()
                 if savefile_version < self.version:
                     upgrade(savefile_version, self.savefile_path)
-                    self._load()
+                self._load()
                 self.loaded_from_savefile = True
                 self.create_world(self.start_level, self.end_level, self.current_subpart, self.current_part)
             else:
@@ -305,8 +312,9 @@ class Game:
                     self.ui.display_energy(self.energy[self.character], self.max_energy[self.character])
                     self.ui.display_energy_overflow(self.energy_overflow[self.character], self.max_energy_overflow[self.character])
                     self.ui.display_stamina(self.stamina[self.character], self.max_stamina[self.character])
-                    self.ui.display_melee_overlay(self.selection['melee'].icon_path)
+                    self.ui.display_melee_overlay(self.selection['melee'].icon_path, self.selection['melee'].durability, self.selection['melee'].max_durability)
                     self.ui.display_ranged_overlay(self.selection['ranged'].icon_path, self.selection['ranged'].projectile.count)
+                    self.ui.display_magical_overlay(self.selection['magical'].icon_path, self.selection['magical'].power, self.selection['magical'].max_power)
                 self.check_death()
                 if self.level.player.sprite.screenshot_taken:
                     take_screenshot(self.display_surface)

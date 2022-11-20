@@ -71,6 +71,7 @@ class Level:
         self.player_end = pygame.sprite.GroupSingle()
         self.setup_player(player_layout, self)
         self.ranged_sprites = pygame.sprite.Group()
+        self.magical_sprites = pygame.sprite.Group()
         # Player particles
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.player_on_ground = False
@@ -441,7 +442,10 @@ class Level:
                     if random.randint(1, 4) == 1:
                         self.player.sprite.take_damage(enemy.damage / 10, 'pure')
                 else:
-                    self.player.sprite.take_damage(enemy.damage, 'physical')
+                    if self.player.sprite.speed > self.player.sprite.base_speed:
+                        self.player.sprite.take_damage(enemy.damage - (self.player.sprite.speed-self.player.sprite.base_speed)/self.player.sprite.base_speed/2, 'physical')
+                    else:
+                        self.player.sprite.take_damage(enemy.damage, 'physical')
 
     def check_enemy_melee_collisions(self):
         """Check if the melee weapon collides with the enemies and damage them if so."""
@@ -485,6 +489,31 @@ class Level:
                             enemy.stun_duration = self.parent.selection['ranged'].cooldown
                 projectile.kill()
 
+    def check_enemy_magical_collisions(self):
+        """Check if the magical weapon projectiles are valid, then check if they collide with the enemies."""
+        for projectile in self.magical_sprites:
+            if abs((self.start_x-projectile.rect.x)*-1 - projectile.start_x) > self.parent.selection['magical'].range:
+                projectile.kill()
+            collidables = self.terrain_sprites.sprites() + self.barrier_sprites.sprites()
+            if pygame.sprite.spritecollideany(projectile, collidables) is not None:
+                projectile.kill()
+        enemy_collisions = pygame.sprite.groupcollide(self.magical_sprites, self.enemy_sprites, False, False)
+        if enemy_collisions:
+            for projectile, enemies in enemy_collisions.items():
+                for enemy in enemies:
+                    if enemy.magical_resistance < 5:
+                        if not enemy.invincible:
+                            damage = self.parent.selection['magical'].damage[self.parent.selection['magical'].level]
+                            damage -= 20*enemy.ranged_resistance/100 * damage
+                            enemy.health -= damage
+                            self.player.sprite.enemy_hurt_sfx.play()
+                            enemy.invincible = True
+                            enemy.hurt_time = pygame.time.get_ticks()
+                            enemy.stun_duration = self.parent.selection['magical'].cooldown
+                            if projectile.run_code_on_impact:
+                                self.parent.selection['magical'].on_impact(enemy.health<=0, (projectile.rect.x, projectile.rect.y), projectile.facing_right, self)
+                            projectile.kill()
+
     def create_ranged_projectile(self):
         """Create a ranged projectile sprite and add it to the correct group."""
         image = self.parent.selection['ranged'].projectile.image
@@ -499,6 +528,21 @@ class Level:
         start_x = (self.start_x - pos[0]) * -1
         ranged_projectile = Projectile(image, pos, speed, facing_right, start_x)
         self.ranged_sprites.add(ranged_projectile)
+
+    def create_magical_projectile(self):
+        """Create a magical projectile sprite and add it to the correct group."""
+        image = self.parent.selection['magical'].projectile_image
+        if self.player.sprite.facing_right:
+            pos = self.player.sprite.rect.midright
+            facing_right = True
+        else:
+            pos = self.player.sprite.rect.midleft
+            facing_right = False
+        pos -= pygame.math.Vector2(0, 16)  # This allows for the projectile to be shot from higher up
+        speed = self.parent.selection['magical'].speed
+        start_x = (self.start_x - pos[0]) * -1
+        magical_projectile = Projectile(image, pos, speed, facing_right, start_x, True)
+        self.magical_sprites.add(magical_projectile)
 
     def check_enemy_death(self):
         """Check if the enemies should be dead and kill their sprites if that is the case."""
@@ -627,11 +671,14 @@ class Level:
                 self.player.draw(self.display_surface)  # Normal draw routine
             self.ranged_sprites.update(self.shift, self.delta)
             self.ranged_sprites.draw(self.display_surface)
+            self.magical_sprites.update(self.shift, self.delta)
+            self.magical_sprites.draw(self.display_surface)
 
             # Enemy routines
             self.check_enemy_collisions()
             self.check_enemy_melee_collisions()
             self.check_enemy_ranged_collisions()
+            self.check_enemy_magical_collisions()
             self.check_enemy_death()
 
             # Level end

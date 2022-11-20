@@ -30,6 +30,7 @@ Now with the power of bow and arrows!!
 Now with automatic savefile upgrades (deja-vus included)!!
 melee weapons be like
 ranged weapons be like
+magical weapons be like
 Enemy stun time included.
 Batteries included (but you can take them out)!
 You shall wonder why this game is called BarbeMCR's The Betrothed...
@@ -38,3 +39,6 @@ Better enemies!!
 QoL changes!!
 Better enemies: they hit, they resist, they shoot back! What else do you want?
 Tired of the overlay? Now you can hide it!
+Running is an option now!!
+Better delta!
+Rest in Peace Atom!

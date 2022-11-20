@@ -276,6 +276,7 @@ class Controls(Menu):
             "Jump:   'Space'   /   A   /   Cross   /   A",
             "Melee attack:   'J'   /   B   /   Circle   /   B",
             "Ranged attack:   'K'   /   X   /   Square   /   X",
+            "Magical attack:   'L'   /   Y   /   Triangle   /   Y",
             "Run:   'Left CTRL' [+ 'Left ALT'] + 'A/D'   /   RT + D-Pad   /   R2 + D-Pad   /   ZR + D-Pad",
             "Pause:   'Esc'   /   Menu   /   Options   /   +",
             "Toggle overlay:   'Backslash'   /   Xbox   /   PlayStation   /   Home",

@@ -5,6 +5,38 @@
 HISTORY OF "BarbeMCR's THE BETROTHED"
 +++++++++++++++++++++++++++++++++++++
 
+Release 0.18 - The Magical Update
+Build 1120
+Python 3.11.0
+Pygame 2.1.3.dev8
+*Released on November 20th, 2022*
+### Weapons
+- Added magical weapons: they work similarly to ranged weapons, but they can perform actions whenever one of their projectiles hits an enemy
+- Each time a magical weapon fires it consumes a certain amount of energy
+- Added the Starter Staff: a decent magical weapon that deals 1 Magical Damage, has a cooldown of 0.5 seconds and has a cost of 1 Energy Point per use. It also creates a new projectile when it hits an enemy and heals the player 0.05 Health Point per level whenever it kills an enemy
+- Added durability (for melee weapons) and power (for magical weapons): it doesn't work yet, though!
+### Enemies
+- Now enemies can have magical resistance
+- Zombies now have Magical Resistance I
+### UI
+- Added the magical weapon overlay: it is displayed next to the ranged weapon overlay
+- Now below the melee weapon and the magical weapon, their durability and power is displayed respectively
+### Stamina
+- The stamina bar color has been changed from white to light green
+### Running
+- Now running decreases the amount of damage received by the player when hitting enemies, up to 50% less damage, depending on the speed
+### Levels
+- Moved the barriers in all levels to avoid even more teleportation glitches after spawning
+### Splashes
+- From now on, the changelog will not include changes to splashes, as they are added more or less every version. In this release 4 new splashes were added
+### Bugfixes
+- Now the game no longer crashes while trying to load savefiles with less entries than the current ones (such as before upgrading savefiles between versions)
+### Technical details
+- Projectiles are now spawned centered
+- Simplified `Player._reset_speed`, so that it is no longer dependent on events
+- Added `Weapon.description` for future use
+- Now the savefile version check happens in `Game._get_savefile_version`, no longer in `Game._load`, to avoid crashes whenever there is a mismatched entry
+
 Release 0.17 - The Run Update
 =============================
 Build 1113

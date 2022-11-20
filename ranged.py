@@ -6,6 +6,7 @@ __all__ = ['MakeshiftBow']
 class MakeshiftBow(RangedWeapon):
     def __init__(self):
         self.name = "Makeshift Bow"
+        self.description = "A basic bow made from makeshift materials in order to clear your way from enemies."
         self.icon_path = './assets/weapon/makeshift_bow.png'
         self.level = 1
         self.damage = {1: 1}
@@ -14,7 +15,7 @@ class MakeshiftBow(RangedWeapon):
         self.speed = 12
         self.projectile = FlintArrows()
         self.projectile_type = FlintArrows
-        super().__init__(self.name, self.icon_path, self.level, self.damage, self.cooldown, self.range, self.speed, self.projectile, self.projectile_type)
+        super().__init__(self.name, self.description, self.icon_path, self.level, self.damage, self.cooldown, self.range, self.speed, self.projectile, self.projectile_type)
 
 class FlintArrows(RangedProjectilePack):
     def __init__(self):
