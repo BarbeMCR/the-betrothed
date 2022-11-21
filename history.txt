@@ -5,6 +5,20 @@
 HISTORY OF "BarbeMCR's THE BETROTHED"
 +++++++++++++++++++++++++++++++++++++
 
+Release 0.18a - The Magical Update
+==================================
+Build 1121
+Python 3.11.0
+Pygame 2.1.3.dev8
+*Released on November 21st, 2022*
+### Bugfixes
+- The player now spawns in the correct location: this bug, which existed since release 0.09, was caused by the `Player.collision_rect` being a few pixels smaller than the `Player.rect`, in an attempt of fixing a teleportation glitch
+- The enemies no longer get caught on blocks. However, the way this bug has been fixed is not ideal (see implementation details below)
+- Fixed some more collision glitches
+- The cooldown for magical weapons now works correctly after pausing
+### Technical details
+- The enemies now have a new attribute `Enemy.about_to_flip` that gets set to `True` whenever the enemy collides with any sprite in the `Level.flip_triggers` group. When this happens, the speed of the enemy stops being affected by `delta`. There are two main problems with this implementation, though: the first one is that, while at high framerates this change appears seamless, at low framerates the enemies get slowed down substantially; the second one is that flip triggers must be put directly in the level data (so, no tiles mean no triggers). Right now, this seems like the best choice to do to avoid rewriting a sizeable chunk of tile creation code related to enemies.
+
 Release 0.18 - The Magical Update
 =================================
 Build 1120

@@ -28,8 +28,8 @@ from update import check_updates
 
 def main():
     # Build identification
-    version = "0.18"
-    build = 1120
+    version = "0.18a"
+    build = 1121
     build_id = 0
     stable = True
 

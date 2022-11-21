@@ -44,12 +44,6 @@ class Level:
         self.display_surface.blit(loading_screen, (64, 64))
         pygame.display.flip()
 
-        # SFX
-        self.energy_pickup_sfx = pygame.mixer.Sound('./assets/audio/sfx/energy_pickup.ogg')
-        self.energy_pickup_sfx.set_volume(0.5)
-        self.enemy_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_death.ogg')
-        self.player_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_death.ogg')
-
         # World setup
         self.create_world = self.parent.create_world
         self.end_level = self.parent.end_level
@@ -61,27 +55,14 @@ class Level:
         self.level_completed = False
         self.level_completed_music_started = False
 
-        # Level barriers
-        barrier_layout = import_csv_layout(level_data['barriers'])
-        self.barrier_sprites = self.create_tile_group(barrier_layout, 'barriers')
-
-        # Player setup
-        player_layout = import_csv_layout(level_data['setup'])
-        self.player = pygame.sprite.GroupSingle()
-        self.player_end = pygame.sprite.GroupSingle()
-        self.setup_player(player_layout, self)
-        self.ranged_sprites = pygame.sprite.Group()
-        self.magical_sprites = pygame.sprite.Group()
-        # Player particles
-        self.dust_sprite = pygame.sprite.GroupSingle()
-        self.player_on_ground = False
-        # Enemy particles
-        self.enemy_death_sprites = pygame.sprite.Group()
-
         # UI
         self.update_energy = self.parent.update_energy
         self.reset_energy_overflow = self.parent.reset_energy_overflow
         self.display_overlay = True
+
+        # Level barriers
+        barrier_layout = import_csv_layout(level_data['barriers'])
+        self.barrier_sprites = self.create_tile_group(barrier_layout, 'barriers')
 
         # Terrain setup
         terrain_layout = import_csv_layout(level_data['terrain'])
@@ -113,6 +94,7 @@ class Level:
 
         # Enemies
         enemy_layout = import_csv_layout(level_data['enemies'])
+        self.flip_triggers = pygame.sprite.Group()
         self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemies')
         # Enemy borders
         border_layout = import_csv_layout(level_data['borders'])
@@ -130,6 +112,25 @@ class Level:
         self.optimize_internal_terrain()
         for sprite in self.internal_terrain_sprites.sprites():
             self.terrain_sprites.remove(sprite)
+
+        # Player setup
+        player_layout = import_csv_layout(level_data['setup'])
+        self.player = pygame.sprite.GroupSingle()
+        self.player_end = pygame.sprite.GroupSingle()
+        self.setup_player(player_layout, self)
+        self.ranged_sprites = pygame.sprite.Group()
+        self.magical_sprites = pygame.sprite.Group()
+        # Player particles
+        self.dust_sprite = pygame.sprite.GroupSingle()
+        self.player_on_ground = False
+        # Enemy particles
+        self.enemy_death_sprites = pygame.sprite.Group()
+
+        # SFX
+        self.energy_pickup_sfx = pygame.mixer.Sound('./assets/audio/sfx/energy_pickup.ogg')
+        self.energy_pickup_sfx.set_volume(0.5)
+        self.enemy_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_death.ogg')
+        self.player_death_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_death.ogg')
 
         # Music
         pygame.mixer.music.load(level_data['music'])
@@ -160,12 +161,10 @@ class Level:
         """Update the timestamps so that they work as expected after resuming."""
         self.player.sprite.melee_attack_time += self.time_paused
         self.player.sprite.ranged_attack_time += self.time_paused
+        self.player.sprite.magical_attack_time += self.time_paused
         self.player.sprite.hurt_time += self.time_paused
         self.player.sprite.gen_time += self.time_paused
         self.player.sprite.stamina_depleted_time += self.time_paused
-        for enemy in self.enemy_sprites:
-            enemy.hurt_time += self.time_paused
-            enemy.flip_time += self.time_paused
         if hasattr(self.player_end.sprite, 'ticks'):
             self.player_end.sprite.ticks += self.time_paused
 
@@ -214,7 +213,7 @@ class Level:
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if col == '0':
-                    sprite = Player((x, y), self.display_surface, self.create_jump_particles, self.controller, parent)
+                    sprite = Player((x, y+tile_size-1), self.display_surface, self.create_jump_particles, self.controller, parent)
                     self.player.add(sprite)
                 if col == '1':
                     cross_surface = pygame.image.load('./assets/level/ground/cross.png')
@@ -262,6 +261,7 @@ class Level:
         for row_index, row in enumerate(layout):
             for col_index, col in enumerate(row):
                 if col != '-1':
+                    add_sprite_to_group = True
                     x = col_index * tile_size
                     y = row_index * tile_size
 
@@ -298,13 +298,19 @@ class Level:
                             sprite = Energy(tile_size, x, y, './assets/level/energy/green', 20)
 
                     if type == 'enemies':
-                        if col == '1':
+                        if col == '0':
+                            sprite = Tile(tile_size, x, y)
+                            self.flip_triggers.add(sprite)
+                            add_sprite_to_group = False
+                        elif col == '1':
                             sprite = Skeleton(tile_size, x, y, './assets/enemy/skeleton', 64)
                         elif col == '2':
                             sprite = Zombie(tile_size, x, y, './assets/enemy/zombie', 64)
                     if type == 'borders':
                         sprite = Tile(tile_size, x, y)
-                    sprite_group.add(sprite)
+
+                    if add_sprite_to_group:
+                        sprite_group.add(sprite)
             pygame.event.pump()
         return sprite_group
 
@@ -346,6 +352,11 @@ class Level:
         for enemy in self.enemy_sprites.sprites():
             if pygame.sprite.spritecollide(enemy, self.border_sprites, False):
                 enemy.reverse()
+
+            if pygame.sprite.spritecollide(enemy, self.flip_triggers, False):
+                enemy.about_to_flip = True
+            else:
+                enemy.about_to_flip = False
 
     def x_mov_coll(self):
         """Check the player horizontal movement collision and set the correct flags."""
@@ -647,6 +658,7 @@ class Level:
                 self.check_energy_collisions()
             # Enemies
             self.enemy_sprites.update(self.shift, self.delta)
+            self.flip_triggers.update(self.shift)
             self.border_sprites.update(self.shift)
             self.apply_enemy_border_collision()
             self.enemy_sprites.draw(self.display_surface)

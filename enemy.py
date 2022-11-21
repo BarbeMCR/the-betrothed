@@ -26,8 +26,7 @@ class Enemy(AnimatedTile):
         self.now = pygame.time.get_ticks()
         self.invincible = False
         self.hurt_time = 0
-        self.just_flipped = False  # This is used to fix a bug where the enemies get "caught" on the border tiles
-        self.flip_time = 0  # Dummy value
+        self.about_to_flip = True
         self.stun_duration = random.randint(400, 500)
         self.speed = speed
         self.health = health
@@ -48,7 +47,10 @@ class Enemy(AnimatedTile):
         """
         if not self.invincible:
             if self.now - self.hurt_time >= self.stun_duration:
-                self.rect.x += int(self.speed*60*delta)
+                if not self.about_to_flip:
+                    self.rect.x += int(self.speed*60*delta)
+                else:
+                    self.rect.x += self.speed
 
     def flip(self):
         """Flip the enemy if it is going left."""
@@ -57,17 +59,11 @@ class Enemy(AnimatedTile):
 
     def reverse(self):
         """Invert the enemy speed."""
-        if not self.just_flipped:
-            self.speed *= -1
-            self.just_flipped = True
-            self.flip_time = pygame.time.get_ticks()
+        self.speed *= -1
 
     def tick_timers(self):
         """Tick down the internal timers."""
         self.now = pygame.time.get_ticks()
-        if self.just_flipped:
-            if self.now - self.flip_time >= 50:
-                self.just_flipped = False
         if self.invincible:
             if self.now - self.hurt_time >= 500:
                 self.invincible = False

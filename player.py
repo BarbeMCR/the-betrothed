@@ -29,8 +29,8 @@ class Player(pygame.sprite.Sprite):
         self.frame_index = 0
         self.animation_speed = 0.15
         self.image = self.player_assets['idle'][self.frame_index]
-        self.rect = self.image.get_rect(topleft=pos)
-        self.collision_rect = pygame.Rect((self.rect.top - 2, self.rect.left - 2), (self.rect.width - 2, self.rect.height - 2))
+        self.rect = self.image.get_rect(bottomleft=pos)
+        self.collision_rect = pygame.Rect(self.rect)
         self.melee_weapon_rect = pygame.Rect(self.rect.topright, (0, 0))
         self.now = 0  # This is a dummy value
         self.gen_time = pygame.time.get_ticks()
