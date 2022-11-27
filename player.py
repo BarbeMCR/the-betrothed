@@ -100,9 +100,10 @@ class Player(pygame.sprite.Sprite):
 
     def import_player_assets(self):
         """Place all the player assets in an easily accessible dictionary."""
-        self.player_assets = {'run':  [], 'idle': [], 'jump': [], 'fall': []}
+        self.player_assets = {'run': [], 'idle': [], 'jump': [], 'fall': []}
+        scene_conversion_table = {'day': 'day', 'night': 'night', 'dawn': 'dawn_dusk', 'dusk': 'dawn_dusk'}
         for animation in self.player_assets.keys():
-            full_path = self.base_path + self.character + '/' + animation
+            full_path = self.base_path + self.character + '/' + animation + '/' + scene_conversion_table[self.parent.scene]
             self.player_assets[animation] = import_folder(full_path)
 
     def import_run_particles(self):
@@ -112,7 +113,8 @@ class Player(pygame.sprite.Sprite):
     def animate(self):
         """Animate the player and setup the player rect correctly."""
         if self.melee_attacking:
-            animation = import_folder(self.base_path + self.character + '/attack' + self.game.selection['melee'].animation)
+            scene_conversion_table = {'day': 'day', 'night': 'night', 'dawn': 'dawn_dusk', 'dusk': 'dawn_dusk'}
+            animation = import_folder(self.base_path + self.character + '/attack' + self.game.selection['melee'].animation + '/' + scene_conversion_table[self.parent.scene])
             self.animation_speed = self.game.selection['melee'].animation_speed
         else:
             animation = self.player_assets[self.status]

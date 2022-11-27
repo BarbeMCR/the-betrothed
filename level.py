@@ -52,6 +52,7 @@ class Level:
         self.current_part = current_part
         level_data = levels[self.current_part][self.current_subpart][self.current_level]
         self.level_unlocked = level_data['unlock']
+        self.scene = level_data['scene']
         self.level_completed = False
         self.level_completed_music_started = False
 
@@ -101,11 +102,11 @@ class Level:
         self.border_sprites = self.create_tile_group(border_layout, 'borders')
 
         # Background
-        self.sky = Sky(level_data['horizon'])
+        self.sky = Sky(level_data['horizon'], self.scene)
         level_width = len(terrain_layout[0]) * tile_size
-        self.water = Water(screen_height - 52, level_width, level_data['enable_water'])
-        self.clouds = Clouds(320, level_width, random.randint(0, 32))
-        self.mountains = Mountains(192, level_width, level_data['enable_mountains'])
+        self.water = Water(screen_height - 52, self.scene, level_width, level_data['enable_water'])
+        self.clouds = Clouds(320, self.scene, level_width, random.randint(0, 32))
+        self.mountains = Mountains(192, self.scene, level_width, level_data['enable_mountains'])
 
         # Terrain optimization
         self.internal_terrain_sprites = pygame.sprite.Group()
@@ -216,7 +217,8 @@ class Level:
                     sprite = Player((x, y+tile_size-1), self.display_surface, self.create_jump_particles, self.controller, parent)
                     self.player.add(sprite)
                 if col == '1':
-                    cross_surface = pygame.image.load('./assets/level/ground/cross.png')
+                    scene_conversion_table = {'day': 'day', 'night': 'night', 'dawn': 'dawn_dusk', 'dusk': 'dawn_dusk'}
+                    cross_surface = pygame.image.load(f'./assets/level/ground/cross_{scene_conversion_table[self.scene]}.png')
                     sprite = StaticTile(tile_size, x, y, cross_surface)
                     self.player_end.add(sprite)
 
@@ -258,6 +260,7 @@ class Level:
         type -- the type of the group
         """
         sprite_group = pygame.sprite.Group()
+        scene_conversion_table = {'day': 'day', 'night': 'night', 'dawn': 'dawn_dusk', 'dusk': 'dawn_dusk'}
         for row_index, row in enumerate(layout):
             for col_index, col in enumerate(row):
                 if col != '-1':
@@ -268,26 +271,26 @@ class Level:
                     if type == 'barriers':
                         sprite = Tile(tile_size, x, y)
 
-                    if type == 'terrain':
-                        terrain_list = import_sliced_graphics('./assets/level/ground/ground_day.png')
+                    elif type == 'terrain':
+                        terrain_list = import_sliced_graphics(f'./assets/level/ground/ground_{scene_conversion_table[self.scene]}.png')
                         tile_surface = terrain_list[int(col)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
-                    if type == 'background':
-                        bg_terrain_list = import_sliced_graphics('./assets/level/ground/bg_day.png')
+                    elif type == 'background':
+                        bg_terrain_list = import_sliced_graphics(f'./assets/level/ground/bg_{scene_conversion_table[self.scene]}.png')
                         tile_surface = bg_terrain_list[int(col)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
-                    if type == 'roofs':
-                        roof_list = import_sliced_graphics('./assets/level/ground/roofs.png')
+                    elif type == 'roofs':
+                        roof_list = import_sliced_graphics(f'./assets/level/ground/roofs_{scene_conversion_table[self.scene]}.png')
                         tile_surface = roof_list[int(col)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
-                    if type == 'grass':
-                        grass_list = import_sliced_graphics('./assets/level/ground/grass.png')
+                    elif type == 'grass':
+                        grass_list = import_sliced_graphics(f'./assets/level/ground/grass_{scene_conversion_table[self.scene]}.png')
                         tile_surface = grass_list[int(col)]
                         sprite = StaticTile(tile_size, x, y, tile_surface)
-                    if type == 'trees':
-                        sprite = Tree(tile_size, x, y, './assets/level/ground/tree.png', random.randrange(160, 192, 8))
+                    elif type == 'trees':
+                        sprite = Tree(tile_size, x, y, f'./assets/level/ground/tree_{scene_conversion_table[self.scene]}.png', random.randrange(160, 192, 8))
 
-                    if type == 'energy':
+                    elif type == 'energy':
                         if col == '0':
                             sprite = Energy(tile_size, x, y, './assets/level/energy/blue', 2)
                         elif col == '1':
@@ -297,16 +300,16 @@ class Level:
                         elif col == '3':
                             sprite = Energy(tile_size, x, y, './assets/level/energy/green', 20)
 
-                    if type == 'enemies':
+                    elif type == 'enemies':
                         if col == '0':
                             sprite = Tile(tile_size, x, y)
                             self.flip_triggers.add(sprite)
                             add_sprite_to_group = False
                         elif col == '1':
-                            sprite = Skeleton(tile_size, x, y, './assets/enemy/skeleton', 64)
+                            sprite = Skeleton(tile_size, x, y, f'./assets/enemy/skeleton/{scene_conversion_table[self.scene]}', 64)
                         elif col == '2':
-                            sprite = Zombie(tile_size, x, y, './assets/enemy/zombie', 64)
-                    if type == 'borders':
+                            sprite = Zombie(tile_size, x, y, f'./assets/enemy/zombie/{scene_conversion_table[self.scene]}', 64)
+                    elif type == 'borders':
                         sprite = Tile(tile_size, x, y)
 
                     if add_sprite_to_group:
@@ -453,10 +456,13 @@ class Level:
                     if random.randint(1, 4) == 1:
                         self.player.sprite.take_damage(enemy.damage / 10, 'pure')
                 else:
+                    scene_conversion_table = {'day': 1, 'night': 1.25, 'dawn': 0.75, 'dusk': 0.875}
                     if self.player.sprite.speed > self.player.sprite.base_speed:
-                        self.player.sprite.take_damage(enemy.damage - (self.player.sprite.speed-self.player.sprite.base_speed)/self.player.sprite.base_speed/2, 'physical')
+                        damage = enemy.damage - (self.player.sprite.speed-self.player.sprite.base_speed)/self.player.sprite.base_speed/2
+                        self.player.sprite.take_damage(damage*scene_conversion_table[self.scene], 'physical')
                     else:
-                        self.player.sprite.take_damage(enemy.damage, 'physical')
+                        damage = enemy.damage
+                        self.player.sprite.take_damage(damage*scene_conversion_table[self.scene], 'physical')
 
     def check_enemy_melee_collisions(self):
         """Check if the melee weapon collides with the enemies and damage them if so."""
@@ -616,7 +622,7 @@ class Level:
             self.barrier_sprites.update(self.shift)
 
             # Background
-            self.sky.draw(self.display_surface)
+            self.sky.draw(self.display_surface, self.scene)
             self.mountains.draw(self.display_surface, int(self.shift / 3))
             self.water.draw(self.display_surface, int(self.shift / 3), self.delta)
             self.clouds.draw(self.display_surface, int(self.shift / 3))

@@ -5,6 +5,19 @@
 HISTORY OF "BarbeMCR's THE BETROTHED"
 +++++++++++++++++++++++++++++++++++++
 
+Release 0.19 - The Night Update
+===============================
+Build 1127
+Python 3.11.0
+Pygame 2.1.3.dev8
+*Released on November 27th, 2022*
+### Day-night cycle
+- Now levels can be set in dawn, day, dusk or night
+- Each of the four has its own background and palette (dawn and dusk share it, though)
+- Now enemies deal damage differently depending on the time of day: at dawn they are the weakest, at dusk they have a slight damage buff, during the day they deal normal damage and at night they are the strongest
+### Bugfixes
+- Now enemies no longer get stuck on borders in some places
+
 Release 0.18a - The Magical Update
 ==================================
 Build 1121

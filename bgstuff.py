@@ -7,56 +7,88 @@ from tile import *
 
 class Sky:
     """This class defines the actual sky."""
-    def __init__(self, horizon):
+    def __init__(self, horizon, scene):
         """Create the sky tiles according to their height.
 
         Arguments:
         horizon -- the height of the horizon line, measured in tiles from the top
+        scene -- the time of the day
         """
-        self.sky_top = pygame.image.load('./assets/level/sky/skytop.png').convert()
-        self.sky_middle = pygame.image.load('./assets/level/sky/skymiddle.png').convert()
-        self.sky_bottom = pygame.image.load('./assets/level/sky/skybottom.png').convert()
         self.horizon = horizon
+        if scene == 'day':
+            self.sky_top = pygame.image.load('./assets/level/sky/skytop_day.png').convert()
+            self.sky_middle = pygame.image.load('./assets/level/sky/skymiddle_day.png').convert()
+            self.sky_bottom = pygame.image.load('./assets/level/sky/skybottom_day.png').convert()
+        elif scene == 'night':
+            self.sky_top = pygame.image.load('./assets/level/sky/sky1_night.png').convert()
+            self.sky_middle = pygame.image.load('./assets/level/sky/sky2_night.png').convert()
+            self.sky_bottom = pygame.image.load('./assets/level/sky/sky3_night.png').convert()
+            self.star_pattern = []
+            for _ in range(y_tiles):
+                tile = random.choice((self.sky_top, self.sky_middle, self.sky_bottom))
+                flip = random.randint(0, 3)
+                if flip == 1:
+                    tile = pygame.transform.flip(tile, True, False)
+                elif flip == 2:
+                    tile = pygame.transform.flip(tile, False, True)
+                elif flip == 3:
+                    tile = pygame.transform.flip(tile, True, True)
+                self.star_pattern.append(tile)
+        elif scene == 'dawn':
+            self.sky_top = pygame.image.load('./assets/level/sky/skytop_dawn.png').convert()
+            self.sky_middle = pygame.image.load('./assets/level/sky/skymiddle_dawn.png').convert()
+            self.sky_bottom = pygame.image.load('./assets/level/sky/skybottom_dawn.png').convert()
+        elif scene == 'dusk':
+            self.sky_top = pygame.image.load('./assets/level/sky/skytop_dusk.png').convert()
+            self.sky_middle = pygame.image.load('./assets/level/sky/skymiddle_dusk.png').convert()
+            self.sky_bottom = pygame.image.load('./assets/level/sky/skybottom_dusk.png').convert()
 
-        # Stretch tile
-        self.sky_top = pygame.transform.scale(self.sky_top, (screen_width, tile_size))
-        self.sky_middle = pygame.transform.scale(self.sky_middle, (screen_width, tile_size))
-        self.sky_bottom = pygame.transform.scale(self.sky_bottom, (screen_width, tile_size))
-
-    def draw(self, display_surface):
+    def draw(self, display_surface, scene):
         """Draw the sky tiles to screen based on their height.
 
         Arguments:
         display_surface -- the screen
+        scene -- the time of the day
         """
         for row in range(y_tiles):
             y = row * tile_size
-            if row < self.horizon:
-                display_surface.blit(self.sky_top, (0, y))
-            elif row == self.horizon:
-                display_surface.blit(self.sky_middle, (0, y))
+            if scene == 'night':
+                tile = self.star_pattern[row]
+                display_surface.blit(tile, (0, y))
             else:
-                display_surface.blit(self.sky_bottom, (0, y))
+                if row < self.horizon:
+                    display_surface.blit(self.sky_top, (0, y))
+                elif row == self.horizon:
+                    display_surface.blit(self.sky_middle, (0, y))
+                else:
+                    display_surface.blit(self.sky_bottom, (0, y))
 
 class Water:
     """This class defines the water you see at the bottom of pits."""
-    def __init__(self, top, level_width, generate):
+    def __init__(self, top, scene, level_width, generate):
         """Create the water tiles if the generator allows it.
 
         Arguments:
         top -- the water level, measured in pixels from the top
+        scene -- the time of the day
         level_width -- the width of the level, measured in tiles
         generate -- water will be generated only if this flag is set to True
         """
         self.water_sprites = pygame.sprite.Group()
+        if scene == 'day':
+            path = './assets/level/water/day'
+        elif scene == 'night':
+            path = './assets/level/water/night'
+        elif scene == 'dawn' or scene == 'dusk':
+            path = './assets/level/water/dawn_dusk'
         if generate:
             water_start = -screen_width
-            water_width = pygame.image.load('./assets/level/water/water1.png').get_width()
+            water_width = pygame.image.load('./assets/level/water/day/water1.png').get_width()
             water_x_tiles = int((level_width + 2 * screen_width) / water_width)
             for tile in range(water_x_tiles):
                 x = tile * water_width + water_start
                 y = top
-                sprite = AnimatedTile(water_width, x, y, './assets/level/water')
+                sprite = AnimatedTile(water_width, x, y, path)
                 self.water_sprites.add(sprite)
 
     def draw(self, display_surface, shift, delta):
@@ -72,26 +104,40 @@ class Water:
 
 class Clouds:
     """This class defines the clouds."""
-    def __init__(self, horizon, level_width, cloud_number):
+    def __init__(self, horizon, scene, level_width, cloud_number):
         """Create and place the clouds.
 
         Arguments:
         horizon -- the lowest point where clouds can generate, measured in pixels from the top
+        scene -- the time of the day
         level_width -- the width of the level, measured in tiles
         cloud_number -- the number of clouds to generate
         """
         self.level_width = level_width
-        clouds = [
-            './assets/level/sky/cloudsmall_day.png',
-            './assets/level/sky/cloudmedium_day.png',
-            './assets/level/sky/cloudlarge_day.png'
-        ]
+        if scene == 'day':
+            clouds = [
+                './assets/level/sky/cloudsmall_day.png',
+                './assets/level/sky/cloudmedium_day.png',
+                './assets/level/sky/cloudlarge_day.png'
+            ]
+        elif scene == 'night':
+            clouds = [
+                './assets/level/sky/cloudsmall_night.png',
+                './assets/level/sky/cloudmedium_night.png',
+                './assets/level/sky/cloudlarge_night.png'
+            ]
+        elif scene == 'dawn' or scene == 'dusk':
+            clouds = [
+                './assets/level/sky/cloudsmall_dawn_dusk.png',
+                './assets/level/sky/cloudmedium_dawn_dusk.png',
+                './assets/level/sky/cloudlarge_dawn_dusk.png'
+            ]
         cloud_start = -screen_width
         cloud_stop = self.level_width + screen_width
         min_y = 0
         max_y = horizon
         self.cloud_sprites = pygame.sprite.Group()
-        for tile in range(cloud_number):
+        for _ in range(cloud_number):
             x = random.randrange(cloud_start, cloud_stop, 8)
             y = random.randrange(min_y, max_y, 16)
             cloud_surf = pygame.image.load(random.choice(clouds)).convert_alpha()
@@ -124,17 +170,24 @@ class Clouds:
 
 class Mountains:
     """This class defines the mountains in the background."""
-    def __init__(self, top, level_width, generate):
+    def __init__(self, top, scene, level_width, generate):
         """Create the mountains if the generator allows it.
 
         Arguments:
         top -- the highest point where mountains can generate, measured in pixels from the top
+        scene -- the time of the day
         level_width -- the width of the level, measured in tiles
         generate -- mountains will be generated only if this flag is set to True
         """
         self.mountain_sprites = pygame.sprite.Group()
+        if scene == 'day':
+            path = './assets/level/ground/mountain_day.png'
+        elif scene == 'night':
+            path = './assets/level/ground/mountain_night.png'
+        elif scene == 'dawn' or scene == 'dusk':
+            path = './assets/level/ground/mountain_dawn_dusk.png'
         if generate:
-            mountain_surf = pygame.image.load('./assets/level/ground/mountain.png').convert_alpha()
+            mountain_surf = pygame.image.load(path).convert_alpha()
             mountain_start = -screen_width
             mountain_width = mountain_surf.get_width()
             mountain_x_tiles = int((level_width + 2 * screen_width) / mountain_width)

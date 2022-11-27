@@ -1,6 +1,7 @@
 """This files defines the translations of version codes."""
 
 versions = {
+    11270: "0.19",
     11210: "0.18a",
     11200: "0.18",
     11130: "0.17",
