@@ -29,6 +29,7 @@
         "0.03": "the_betrothed_003_py310.zip",
         "0.02": "the_betrothed_002_py310.zip",
         "0.01": "the_betrothed_001_py310.zip"
+    },
     "versions_win32_py38": {
         "0.20": "the_betrothed_020_py38.zip",
         "0.19": "the_betrothed_019_py38.zip",
@@ -59,6 +60,7 @@
         "0.03": "the_betrothed_003_py38.zip",
         "0.02": "the_betrothed_002_py38.zip",
         "0.01": "the_betrothed_001_py38.zip"
+    },
     "versions_source": {
         "0.20": "the_betrothed_020_source.zip",
         "0.19": "the_betrothed_019_source.zip",
@@ -90,3 +92,4 @@
         "0.02": "the_betrothed_002_source.zip",
         "0.01": "the_betrothed_001_source.zip"
     }
+}
