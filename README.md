@@ -16,6 +16,8 @@ If you chose the second option, here is how you can play BarbeMCR's The Betrothe
    - Python 3.8.10 for **Windows Vista, 7 and 8**: `the_betrothed_<version>_py38.zip`
 
    *__All Windows executables are 32-bit, which means they are compatible with both x86 and x64 architectures.__*
+   
+   *__In order to run on Windows 8.1 and lower, you (in theory) need to have Microsoft Visual C++ 2015 installed (it comes as an update package, or you can get it from [here](https://www.microsoft.com/en-us/download/details.aspx?id=52685))__*
 3. Extract the `.zip` file
 4. Start `the_betrothed.exe`
 
