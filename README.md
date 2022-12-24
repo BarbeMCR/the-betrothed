@@ -1,8 +1,13 @@
 # BarbeMCR's The Betrothed
-The Betrothed is a platformer written in Python with the aid of Pygame.
+BarbeMCR's The Betrothed is a platformer written in Python with the aid of Pygame.
 
 ## How do I run the code?
 ### If you just want to play BarbeMCR's The Betrothed:
+
+- Use the BarbeMCR's The Betrothed Launcher (learn about it [here](https://github.com/BarbeMCR/the-betrothed-launcher))
+- Do everything manually
+
+If you chose the second option, here is how you can play BarbeMCR's The Betrothed (don't worry, it isn't very difficult):
 
 **On Windows**
 1. Go on the `Releases` page and check for the latest stable version (or any other one, if you want)
@@ -14,12 +19,12 @@ The Betrothed is a platformer written in Python with the aid of Pygame.
 3. Extract the `.zip` file
 4. Start `the_betrothed.exe`
 
-*Note: either your antivirus or Microsoft SmartScreen might block the file thinking it's a virus. BarbeMCR's The Betrothed is **not** a virus. If you don't trust me, check the code for yourself. Please make an exception for the folder you extracted The Betrothed in or ignore the Microsoft SmartScreen warning. Thank you!*
+*Note: either your antivirus or Microsoft SmartScreen might block the file thinking it's a virus. BarbeMCR's The Betrothed is **not** a virus. If you don't trust me, check the code for yourself. Please make an exception for the folder you extracted BarbeMCR's The Betrothed in or ignore the Microsoft SmartScreen warning. Thank you!*
 
 **On macOS, Linux, UNIX or other platforms**
 1. Download and install Python 3.8 or higher from [python.org](https://python.org), if you haven't already
-2. Install pygame 2.1.2 or higher: `python -m pip install pygame`, if you haven't already
-3. Go on the `Releases page and check for the latest stable version (or any other one, if you want)
+2. Install the right version of pygame for your target version (table below): `python -m pip install pygame==x.y.z`, if you haven't already
+3. Go on the `Releases` page and check for the latest stable version (or any other one, if you want)
 4. Download `the_betrothed_<version>_source.zip`
 5. Extract the `.zip` file
 6. Start `main.py`
@@ -64,7 +69,7 @@ If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 ## Settings
 In the settings screen, you'll find various options, listed below.
 - **Controller:** this option lets you change the controller layout used by the game to best match your hardware. You can choose between three options: `Xbox One / X|S / 360`, `Dualshock 4` and `Switch Pro`.
-- **Autodownload:** this option lets you specify whether to enable autodownload. If autodownload is enabled, new versions are automatically downloaded and placed in './data' at startup. You can choose between two options: `Disabled` and `Enabled`.
+- **Autodownload:** this option lets you specify whether to enable autodownload. If autodownload is enabled, new versions are automatically downloaded and placed in './data' at startup. You can choose between two options: `Disabled` and `Enabled`. If you want an easier way to update the game, check out the [BarbeMCR's The Betrothed Launcher](https://github.com/BarbeMCR/the-betrothed-launcher).
 - **Delete Game:** this lets you delete a previously generated savefile. You will be asked for the name of the savefile to delete. Keep in mind the savefile will be deleted *__permanently__*.
 - **Reset Settings:** this lets you reset the settings to their default values.
 
