@@ -31,7 +31,7 @@ If you chose the second option, here is how you can play BarbeMCR's The Betrothe
 5. Extract the `.zip` file
 6. Start `main.py`
 
-**Do you need to upgrade 0.12 savefiles to version 0.13?**
+**Do you need to upgrade 0.12 savefiles to version 0.13 or higher?**
 If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 
 ### If you instead want the source code:
@@ -46,34 +46,36 @@ If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 1. Make sure to have Python 3.8 or higher and the right version of pygame, as in the table below (use a 32-bit Python version for wider compatibility)
 2. Grab the Pyinstaller version that matches what is used with your target game version, if you want (probably you can just use the latest version):
 
-| The Betrothed version | Pyinstaller version |
-| --------------------- | ------------------- |
-| 0.01                  | 4.7                 |
-| 0.02                  | 4.8                 |
-| 0.03                  | 4.9                 |
-| 0.04                  | 4.10                |
-| 0.05 - 0.06           | 5.0.1               |
-| 0.07 - 0.11a          | 5.1                 |
-| 0.12                  | 5.2                 |
-| 0.13 - 0.15           | 5.3                 |
-| 0.16 - 0.19           | 5.6.2               |
-| 0.20 +                | 5.7.0               |
+| BarbeMCR's The Betrothed version | Pyinstaller version |
+| -------------------------------- | ------------------- |
+| 0.01                             | 4.7                 |
+| 0.02                             | 4.8                 |
+| 0.03                             | 4.9                 |
+| 0.04                             | 4.10                |
+| 0.05 - 0.06                      | 5.0.1               |
+| 0.07 - 0.11a                     | 5.1                 |
+| 0.12                             | 5.2                 |
+| 0.13 - 0.15                      | 5.3                 |
+| 0.16 - 0.19                      | 5.6.2               |
+| 0.20 +                           | 5.7.0               |
 
 3. Compile with Pyinstaller using the `--onefile` argument
 
 **Game version to pygame version conversion table**
-| The Betrothed version | pygame version |
-| --------------------- | -------------- |
-| 0.01 - 0.15           | 2.1.2          |
-| 0.16 +                | 2.1.3.dev8 / 2.1.3 |
+| BarbeMCR's The Betrothed version | pygame version |
+| -------------------------------- | -------------- |
+| 0.01 - 0.15                      | 2.1.2          |
+| 0.16 +                           | 2.1.3.dev8 / 2.1.3 |
 
 ---
 ## Settings
 In the settings screen, you'll find various options, listed below.
 - **Controller:** this option lets you change the controller layout used by the game to best match your hardware. You can choose between three options: `Xbox One / Xbox X|S / Xbox 360`, `Dualshock 4` and `Nintendo Switch Pro`. By default this option is set to `Xbox One / Xbox X|S / Xbox 360`.
-- **Autodownload:** this option lets you specify whether to enable autodownload. If autodownload is enabled, new versions are automatically downloaded and placed in './data' at startup. You can choose between two options: `Disabled` and `Enabled`. If you want an easier way to update the game, check out the [BarbeMCR's The Betrothed Launcher](https://github.com/BarbeMCR/the-betrothed-launcher). By default this option is set to `Disabled`.
+- **Music volume:** this option lets you change the music volume. You can choose between six options: `0%`, `10%`, `25%`, `50%`, `75%`, `100%`. This option only affects the volume of music, not that of SFXs. By default this option is set to `50%`.
 - **VSync:** this options lets you specify whether to enable VSync. If VSync is enabled, the framerate will be synced (and limited) to your monitor's refresh rate. This generally reduces screen tearing. Keep in mind that even if the framerate is higher than your monitor's refresh rate, the "extra" frames will not be displayed. VSync also has the benefit to give a more fluid gameplay experience (it is not guaranteed though, as it greatly varies depending on your specific hardware). You can choose between two options: `Enabled` and `Disabled`. By default this option is set to `Enabled`. It is highly recommended to keep VSync on. Changing this setting *__requires restarting the game__* in order for it to be applied. VSync may not work on some hardware configurations, *even if enabled in the settings*.
-- **Maximum framerate:** this option lets you change the framerate cap. You can choose between nine options: `20 FPS`, `30 FPS`, `50 FPS`, `60 FPS`, `72 FPS`, `90 FPS`, `120 FPS`, `144 FPS` and `No limit`. By default this option is set to `60 FPS`. If VSync is enabled, selecting a framerate cap higher than your monitor's refresh rate won't have any effect. It is *__HIGHLY__* recommended to keep the framerate cap lower than or equal to 60 FPS. 72 FPS is considered the highest "safe" framerate. Starting from 90 FPS, you could start to notice some slight glitches in moving sprites. Higher caps (and no cap) will prevent the slowest sprites from moving at all. Keep in mind that BarbeMCR's The Betrothed was designed with 60 FPS as the target framerate. Playing with a framerate cap set higher than 72 FPS should be considered *__unsupported__*. *__USE WITH CAUTION!__* Changing this setting *__requires restarting the game__* in order for it to be applied.
+- **Maximum framerate:** this option lets you change the framerate cap. You can choose between nine options: `20 FPS`, `30 FPS`, `50 FPS`, `60 FPS`, `72 FPS`, `90 FPS`, `120 FPS`, `144 FPS` and `No limit`. By default this option is set to `60 FPS`. If VSync is enabled, selecting a framerate cap higher than your monitor's refresh rate won't have any effect. It is *__HIGHLY__* recommended to keep the framerate cap lower than or equal to 60 FPS. 72 FPS is considered the highest "safe" framerate. Starting from 90 FPS, you could start to notice some slight glitches in moving sprites. Higher framerates could prevent the slowest sprites from moving at all. Keep in mind that BarbeMCR's The Betrothed was designed with 60 FPS as the target framerate. Playing with a framerate cap set higher than 72 FPS should be considered *__unsupported__*. *__USE WITH CAUTION!__* Changing this setting *__requires restarting the game__* in order for it to be applied.
+- **Fade effect:** this option lets you toggle the fade transition that happens when spawning in and leaving a level. You can choose between two options: `Enabled` and `Disabled`. Having the fade effect enabled could cause temporary lag when spawning or leaving. However, it is much nicer having the transition on. By default this option is set to `Enabled`.
+- **Autodownload:** this option lets you specify whether to enable autodownload. If autodownload is enabled, new versions are automatically downloaded and placed in './data' at startup. You can choose between two options: `Disabled` and `Enabled`. If you want an easier way to update the game, check out the [BarbeMCR's The Betrothed Launcher](https://github.com/BarbeMCR/the-betrothed-launcher). By default this option is set to `Disabled`.
 - **Delete Game:** this lets you delete a previously generated savefile. You will be asked for the name of the savefile to delete. Keep in mind the savefile will be deleted *__permanently__*.
 - **Reset Settings:** this lets you reset the settings to their default values.
 
