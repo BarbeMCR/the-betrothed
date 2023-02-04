@@ -116,7 +116,7 @@ chapter_2c = {
     'trees': './leveldata/chapter2c/chapter2c_trees.csv'
 }
 levels = {
-    0: {
+    1: {
         0: {
             0: chapter_1a,
             1: chapter_1b,

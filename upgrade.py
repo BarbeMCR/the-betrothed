@@ -1,5 +1,5 @@
 import shelve
-from melee import IronKnife
+from melee import WoodenKnife, IronKnife
 from ranged import MakeshiftBow
 from magical import StarterStaff
 
@@ -16,6 +16,7 @@ def upgrade(version, savefile_path):
     if 8290 <= version <= 11059: version = _upgrade_015_to_016(savefile_path)
     if 11060 <= version <= 11129: version = _upgrade_016_to_017(savefile_path)
     if 11130 <= version <= 11199: version = _upgrade_017_to_018(savefile_path)
+    if 11200 <= version <= 102039: version = _upgrade_018_to_020(savefile_path)
 
 def _upgrade_013_to_015(savefile_path):
     """Upgrade a 0.13 savefile to version 0.15.
@@ -67,3 +68,42 @@ def _upgrade_017_to_018(savefile_path):
     savefile['selection']['magical'] = StarterStaff()
     savefile.close()
     return 11200
+
+def _upgrade_018_to_020(savefile_path):
+    """Upgrade a 0.18 savefile to version 0.20.
+
+    Arguments:
+    savefile_path -- the path to the savefile
+    """
+    savefile = shelve.open(savefile_path, writeback=True)
+    savefile['current_part'] = 1
+    savefile['selection'] = {
+        'melee': WoodenKnife(),
+        'ranged': MakeshiftBow(),
+        'magical': StarterStaff()
+    }
+    savefile['inventory'] = {
+        'weapons': [
+            IronKnife(),
+            WoodenKnife(),
+            MakeshiftBow(),
+            StarterStaff(),
+            IronKnife(),
+            MakeshiftBow(),
+            StarterStaff(),
+            IronKnife(),
+            WoodenKnife(),
+            IronKnife(),
+            IronKnife(),
+            MakeshiftBow(),
+            WoodenKnife(),
+            IronKnife(),
+            StarterStaff(),
+            WoodenKnife(),
+            WoodenKnife(),
+            MakeshiftBow(),
+                StarterStaff()
+        ]
+    }
+    savefile.close()
+    return 102040

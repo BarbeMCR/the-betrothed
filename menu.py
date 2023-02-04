@@ -7,7 +7,7 @@ import shelve
 from text import render
 from settings import controllers, screen_height, screen_width
 from box import TextBox, SelectionBoxYN
-from versions import get_version
+from versions import get_version, get_level
 
 """This file defines the menus."""
 
@@ -159,7 +159,7 @@ class MainMenu(Menu):
         self.create_settings = self.parent.create_settings
         self.create_controls = self.parent.create_controls
         self.title = pygame.image.load('./assets/menu/title.png').convert_alpha()
-        self.copyright_info = "Copyright (C) 2022  BarbeMCR"
+        self.copyright_info = "Copyright (C) 2023  BarbeMCR"
         self.status = None
         self.splash_font = pygame.font.Font(self.font_file, 24)
         self.splashes = './splashes.txt'
@@ -212,9 +212,13 @@ class MainMenu(Menu):
                 creation_time = savefile['creation_time']
                 raw_version = savefile['version']
                 access_time = savefile['access_time']
+                current_part = savefile['current_part']
+                current_subpart = savefile['current_subpart']
+                current_level = savefile['start_level']
             creation_version = get_version(raw_creation_version)
             version = get_version(raw_version)
-            text = f"Are you sure to load savefile '{self.parent.savefile_path[7:]}'?\nCreated on {creation_time} in version {creation_version}\nLast accessed on {access_time} in version {version}\nKeep in mind that loading from a savefile could trigger\nsome dangerous Arbitrary Code Execution (ACE).\nOnly load a savefile if it comes from a trusted source (such as you).\nThe savefile will be upgraded to the latest version if necessary.".split('\n')
+            last_level = get_level(current_part, current_subpart, current_level)
+            text = f"Are you sure to load savefile '{self.parent.savefile_path[7:]}'?\nCreated on {creation_time} in version {creation_version}\nLast accessed on {access_time} in version {version}\nCompleted until {last_level}\n\nNever load a savefile from an untrusted source!\nThe savefile will be upgraded to the latest version if necessary.".split('\n')
             self.infobox = SelectionBoxYN(text, self.display_surface, self.parent)
             self.infobox.font = pygame.font.Font('./font.ttf', 12)
             self.status = 'infobox'
@@ -278,6 +282,7 @@ class Controls(Menu):
             "Ranged attack:   'K'   /   X   /   Square   /   X",
             "Magical attack:   'L'   /   Y   /   Triangle   /   Y",
             "Run:   'Left CTRL' [+ 'Left ALT'] + 'A/D'   /   RT + D-Pad   /   R2 + D-Pad   /   ZR + D-Pad",
+            "Open inventory:   'E'   /   RB   /   R1   /   R",
             "Pause:   'Esc'   /   Menu   /   Options   /   +",
             "Toggle overlay:   'Backslash'   /   Xbox   /   PlayStation   /   Home",
             "Take screenshot:   'F2'   /   Share   /   Touchpad Click   /   Capture",
@@ -349,17 +354,19 @@ class Settings(Menu):
         self.display_surface = display_surface
         self.parent = parent
         self.background = './assets/menu/menu_bg.png'
-        self.cursor = './assets/menu/cursor.png'
+        self.cursor = './assets/menu/cursor_settings.png'
         self.layout = 'v'
         super().__init__(self.background, self.cursor, self.layout, self.display_surface, self.parent)
-        self.tags = ['Controller', 'Autodownload', 'Delete Game', 'Reset settings', 'Back to title']
+        self.tags = ['Controller', 'Music volume', 'VSync', 'Maximum framerate', 'Fade effect', 'Autodownload', 'Delete Game', 'Reset settings', 'Back to title']
         self.x = 128
         self.y = 64
-        self.step = 96
+        self.step = 64
         self.create_main_menu = self.parent.create_main_menu
         self.settings = configparser.ConfigParser()
         self.settings.read('./data/settings.ini')
         self.status = None
+        self.font = pygame.font.Font(self.font_file, 28)
+        self.description_font = pygame.font.Font(self.font_file, 14)
 
     def select_option(self, child):
         """A function used to substitute 'get_input' and simplify the input management.
@@ -461,6 +468,30 @@ class Settings(Menu):
         self.status = 'controller'
         self.place_cursor(self.controller)
 
+    def create_volume_settings(self):
+        """Create the volume settings submenu."""
+        self.volume = VolumeSettings(self)
+        self.status = 'volume'
+        self.place_cursor(self.volume)
+
+    def create_vsync_settings(self):
+        """Create the VSync settings submenu."""
+        self.vsync = VSyncSettings(self)
+        self.status = 'vsync'
+        self.place_cursor(self.vsync)
+
+    def create_maxfps_settings(self):
+        """Create the Max FPS settings submenu."""
+        self.maxfps = MaxFPSSettings(self)
+        self.status = 'maxfps'
+        self.place_cursor(self.maxfps)
+
+    def create_fade_settings(self):
+        """Create the fade effect settings submenu."""
+        self.fade = FadeSettings(self)
+        self.status = 'fade'
+        self.place_cursor(self.fade)
+
     def create_autodownload_settings(self):
         """Create the autodownload settings submenu."""
         self.autodownload = AutodownloadSettings(self)
@@ -475,11 +506,29 @@ class Settings(Menu):
         elif self.status == 'controller':
             self.controller.run()
             super().run(self.controller.options, self.dummy)
+            self.display_surface.blit(self.description_font.render(self.controller.description, False, 'white'), (128, 32))
+        elif self.status == 'volume':
+            self.volume.run()
+            super().run(self.volume.options, self.dummy)
+            self.display_surface.blit(self.description_font.render(self.volume.description, False, 'white'), (128, 32))
+        elif self.status == 'vsync':
+            self.vsync.run()
+            super().run(self.vsync.options, self.dummy)
+            self.display_surface.blit(self.description_font.render(self.vsync.description, False, 'white'), (128, 32))
+        elif self.status == 'maxfps':
+            self.maxfps.run()
+            super().run(self.maxfps.options, self.dummy)
+            self.display_surface.blit(self.description_font.render(self.maxfps.description, False, 'white'), (128, 32))
+        elif self.status == 'fade':
+            self.fade.run()
+            super().run(self.fade.options, self.dummy)
+            self.display_surface.blit(self.description_font.render(self.fade.description, False, 'white'), (128, 32))
         elif self.status == 'autodownload':
             self.autodownload.run()
             super().run(self.autodownload.options, self.dummy)
+            self.display_surface.blit(self.description_font.render(self.autodownload.description, False, 'white'), (128, 32))
         else:
-            super().run(self.tags, self.create_controller_settings, self.create_autodownload_settings, self.create_delete_textbox, self.reset_settings, self.create_main_menu)
+            super().run(self.tags, self.create_controller_settings, self.create_volume_settings, self.create_vsync_settings, self.create_maxfps_settings, self.create_fade_settings, self.create_autodownload_settings, self.create_delete_textbox, self.reset_settings, self.create_main_menu)
 
 class ControllerSettings(Settings):
     """The controller settings submenu."""
@@ -490,7 +539,8 @@ class ControllerSettings(Settings):
         parent -- the parent class
         """
         self.parent = parent
-        self.options = ['Xbox One / X|S / 360', 'DualShock 4', 'Switch Pro']
+        self.description = "Choose the option that best matches your hardware."
+        self.options = ['Xbox One / Xbox X|S / Xbox 360', 'DualShock 4', 'Nintendo Switch Pro']
         self.strings = ['xbox_one', 'ps4', 'switch_pro']
         self.section = 'controller'
         self.key = 'gamepad'
@@ -509,10 +559,108 @@ class AutodownloadSettings(Settings):
         parent -- the parent class
         """
         self.parent = parent
+        self.description = "Choose whether you want new updates to be downloaded automatically."
         self.options = ['Disabled', 'Enabled']
         self.strings = ['false', 'true']
         self.section = 'autodownload'
         self.key = 'autodownload'
+        self.selection = 0
+
+    def run(self):
+        """Update and draw everything."""
+        self.parent.select_option(self)
+
+class VSyncSettings(Settings):
+    """The VSync settings submenu."""
+    def __init__(self, parent):
+        """Initialize the base settings class.
+
+        Arguments:
+        parent -- the parent class
+        """
+        self.parent = parent
+        self.description = "VSync syncs the framerate to your monitor's refresh rate. Applies on next restart."
+        self.options = ['Enabled (recommended)', 'Disabled (not recommended)']
+        self.strings = ['true', 'false']
+        self.section = 'vsync'
+        self.key = 'vsync'
+        self.selection = 0
+
+    def run(self):
+        """Update and draw everything."""
+        self.parent.select_option(self)
+
+class MaxFPSSettings(Settings):
+    """The Max FPS settings submenu."""
+    def __init__(self, parent):
+        """Initialize the base settings class.
+
+        Arguments:
+        parent -- the parent class
+        """
+        self.parent = parent
+        self.description = "Changes the framerate cap. Applies on next restart."
+        self.options = [
+            '20 FPS (very slow)',
+            '30 FPS (slow)',
+            '50 FPS (standard)',
+            '60 FPS (recommended)',
+            '72 FPS (fast)',
+            '90 FPS (very fast)',
+            '120 FPS (not recommended)',
+            '144 FPS (not recommended)',
+            'No limit (could break the physics engine)'
+        ]
+        self.strings = ['20', '30', '50', '60', '72', '90', '120', '144', '0']
+        self.section = 'maxfps'
+        self.key = 'maxfps'
+        self.selection = 3
+
+    def run(self):
+        """Update and draw everything."""
+        self.parent.select_option(self)
+
+class VolumeSettings(Settings):
+    """The volume settings submenu."""
+    def __init__(self, parent):
+        """Initialize the base settings class.
+
+        Arguments:
+        parent -- the parent class
+        """
+        self.parent = parent
+        self.description = "Changes the music volume. SFXs won't be affected by this setting."
+        self.options = [
+            '0% (no music)',
+            '10% (very quiet)',
+            '25% (quiet)',
+            '50% (normal)',
+            '75% (loud)',
+            '100% (VERY LOUD)'
+        ]
+        self.strings = ['0', '0.1', '0.25', '0.5', '0.75', '1']
+        self.section = 'volume'
+        self.key = 'music'
+        self.selection = 3
+
+    def run(self):
+        """Update and draw everything."""
+        self.parent.select_option(self)
+
+class FadeSettings(Settings):
+    """The fade effect settings submenu."""
+    def __init__(self, parent):
+        """Initialize the base settings class.
+
+        Arguments:
+        parent -- the parent class
+        """
+        self.parent = parent
+        self.description = "Toggles the fade effect on level transitions. May cause temporary lag if enabled."
+        self.options = ['Enabled (default: nice transitions)', 'Disabled (no transitions)']
+        self.strings = ['true', 'false']
+        self.section = 'appearance'
+        self.key = 'fade'
         self.selection = 0
 
     def run(self):

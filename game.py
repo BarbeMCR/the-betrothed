@@ -35,6 +35,8 @@ class Game:
         self.settings = configparser.ConfigParser()
         self.settings.read('./data/settings.ini')
         self.gamepad = self.settings['controller']['gamepad']
+        self.volume = self.settings['volume']['music']
+        self.fade = self.settings.getboolean('appearance', 'fade')
         # Savefile
         self.savefile_path = ''
         self.savefile = None
@@ -48,7 +50,7 @@ class Game:
         self.start_level = 0
         self.end_level = 0
         self.current_subpart = 0
-        self.current_part = 0
+        self.current_part = 1
         self.main_menu = MainMenu(self.display_surface, self)
         self.status = 'main_menu'
 
@@ -65,26 +67,32 @@ class Game:
 
         # Inventory
         self.selection = {
-            'melee': IronKnife(),
+            'melee': WoodenKnife(),
             'ranged': MakeshiftBow(),
             'magical': StarterStaff()
         }
-
-    def reset(self):
-        """Reset the game."""
-        self.first_level = 0
-        self.start_level = 0
-        self.end_level = 0
-        self.current_subpart = 0
-        self.current_part = 0
-        self.health = {'renzo': 20}
-        self.energy = {'renzo': 0}
-        self.energy_overflow = {'renzo': 0}
-        self.stamina = {'renzo': 1800}
-        self.selection = {
-            'melee': IronKnife(),
-            'ranged': MakeshiftBow(),
-            'magical': StarterStaff()
+        self.inventory = {
+            'weapons': [
+                IronKnife(),
+                WoodenKnife(),
+                MakeshiftBow(),
+                StarterStaff(),
+                IronKnife(),
+                MakeshiftBow(),
+                StarterStaff(),
+                IronKnife(),
+                WoodenKnife(),
+                IronKnife(),
+                IronKnife(),
+                MakeshiftBow(),
+                WoodenKnife(),
+                IronKnife(),
+                StarterStaff(),
+                WoodenKnife(),
+                WoodenKnife(),
+                MakeshiftBow(),
+                StarterStaff()
+            ]
         }
 
     def save(self, first=False):
@@ -110,6 +118,7 @@ class Game:
             self.savefile['energy_overflow'] = self.energy_overflow
             self.savefile['stamina'] = self.stamina
             self.savefile['selection'] = self.selection
+            self.savefile['inventory'] = self.inventory
             self.savefile.close()
             hash = hashlib.sha256()
             with open(self.savefile_path + '.dat', 'rb') as savefile:
@@ -139,6 +148,7 @@ class Game:
         self.energy_overflow = self.savefile['energy_overflow']
         self.stamina = self.savefile['stamina']
         self.selection = self.savefile['selection']
+        self.inventory = self.savefile['inventory']
         self.savefile.close()
         with open(self.savefile_path + '.dat', 'rb') as savefile:
             hash.update(savefile.read())
@@ -208,9 +218,7 @@ class Game:
         Arguments:
         save -- specify whether to save the game before building the main menu
         """
-        self.reset()
-        self.main_menu = MainMenu(self.display_surface, self)
-        self.status = 'main_menu'
+        self.__init__(self.display_surface, self.version)
 
     def create_settings(self):
         """Build the settings menu and update the status."""
@@ -234,10 +242,11 @@ class Game:
 
     def apply_death(self):
         """Apply the death penalties."""
-        self.first_level = 0
-        self.start_level = 0
-        self.end_level = 0
-        self.current_part = 0
+        # Checkpoint does not skip boss battle (however, inventory remains as it was when death occured)
+        self.start_level = 0  # self.start_level = self.checkpoint
+        self.end_level = 0  # self.end_level = self.checkpoint
+        self.current_subpart = 0  # self.current_subpart = self.checkpoint_subpart
+        self.current_part = 0  # self.current_part = self.checkpoint_part
         self.world = World(self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
         self.health[self.character] = self.max_health[self.character]
@@ -319,7 +328,8 @@ class Game:
                 if self.level.player.sprite.screenshot_taken:
                     take_screenshot(self.display_surface)
                     self.level.player.sprite.screenshot_taken = False
-                if not self.level.level_completed:
-                    self.level.fade_in(2)
-                else:
-                    self.level.fade_out(4)
+                if self.fade:
+                    if not self.level.level_completed:
+                        self.level.fade_in(2)
+                    else:
+                        self.level.fade_out(4)

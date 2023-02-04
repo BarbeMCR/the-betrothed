@@ -76,12 +76,13 @@ class RangedWeapon(Weapon):
 
 class MagicalWeapon(Weapon):
     """The basic magical weapon class."""
-    def __init__(self, name, description, icon_path, level, damage, cooldown, power, max_power, range, speed, cost, projectile_image):
+    def __init__(self, name, description, attack_desc, icon_path, level, damage, cooldown, power, max_power, range, speed, cost, projectile_image):
         """Initialize the magical weapon attributes.
 
         Arguments:
         name -- the weapon name
         description -- the weapon description
+        attack_desc -- the description of the attack
         icon_path -- the path to the weapon icon
         level -- the weapon level
         damage -- the damage the weapon deals
@@ -93,6 +94,7 @@ class MagicalWeapon(Weapon):
         cost -- the cost of each use (in energy points)
         projectile_image -- the projectile image path
         """
+        self.attack_desc = attack_desc
         self.power = power
         self.max_power = max_power
         self.range = range

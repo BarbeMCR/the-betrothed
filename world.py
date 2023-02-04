@@ -21,7 +21,7 @@ class Node(pygame.sprite.Sprite):
             self.status = 'unlocked'
         else:
             self.status = 'locked'
-        pos = (pos[0], pos[1] - 34)  # Lowering by 34 pixels makes for a cool effect when the cross moves
+        pos = (pos[0], pos[1] - 30)  # Lowering by 34 pixels makes for a cool effect when the cross moves
         self.rect = self.image.get_rect(center = pos)
         self.target_rect = pygame.Rect(self.rect.centerx - (movement_speed / 2), self.rect.centery - (movement_speed / 2), movement_speed, movement_speed)
 

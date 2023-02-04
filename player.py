@@ -1,5 +1,4 @@
 import pygame
-from math import sin
 from settings import controllers
 from misc import import_folder
 
@@ -46,6 +45,7 @@ class Player(pygame.sprite.Sprite):
         self.magical_attack_sfx.set_volume(0.5)
         self.player_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/player_hurt.ogg')
         self.enemy_hurt_sfx = pygame.mixer.Sound('./assets/audio/sfx/enemy_hurt.ogg')
+        self.inventory_sfx = pygame.mixer.Sound('./assets/audio/sfx/inventory.ogg')
         self.game_paused_sfx = pygame.mixer.Sound('./assets/audio/sfx/game_paused.ogg')
         self.game_resumed_sfx = pygame.mixer.Sound('./assets/audio/sfx/game_resumed.ogg')
         self.screenshot_taken_sfx = pygame.mixer.Sound('./assets/audio/sfx/screenshot_taken.ogg')
@@ -74,6 +74,7 @@ class Player(pygame.sprite.Sprite):
         self.jumping = False
         self.invincible = False
         self.invincibility_ticks = 1000
+        self.texture_shown = True
         self.hurt_time = 0  # This is a timestamp, like self.gen_time
         self.stamina_depleted_time = 0
         self.melee_attacking = False
@@ -87,6 +88,7 @@ class Player(pygame.sprite.Sprite):
         self.keydown_j = False
         self.keydown_k = False
         self.keydown_l = False
+        self.keydown_e = False
         self.keydown_esc = False
         self.keydown_backslash = False
         self.keydown_f2 = False
@@ -94,6 +96,7 @@ class Player(pygame.sprite.Sprite):
         self.buttondown_b = False
         self.buttondown_x = False
         self.buttondown_y = False
+        self.buttondown_rb = False
         self.buttondown_menu = False
         self.buttondown_logo = False
         self.buttondown_share = False
@@ -136,7 +139,7 @@ class Player(pygame.sprite.Sprite):
             self.melee_weapon_rect.topright = (self.rect.left, self.rect.top + self.game.selection['melee'].offset)
 
         # Sprite flickering
-        alpha = self.create_sin_wave()
+        alpha = self.get_flicker_status()
         if self.invincible:
             self.image.set_alpha(alpha)
         else:
@@ -189,6 +192,7 @@ class Player(pygame.sprite.Sprite):
         controller_b = False
         controller_x = False
         controller_y = False
+        controller_rb = False
         controller_menu = False
         controller_logo = False
         controller_share = False
@@ -212,6 +216,8 @@ class Player(pygame.sprite.Sprite):
                 controller_x = True
             if controller.get_button(gamepad['buttons']['Y']):
                 controller_y = True
+            if controller.get_button(gamepad['buttons']['RB']):
+                controller_rb = True
             if controller.get_button(gamepad['buttons']['MENU']):
                 controller_menu = True
             if controller.get_button(gamepad['buttons']['LOGO']):
@@ -264,7 +270,7 @@ class Player(pygame.sprite.Sprite):
             self.buttondown_b = True
             self.keydown_l = True
             self.buttondown_y = True
-        if (keys[pygame.K_l] or controller_y) and not(self.keydown_l or self.buttondown_y or self.keydown_j or self.buttondown_b or self.keydown_k or self.buttondown_x) and self.game.energy[self.character] >= self.game.selection['magical'].cost:
+        if (keys[pygame.K_l] or controller_y) and not (self.keydown_l or self.buttondown_y or self.keydown_j or self.buttondown_b or self.keydown_k or self.buttondown_x) and self.game.energy[self.character] >= self.game.selection['magical'].cost:
             if self.now - self.magical_attack_time >= self.game.selection['magical'].cooldown:
                 self.magical_attack_time = pygame.time.get_ticks()
                 self.magical_attack_sfx.play()
@@ -278,6 +284,13 @@ class Player(pygame.sprite.Sprite):
             self.buttondown_b = True
             self.keydown_k = True
             self.buttondown_x = True
+        if (keys[pygame.K_e] or controller_rb) and not (self.keydown_e or self.buttondown_rb):
+            for controller in self.controllers.values():
+                controller.rumble(0, 1, 250)
+            self.inventory_sfx.play()
+            self.parent.create_inventory()
+            self.keydown_e = True
+            self.buttondown_rb = True
         if (keys[pygame.K_ESCAPE] or controller_menu) and not (self.keydown_esc or self.buttondown_menu):
             for controller in self.controllers.values():
                 controller.rumble(0, 1, 250)
@@ -303,6 +316,7 @@ class Player(pygame.sprite.Sprite):
         if not keys[pygame.K_j]: self.keydown_j = False
         if not keys[pygame.K_k]: self.keydown_k = False
         if not keys[pygame.K_l]: self.keydown_l = False
+        if not keys[pygame.K_e]: self.keydown_e = False
         if not keys[pygame.K_ESCAPE]: self.keydown_esc = False
         if not keys[pygame.K_BACKSLASH]: self.keydown_backslash = False
         if not keys[pygame.K_F2]: self.keydown_f2 = False
@@ -310,6 +324,7 @@ class Player(pygame.sprite.Sprite):
         if not controller_b: self.buttondown_b = False
         if not controller_x: self.buttondown_x = False
         if not controller_y: self.buttondown_y = False
+        if not controller_rb: self.buttondown_rb = False
         if not controller_menu: self.buttondown_menu = False
         if not controller_logo: self.buttondown_logo = False
         if not controller_share: self.buttondown_share = False
@@ -318,7 +333,7 @@ class Player(pygame.sprite.Sprite):
         """Check the current player status and update it."""
         if self.direction.y < 0 and not self.on_ground:
             self.status = 'jump'
-        elif self.direction.y > 1:
+        elif self.direction.y > 3:
             self.status = 'fall'
         else:
             if self.direction.x != 0:
@@ -422,10 +437,10 @@ class Player(pygame.sprite.Sprite):
                 self.invincible = False
                 self.invincibility_ticks = 1000
 
-    def create_sin_wave(self):
-        """Create a sin wave for sprite flickering and return an alpha value of either full or no transparency."""
-        wave = sin(self.now)
-        if wave >= 0:
+    def get_flicker_status(self):
+        """Enable sprite flickering and return an alpha value of either full or no transparency."""
+        self.texture_shown = not self.texture_shown
+        if self.texture_shown:
             return 255
         else:
             return 0
@@ -455,7 +470,6 @@ class Player(pygame.sprite.Sprite):
         self.animate()
         self.animate_run_particles()
         self.tick_invincibility_timer()
-        self.create_sin_wave()
         self._reset_speed()
         self.decrease_stamina()
         self.refill_stamina()

@@ -6,10 +6,16 @@ __all__ = ['MakeshiftBow']
 class MakeshiftBow(RangedWeapon):
     def __init__(self):
         self.name = "Makeshift Bow"
-        self.description = "A basic bow made from makeshift materials in order to clear your way from enemies."
+        self.description = "A basic bow made from makeshift materials ready to clear enemies out of your way."
         self.icon_path = './assets/weapon/makeshift_bow.png'
         self.level = 1
-        self.damage = {1: 1}
+        self.damage = {
+            1: 1,
+            2: 2,
+            3: 3,
+            4: 4.5,
+            5: 6
+        }
         self.cooldown = 300
         self.range = 256
         self.speed = 12

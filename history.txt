@@ -1,9 +1,74 @@
-# The Betrothed, a Python platformer built with pygame
-# Copyright (C) 2022  BarbeMCR
+# BarbeMCR's The Betrothed, a Python platformer built with pygame
+# Copyright (C) 2023  BarbeMCR
 
 +++++++++++++++++++++++++++++++++++++
 HISTORY OF "BarbeMCR's THE BETROTHED"
 +++++++++++++++++++++++++++++++++++++
+
+Release 0.20 - The Inventory Update
+===================================
+Build 10204
+Python 3.11.1
+Pygame 2.1.3.dev8
+*Released on February 4th, 2023*
+### Inventory
+- Added an inventory system
+  - All objects are divided in pages: currently there are only two ("Weapons" and "Selection")
+  - You can move the cursor to select an object
+    - Doing so will display its data
+    - The cursor will be captured by a menu with several actions that can be performed on an object
+    - Melee and magical weapons can be equipped or moved to the top of the inventory
+    - Ranged weapons can also give 10 projectiles to the currently selected ranged weapon (if the projectiles are compatible
+  - In selection you have more limited actions
+    - You can still choose an object to display its data
+    - Right now you cannot perform any action on selected objects
+- The inventory is currently filled with many duplicate weapons to allow you to test the system
+  - This "debug" inventory will be cleared in a future release
+### Weapons
+- Now the default melee weapon is the wooden knife
+  - It has similar stats to the "old" iron knife
+- Changed most statistics for the iron knife (check them in the inventory!)
+- Added damage value entries for weapons at levels 2-5 (can't upgrade weapon level yet: that is coming soon!)
+- Changed some weapon descriptions
+### Settings
+- Added an option to toggle VSync
+- Added an option to change the maximum framerate between 20, 30, 50, 60 (the default), 90, 120 and 144 FPS or no limit
+- Added an option to change the music volume between 0%, 10%, 25%, 50% (the default), 75% and 100%
+- Added an option to toggle the fade in/out transition in levels
+- The font used in the settings screen is now smaller
+- Now a different cursor texture is used in the settings
+- Slightly changed the options in the `controller` settings
+### Enemies
+- Now enemies have a `delta dead zone` to avoid them getting stuck on blocks (see implementation details below)
+### Player
+- Changed the idle texture so that it no longer includes the iron knife
+### Background
+- The settings/controls/pause menu background has been changed to a purple-lavander gradient (previously was a cyan-sky blue gradient)
+- The stars in night levels now have a random position and are more likely to spawn higher in the sky than near the horizon
+- The star pattern in night levels is now only drawn above the horizon
+### Textboxes
+- The textbox that appears when loading a savefile has been changed
+  - Now the highest completed level is shown
+  - The text warning about Arbitrary Code Execution has been shortened
+### World
+- The level selector is now 4 pixels lower
+### Technical details
+- Updated to Pyinstaller 5.7.0
+- Now the `Game` class is reinitialized when quitting to the main menu from the game
+- Increased the threshold for some elements affected by `Player.direction.y` from 1 to 3
+- Reverted changes to enemy movement done in release 0.18a (removed `Level.flip_triggers` and `Enemy.about_to_flip`)
+- Now enemies stop being affected by the delta when they are within 32 pixels of a border tile (in group `Level.border_sprites`). This implementation fixes the biggest drawback of having a `Level.flip_triggers` group: the fact those triggers needed to be placed manually in the level map. Some statistics are shown below
+- Now `get_version` returns `unknown` if the version was not found (previously returned `DEV`)
+- Increased compression on music assets
+- Now some additional DLLs are packed with the compiled game to help increase compatibility
+- Here are some statistics of the new enemy movement implementation (player walking speed is 360 pixels/second, or 6 pixels/frame@60fps; full player running speed is 720 pixels/second, or 12 pixels/frame@60fps):
+  - at 12 fps (the lowest framerate at which the game runs correctly) allows enemy speeds of up to 720 pixels/seconds (12 pixels/frame@60fps)
+  - at 15 fps allows enemy speeds of up to 900 pixels/second (15 pixels/frame@60fps)
+  - at 20 fps (the lowest supported framerate) allows enemy speeds of up to 1260 pixels/second (21 pixels/frame@60fps)
+  - at 60 fps (target framerate) allows enemy speeds of up to 3840 pixels/second (64 pixels/frame)
+  - keep in mind that currently the fastest enemy (max speed zombie) moves at 480 pixels/second (8 pixels/frame@60fps)
+- Now levels are in part 1 (previously were in part 0)
+- The pre-built executable on Windows no longer uses UPX to increase compatibility
 
 Release 0.19 - The Night Update
 ===============================

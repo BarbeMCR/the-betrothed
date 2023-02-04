@@ -9,6 +9,7 @@ from player import Player
 from particles import Particle
 from weapons import Projectile
 from menu import PauseMenu
+from inventory import Inventory
 from data import levels
 
 """This file contains the level builder and numerous functions to control the game behavior."""
@@ -32,6 +33,8 @@ class Level:
         self.controller = self.parent.controller
         self.controllers = self.controller.controllers
         self.gamepad = self.parent.gamepad
+        self.volume = self.parent.volume
+        self.fade = self.parent.fade
         self.shift = 0
         self.start_x = 0
         self.pause_start = 0
@@ -95,7 +98,6 @@ class Level:
 
         # Enemies
         enemy_layout = import_csv_layout(level_data['enemies'])
-        self.flip_triggers = pygame.sprite.Group()
         self.enemy_sprites = self.create_tile_group(enemy_layout, 'enemies')
         # Enemy borders
         border_layout = import_csv_layout(level_data['borders'])
@@ -135,25 +137,39 @@ class Level:
 
         # Music
         pygame.mixer.music.load(level_data['music'])
-        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.set_volume(float(self.volume))
         pygame.mixer.music.play(-1, fade_ms=2000)
 
         # Fade
-        self.fade_surface = pygame.Surface((screen_width, screen_height))
-        self.fade_surface.fill('black')
-        self.fade_surface.set_alpha(255)
+        if self.fade:
+            self.fade_surface = pygame.Surface((screen_width, screen_height))
+            self.fade_surface.fill('black')
+            self.fade_surface.set_alpha(255)
 
     def resume_level(self):
         """Resume the game."""
         pygame.mixer.music.unpause()
+        pygame.mixer.music.set_volume(float(self.volume))
         now = pygame.time.get_ticks()
         self.time_paused = now - self.pause_start
         self._update_timestamps()
         self.player.sprite.game_resumed_sfx.play()
         self.player.sprite.keydown_space = True
         self.player.sprite.keydown_j = True
+        self.player.sprite.keydown_k = True
+        self.player.sprite.keydown_l = True
+        self.player.sprite.keydown_e = True
+        self.player.sprite.keydown_esc = True
+        self.player.sprite.keydown_backslash = True
+        self.player.sprite.keydown_f2 = True
         self.player.sprite.buttondown_a = True
         self.player.sprite.buttondown_b = True
+        self.player.sprite.buttondown_x = True
+        self.player.sprite.buttondown_y = True
+        self.player.sprite.buttondown_rb = True
+        self.player.sprite.buttondown_menu = True
+        self.player.sprite.buttondown_logo = True
+        self.player.sprite.buttondown_share = True
         self.status = 'level'
         for controller in self.controllers.values():
             controller.rumble(0, 1, 250)
@@ -175,6 +191,13 @@ class Level:
         self.pause_start = pygame.time.get_ticks()
         self.pause_menu = PauseMenu(self.display_surface, self)
         self.status = 'pause'
+
+    def create_inventory(self):
+        """Build the inventory screen."""
+        pygame.mixer.music.set_volume(float(self.volume)/2)
+        self.pause_start = pygame.time.get_ticks()
+        self.inventory_screen = Inventory(self.display_surface, self.parent)
+        self.status = 'inventory'
 
     def fade_in(self, amount):
         """Fade in the screen.
@@ -301,14 +324,10 @@ class Level:
                             sprite = Energy(tile_size, x, y, './assets/level/energy/green', 20)
 
                     elif type == 'enemies':
-                        if col == '0':
-                            sprite = Tile(tile_size, x, y)
-                            self.flip_triggers.add(sprite)
-                            add_sprite_to_group = False
-                        elif col == '1':
-                            sprite = Skeleton(tile_size, x, y, f'./assets/enemy/skeleton/{scene_conversion_table[self.scene]}', 64)
+                        if col == '1':
+                            sprite = Skeleton(tile_size, x, y, f'./assets/enemy/skeleton/{scene_conversion_table[self.scene]}', 64, self)
                         elif col == '2':
-                            sprite = Zombie(tile_size, x, y, f'./assets/enemy/zombie/{scene_conversion_table[self.scene]}', 64)
+                            sprite = Zombie(tile_size, x, y, f'./assets/enemy/zombie/{scene_conversion_table[self.scene]}', 64, self)
                     elif type == 'borders':
                         sprite = Tile(tile_size, x, y)
 
@@ -356,11 +375,6 @@ class Level:
             if pygame.sprite.spritecollide(enemy, self.border_sprites, False):
                 enemy.reverse()
 
-            if pygame.sprite.spritecollide(enemy, self.flip_triggers, False):
-                enemy.about_to_flip = True
-            else:
-                enemy.about_to_flip = False
-
     def x_mov_coll(self):
         """Check the player horizontal movement collision and set the correct flags."""
         player = self.player.sprite
@@ -392,8 +406,8 @@ class Level:
                     player.collision_rect.top = sprite.rect.bottom
                     player.direction.y = 0
 
-        # Checks if the player is jumping
-        if player.on_ground and player.direction.y < 0 or player.direction.y > 1:
+        # Checks if the player is jumping or falling
+        if player.on_ground and player.direction.y < 0 or player.direction.y > 3:
             player.on_ground = False
 
     def scroll_x(self, speed):
@@ -438,10 +452,9 @@ class Level:
             self.energy_pickup_sfx.play()
             for energy in energy_collisions:
                 self.increase_energy(energy.value)
-
     def check_enemy_collisions(self):
         """Check if the player collides with the enemies and do actions accordingly."""
-        for enemy in self.enemy_sprites:
+        for enemy in self.enemy_sprites.sprites():
             if self.player.sprite.collision_rect.colliderect(enemy.rect):
                 enemy_center = enemy.rect.centery
                 enemy_top = enemy.rect.top
@@ -664,7 +677,6 @@ class Level:
                 self.check_energy_collisions()
             # Enemies
             self.enemy_sprites.update(self.shift, self.delta)
-            self.flip_triggers.update(self.shift)
             self.border_sprites.update(self.shift)
             self.apply_enemy_border_collision()
             self.enemy_sprites.draw(self.display_surface)
@@ -705,3 +717,6 @@ class Level:
 
         elif self.status == 'pause':
             self.pause_menu.run()
+
+        elif self.status == 'inventory':
+            self.inventory_screen.run()

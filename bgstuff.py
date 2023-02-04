@@ -20,20 +20,16 @@ class Sky:
             self.sky_middle = pygame.image.load('./assets/level/sky/skymiddle_day.png').convert()
             self.sky_bottom = pygame.image.load('./assets/level/sky/skybottom_day.png').convert()
         elif scene == 'night':
-            self.sky_top = pygame.image.load('./assets/level/sky/sky1_night.png').convert()
-            self.sky_middle = pygame.image.load('./assets/level/sky/sky2_night.png').convert()
-            self.sky_bottom = pygame.image.load('./assets/level/sky/sky3_night.png').convert()
-            self.star_pattern = []
-            for _ in range(y_tiles):
-                tile = random.choice((self.sky_top, self.sky_middle, self.sky_bottom))
-                flip = random.randint(0, 3)
-                if flip == 1:
-                    tile = pygame.transform.flip(tile, True, False)
-                elif flip == 2:
-                    tile = pygame.transform.flip(tile, False, True)
-                elif flip == 3:
-                    tile = pygame.transform.flip(tile, True, True)
-                self.star_pattern.append(tile)
+            self.sky = pygame.image.load('./assets/level/sky/sky_night.png').convert()
+            self.stars = pygame.sprite.Group()
+            star_surf = pygame.image.load('./assets/level/sky/star.png').convert()
+            star_number = [random.randint(0, 10*(self.horizon-row)) for row in range(self.horizon)]
+            for index, num in enumerate(star_number):
+                for _ in range(num):
+                    x = random.randrange(16, screen_width-16, 4)
+                    y = random.randrange(tile_size*index+4, tile_size*index+60, 4)
+                    sprite = StaticTile(0, x, y, star_surf)
+                    self.stars.add(sprite)
         elif scene == 'dawn':
             self.sky_top = pygame.image.load('./assets/level/sky/skytop_dawn.png').convert()
             self.sky_middle = pygame.image.load('./assets/level/sky/skymiddle_dawn.png').convert()
@@ -53,8 +49,8 @@ class Sky:
         for row in range(y_tiles):
             y = row * tile_size
             if scene == 'night':
-                tile = self.star_pattern[row]
-                display_surface.blit(tile, (0, y))
+                display_surface.blit(self.sky, (0, y))
+                self.stars.draw(display_surface)
             else:
                 if row < self.horizon:
                     display_surface.blit(self.sky_top, (0, y))

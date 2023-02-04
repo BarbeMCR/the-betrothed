@@ -6,7 +6,7 @@ from tile import AnimatedTile
 
 class Enemy(AnimatedTile):
     """The base enemy class."""
-    def __init__(self, size, x, y, path, speed, health, damage, energy, melee_resistance, ranged_resistance, magical_resistance):
+    def __init__(self, size, x, y, path, speed, health, damage, energy, melee_resistance, ranged_resistance, magical_resistance, parent):
         """Initialize the parent AnimatedTile class.
 
         Arguments:
@@ -21,14 +21,16 @@ class Enemy(AnimatedTile):
         melee_resistance -- the level of melee resistance
         ranged_resistance -- the level of ranged resistance
         magical_resistance -- the level of magical resistance
+        parent -- the 'Level' class
         """
         super().__init__(size, x, y, path)
+        self.parent = parent
         self.now = pygame.time.get_ticks()
         self.invincible = False
         self.hurt_time = 0
-        self.about_to_flip = True
         self.stun_duration = random.randint(400, 500)
         self.speed = speed
+        self.real_speed = speed
         self.health = health
         self.damage = damage
         self.energy = energy
@@ -39,18 +41,31 @@ class Enemy(AnimatedTile):
         self.health += self.toughness
         self.damage += int(self.toughness / 2)
 
-    def move(self, delta):
-        """Move the enemy based on their speed.
+    def move(self):
+        """Move the enemy based on their speed."""
+        if not self.invincible:
+            if self.now - self.hurt_time >= self.stun_duration:
+                self.rect.x += self.real_speed
+                #if not self.about_to_flip:
+                #    self.rect.x += int(self.speed*60*delta)
+                #else:
+                #    self.rect.x += self.speed
+
+    def apply_delta_deadzone(self, delta):
+        """Calculate the real enemy speed based on the distance from the borders.
 
         Arguments:
         delta -- the time delta
         """
-        if not self.invincible:
-            if self.now - self.hurt_time >= self.stun_duration:
-                if not self.about_to_flip:
-                    self.rect.x += int(self.speed*60*delta)
-                else:
-                    self.rect.x += self.speed
+        deadzone_active = False
+        for border in self.parent.border_sprites.sprites():
+            if not deadzone_active:
+                if abs(self.rect.left-border.rect.right) <= 32 or abs(self.rect.right-border.rect.left) <= 32:
+                    deadzone_active = True
+        if deadzone_active:
+            self.real_speed = self.speed
+        else:
+            self.real_speed = int(self.speed*60*delta)
 
     def flip(self):
         """Flip the enemy if it is going left."""
@@ -76,14 +91,16 @@ class Enemy(AnimatedTile):
         delta -- the time delta
         """
         super().update(shift, delta)
-        self.move(delta)
+        self.apply_delta_deadzone(delta)
+        self.move()
         self.flip()
         self.tick_timers()
 
 class Skeleton(Enemy):
     """This class defines the skeletons."""
-    def __init__(self, size, x, y, path, offset):
+    def __init__(self, size, x, y, path, offset, parent):
         """Set the speed and the offset and initialize the parent Enemy class."""
+        self.parent = parent
         self.speed = random.randint(3, 6)
         self.health = 1
         self.damage = 1
@@ -91,7 +108,7 @@ class Skeleton(Enemy):
         self.melee_resistance = 0
         self.ranged_resistance = 0
         self.magical_resistance = 0
-        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance, self.magical_resistance)
+        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance, self.magical_resistance, self.parent)
         self.rect.y -= offset
 
     def update(self, shift, delta):
@@ -105,8 +122,9 @@ class Skeleton(Enemy):
 
 class Zombie(Enemy):
     """This class defines the zombies."""
-    def __init__(self, size, x, y, path, offset):
+    def __init__(self, size, x, y, path, offset, parent):
         """Set the speed and the offset and initialize the parent Enemy class."""
+        self.parent = parent
         self.speed = random.randint(4, 8)
         self.health = 2
         self.damage = 2
@@ -114,7 +132,7 @@ class Zombie(Enemy):
         self.melee_resistance = 0
         self.ranged_resistance = 1
         self.magical_resistance = 1
-        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance, self.magical_resistance)
+        super().__init__(size, x, y, path, self.speed, self.health, self.damage, self.energy, self.melee_resistance, self.ranged_resistance, self.magical_resistance, self.parent)
         self.rect.y -= offset
 
     def update(self, shift, delta):

@@ -35,8 +35,10 @@ class Crash(Menu):
             "Did you blow me up?",
             "Whoops!",
             "The problem lies somewhere in the pythonic catalyst",
-            "Everything is falling apart. No problem, I'll blame you.",
-            "I'll be with you in a couple millenia."
+            "Everything is falling apart. I'll blame you. You're welcome!",
+            "Hopefully this gets fixed in a couple millenia.",
+            "Again?!?",
+            "Guess who will spend the night debugging?"
         ]
 
     def save_game(self):

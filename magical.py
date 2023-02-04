@@ -6,10 +6,17 @@ __all__ = ['StarterStaff']
 class StarterStaff(MagicalWeapon):
     def __init__(self):
         self.name = "Starter Staff"
-        self.description = "The staff beginners use to learn about magic. Now it's all yours!"
+        self.description = "The staff used by beginners to learn about magic. Now it's all yours!"
+        self.attack_desc = "Generates a new fireball clone after the original hits an enemy. If an original fireball kills an enemy, the player is healed by 0.05 HP per level."
         self.icon_path = './assets/weapon/starter_staff.png'
         self.level = 1
-        self.damage = {1: 1}
+        self.damage = {
+            1: 1,
+            2: 3,
+            3: 4,
+            4: 6,
+            5: 8
+        }
         self.cooldown = 500
         self.power = 125
         self.max_power = 125
@@ -17,7 +24,7 @@ class StarterStaff(MagicalWeapon):
         self.speed = 9
         self.cost = 1
         self.projectile_image = './assets/weapon/basic_fireball.png'
-        super().__init__(self.name, self.description, self.icon_path, self.level, self.damage, self.cooldown, self.power, self.max_power, self.range, self.speed, self.cost, self.projectile_image)
+        super().__init__(self.name, self.description, self.attack_desc, self.icon_path, self.level, self.damage, self.cooldown, self.power, self.max_power, self.range, self.speed, self.cost, self.projectile_image)
 
     def on_impact(self, kill, pos, facing_right, level_class):
         if kill:
