@@ -28,7 +28,7 @@ jobs:
       - name: Install pylint
         run: python -m pip install pylint
       - name: Install pygame
-        run: python -m pip install pygame numpy
+        run: python -m pip install pygame --pre
       - name: Lint with pylint
         run: pylint --recursive=y --exit-zero --disable I,E,R0801 .
       - name: Check errors with pylint
@@ -54,7 +54,7 @@ jobs:
       - name: Install pylint
         run: python -m pip install pylint
       - name: Install pygame
-        run: python -m pip install pygame numpy
+        run: python -m pip install pygame --pre
       - name: Lint with pylint
         run: pylint --recursive=y --exit-zero --disable I,E,R0801 .
       - name: Check errors with pylint
@@ -78,7 +78,7 @@ jobs:
       - name: Install pylint
         run: python -m pip install pylint
       - name: Install pygame
-        run: python -m pip install pygame numpy
+        run: python -m pip install pygame --pre
       - name: Lint with pylint
         run: pylint --recursive=y --exit-zero --disable I,E,R0801 .
       - name: Check errors with pylint
