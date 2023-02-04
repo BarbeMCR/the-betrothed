@@ -93,6 +93,7 @@ In the settings screen, you'll find various options, listed below.
 | K     | Ranged attack |
 | L     | Magical attack |
 | A/D + Left Ctrl [+ Left Alt] | Run (changes speed) |
+| E     | Open inventory |
 | Escape | Pause game |
 | Backslash | Toggle overlay |
 | F2    | Take screenshot |
@@ -108,6 +109,7 @@ In the settings screen, you'll find various options, listed below.
 | X     | Ranged attack |
 | Y     | Magical attack |
 | RT    | Run |
+| RB    | Open inventory |
 | MENU  | Pause game |
 | XBOX  | Toggle overlay |
 | SHARE (if available) | Take screenshot |
@@ -122,6 +124,7 @@ In the settings screen, you'll find various options, listed below.
 | Square | Ranged attack |
 | Triangle | Magical attack |
 | R2    | Run |
+| R1    | Open inventory |
 | OPTIONS  | Pause game |
 | PLAYSTATION | Toggle overlay |
 | TOUCHPAD CLICK | Take screenshot |
@@ -136,6 +139,7 @@ In the settings screen, you'll find various options, listed below.
 | X     | Ranged attack |
 | Y     | Magical attack |
 | ZR    | Run |
+| R     | Open inventory |
 | +     | Pause game |
 | HOME  | Toggle overlay |
 | CAPTURE | Take screenshot |
