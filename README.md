@@ -80,7 +80,7 @@ In the settings screen, you'll find various options, listed below.
 - **Reset Settings:** this lets you reset the settings to their default values.
 
 ---
-## Controls
+## Extensive Controls Guide
 ### While playing
 
 *__Keyboard + Mouse__*
@@ -93,6 +93,7 @@ In the settings screen, you'll find various options, listed below.
 | K     | Ranged attack |
 | L     | Magical attack |
 | A/D + Left Ctrl [+ Left Alt] | Run (changes speed) |
+| Escape | Pause game |
 | Backslash | Toggle overlay |
 | F2    | Take screenshot |
 | F11   | Toggle fullscreen |
@@ -107,6 +108,7 @@ In the settings screen, you'll find various options, listed below.
 | X     | Ranged attack |
 | Y     | Magical attack |
 | RT    | Run |
+| MENU  | Pause game |
 | XBOX  | Toggle overlay |
 | SHARE (if available) | Take screenshot |
 
@@ -120,6 +122,7 @@ In the settings screen, you'll find various options, listed below.
 | Square | Ranged attack |
 | Triangle | Magical attack |
 | R2    | Run |
+| OPTIONS  | Pause game |
 | PLAYSTATION | Toggle overlay |
 | TOUCHPAD CLICK | Take screenshot |
 
@@ -133,8 +136,89 @@ In the settings screen, you'll find various options, listed below.
 | X     | Ranged attack |
 | Y     | Magical attack |
 | ZR    | Run |
+| +     | Pause game |
 | HOME  | Toggle overlay |
 | CAPTURE | Take screenshot |
+
+### In the inventory (when no object is selected)
+
+*__Keyboard__*
+| Input | Action |
+| ----- | ------ |
+| Left Arrow | Move cursor left |
+| Right Arrow | Move cursor right |
+| Up Arrow | Move cursor up |
+| Down Arrow | Move cursor down |
+| Tab   | Go to next page |
+| Left Ctrl + Tab | Go to previous page |
+| Space | Select object |
+| Escape | Exit inventory |
+
+*__Xbox 360 / Xbox One / Xbox Series X|S Controller__*
+| Input | Action |
+| ----- | ------ |
+| Left  | Move cursor left |
+| Right | Move cursor right |
+| Up    | Move cursor up |
+| Down  | Move cursor down |
+| RB    | Go to next page |
+| LB    | Go to previous page |
+| A     | Select object |
+| B     | Exit inventory |
+
+*__DualShock 4__*
+| Input | Action |
+| ----- | ------ |
+| Left  | Move cursor left |
+| Right | Move cursor right |
+| Up    | Move cursor up |
+| Down  | Move cursor down |
+| R1    | Go to next page |
+| L1    | Go to previous page |
+| Cross | Select object |
+| Circle | Exit inventory |
+
+*__Nintendo Switch Pro Controller__*
+| Input | Action |
+| ----- | ------ |
+| Left  | Move cursor left |
+| Right | Move cursor right |
+| Up    | Move cursor up |
+| Down  | Move cursor down |
+| R     | Go to next page |
+| L     | Go to previous page |
+| A     | Select object |
+| B     | Exit inventory |
+
+### In the inventory (when an object is selected)
+
+*__Keyboard__*
+| Input | Action |
+| ----- | ------ |
+| Up Arrow | Move cursor up |
+| Down Arrow | Move cursor down |
+| Space | Confirm action |
+
+*__Xbox 360 / Xbox One / Xbox Series X|S Controller__*
+| Input | Action |
+| ----- | ------ |
+| LB    | Move cursor up |
+| RB    | Move cursor down |
+| A     | Confirm action |
+
+*__DualShock 4__*
+| Input | Action |
+| ----- | ------ |
+| L1    | Move cursor up |
+| R1    | Move cursor down |
+| Cross | Confirm action |
+
+*__Nintendo Switch Pro Controller__*
+| Input | Action |
+| ----- | ------ |
+| L     | Move cursor up |
+| R     | Move cursor down |
+| A     | Confirm action |
 
 ### In the level selection screen
 
@@ -211,4 +295,4 @@ In the settings screen, you'll find various options, listed below.
 
 **But, most importantly, everybody who contributed with testing and various tidbits, like those folks:**
 
--  No one for now
+-  No one for now (contact me if you'd like to be here)
