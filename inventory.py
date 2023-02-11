@@ -346,6 +346,7 @@ class Inventory:
 
     def return_to_selection(self):
         """Return to selection mode."""
+        self.cursor_animation_frame_index = 0
         self.selection_mode = True
 
     def equip(self):

@@ -29,8 +29,8 @@ from update import check_updates
 
 def main():
     # Build identification
-    version = "0.20"
-    build = 10204  #YMMDD
+    version = "0.20a"
+    build = 10211  #YMMDD
     build_id = 0
     stable = True
 

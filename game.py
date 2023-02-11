@@ -246,7 +246,7 @@ class Game:
         self.start_level = 0  # self.start_level = self.checkpoint
         self.end_level = 0  # self.end_level = self.checkpoint
         self.current_subpart = 0  # self.current_subpart = self.checkpoint_subpart
-        self.current_part = 0  # self.current_part = self.checkpoint_part
+        self.current_part = 1  # self.current_part = self.checkpoint_part
         self.world = World(self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
         self.health[self.character] = self.max_health[self.character]

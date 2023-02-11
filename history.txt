@@ -5,6 +5,18 @@
 HISTORY OF "BarbeMCR's THE BETROTHED"
 +++++++++++++++++++++++++++++++++++++
 
+Release 0.20a - The Inventory Update
+====================================
+Build 10211
+Python 3.11.2
+Pygame 2.1.3.dev8
+*Released on February 11th, 2023*
+### Bugfixes
+- The game no longer crashes on death due to missing part reference
+- The cursor animation in the inventory now gets reset after deselecting an object
+### Technical details
+- Updated to pyinstaller 5.8.0
+
 Release 0.20 - The Inventory Update
 ===================================
 Build 10204

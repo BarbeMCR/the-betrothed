@@ -1,5 +1,6 @@
 {
     "versions_win32": {
+        "0.20a": "the_betrothed_020a_py311.zip",
         "0.20": "the_betrothed_020_py311.zip",
         "0.19": "the_betrothed_019_py311.zip",
         "0.18a": "the_betrothed_018a_py311.zip",
@@ -31,6 +32,7 @@
         "0.01": "the_betrothed_001_py310.zip"
     },
     "versions_win32_py38": {
+        "0.20a": "the_betrothed_020a_py38.zip",
         "0.20": "the_betrothed_020_py38.zip",
         "0.19": "the_betrothed_019_py38.zip",
         "0.18a": "the_betrothed_018a_py38.zip",
@@ -62,6 +64,7 @@
         "0.01": "the_betrothed_001_py38.zip"
     },
     "versions_source": {
+        "0.20a": "the_betrothed_020a_source.zip",
         "0.20": "the_betrothed_020_source.zip",
         "0.19": "the_betrothed_019_source.zip",
         "0.18a": "the_betrothed_018a_source.zip",

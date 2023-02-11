@@ -1,6 +1,7 @@
 """This files defines the translations of version codes and levels."""
 
 versions = {
+    102110: "0.20a",
     102040: "0.20",
     11270: "0.19",
     11210: "0.18a",
