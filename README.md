@@ -57,7 +57,8 @@ If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 | 0.12                             | 5.2                 |
 | 0.13 - 0.15                      | 5.3                 |
 | 0.16 - 0.19                      | 5.6.2               |
-| 0.20 +                           | 5.7.0               |
+| 0.20                             | 5.7.0               |
+| 0.20a                            | 5.8.0               |
 
 3. Compile with Pyinstaller using the `--onefile` argument
 
