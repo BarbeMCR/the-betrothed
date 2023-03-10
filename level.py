@@ -252,9 +252,9 @@ class Level:
         pos -- the position of the particles
         """
         if self.player.sprite.facing_right:
-            pos -= pygame.math.Vector2(0, 32)
+            pos -= pygame.Vector2(0, 32)
         else:
-            pos += pygame.math.Vector2(0, -32)
+            pos += pygame.Vector2(0, -32)
         jump_particle_sprite = Particle(pos, 'jump')
         self.dust_sprite.add(jump_particle_sprite)
 
@@ -262,9 +262,9 @@ class Level:
         """Spawn the fall particles."""
         if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
             if self.player.sprite.facing_right:
-                offset = pygame.math.Vector2(0, 32)
+                offset = pygame.Vector2(0, 32)
             else:
-                offset = pygame.math.Vector2(0, 32)
+                offset = pygame.Vector2(0, 32)
             fall_particle = Particle(self.player.sprite.rect.midbottom - offset, 'fall')
             self.dust_sprite.add(fall_particle)
 
@@ -348,21 +348,21 @@ class Level:
             bottom_tile = False
             bottomright_tile = False
             for sprite in self.terrain_sprites.sprites():
-                if sprite.rect.collidepoint(target_tile.rect.topleft - pygame.math.Vector2(32, 32)):
+                if sprite.rect.collidepoint(target_tile.rect.topleft - pygame.Vector2(32, 32)):
                     topleft_tile = True
-                elif sprite.rect.collidepoint(target_tile.rect.midtop - pygame.math.Vector2(0, 32)):
+                elif sprite.rect.collidepoint(target_tile.rect.midtop - pygame.Vector2(0, 32)):
                     top_tile = True
-                elif sprite.rect.collidepoint(target_tile.rect.topright - pygame.math.Vector2(-32, 32)):
+                elif sprite.rect.collidepoint(target_tile.rect.topright - pygame.Vector2(-32, 32)):
                     topright_tile = True
-                elif sprite.rect.collidepoint(target_tile.rect.midleft - pygame.math.Vector2(32, 0)):
+                elif sprite.rect.collidepoint(target_tile.rect.midleft - pygame.Vector2(32, 0)):
                     left_tile = True
-                elif sprite.rect.collidepoint(target_tile.rect.midright + pygame.math.Vector2(32, 0)):
+                elif sprite.rect.collidepoint(target_tile.rect.midright + pygame.Vector2(32, 0)):
                     right_tile = True
-                elif sprite.rect.collidepoint(target_tile.rect.bottomleft + pygame.math.Vector2(-32, 32)):
+                elif sprite.rect.collidepoint(target_tile.rect.bottomleft + pygame.Vector2(-32, 32)):
                     bottomleft_tile = True
-                elif sprite.rect.collidepoint(target_tile.rect.midbottom + pygame.math.Vector2(0, 32)):
+                elif sprite.rect.collidepoint(target_tile.rect.midbottom + pygame.Vector2(0, 32)):
                     bottom_tile = True
-                elif sprite.rect.collidepoint(target_tile.rect.bottomright + pygame.math.Vector2(32, 32)):
+                elif sprite.rect.collidepoint(target_tile.rect.bottomright + pygame.Vector2(32, 32)):
                     bottomright_tile = True
             if topleft_tile and top_tile and topright_tile and left_tile and right_tile and bottomleft_tile and bottom_tile and bottomright_tile:
                 self.internal_terrain_sprites.add(target_tile)
@@ -452,6 +452,7 @@ class Level:
             self.energy_pickup_sfx.play()
             for energy in energy_collisions:
                 self.increase_energy(energy.value)
+
     def check_enemy_collisions(self):
         """Check if the player collides with the enemies and do actions accordingly."""
         for enemy in self.enemy_sprites.sprites():
@@ -553,7 +554,7 @@ class Level:
         else:
             pos = self.player.sprite.rect.midleft
             facing_right = False
-        pos -= pygame.math.Vector2(0, 16)  # This allows for the projectile to be shot from higher up
+        pos -= pygame.Vector2(0, 16)  # This allows for the projectile to be shot from higher up
         speed = self.parent.selection['ranged'].speed
         start_x = (self.start_x - pos[0]) * -1
         ranged_projectile = Projectile(image, pos, speed, facing_right, start_x)
@@ -568,7 +569,7 @@ class Level:
         else:
             pos = self.player.sprite.rect.midleft
             facing_right = False
-        pos -= pygame.math.Vector2(0, 16)  # This allows for the projectile to be shot from higher up
+        pos -= pygame.Vector2(0, 16)  # This allows for the projectile to be shot from higher up
         speed = self.parent.selection['magical'].speed
         start_x = (self.start_x - pos[0]) * -1
         magical_projectile = Projectile(image, pos, speed, facing_right, start_x, True)
@@ -696,7 +697,7 @@ class Level:
             self.start_x += self.shift
             # The code below allows for adjusting the player blitting position when melee attacking and facing left so that the player doesn't "slide" right
             if self.player.sprite.melee_attacking and not self.player.sprite.facing_right:
-                self.display_surface.blit(self.player.sprite.image, self.player.sprite.rect.topleft - pygame.math.Vector2(self.parent.selection['melee'].range, 0))
+                self.display_surface.blit(self.player.sprite.image, self.player.sprite.rect.topleft - pygame.Vector2(self.parent.selection['melee'].range, 0))
             else:
                 self.player.draw(self.display_surface)  # Normal draw routine
             self.ranged_sprites.update(self.shift, self.delta)

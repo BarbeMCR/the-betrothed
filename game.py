@@ -62,6 +62,7 @@ class Game:
         self.max_energy = {'renzo': 100}
         self.energy_overflow = {'renzo': 0}
         self.max_energy_overflow = {'renzo': 25}
+        self.experience = {'renzo': 0}
         self.stamina = {'renzo': 1800}
         self.max_stamina = {'renzo': 1800}
 
@@ -116,6 +117,7 @@ class Game:
             self.savefile['health'] = self.health
             self.savefile['energy'] = self.energy
             self.savefile['energy_overflow'] = self.energy_overflow
+            self.savefile['experience'] = self.experience
             self.savefile['stamina'] = self.stamina
             self.savefile['selection'] = self.selection
             self.savefile['inventory'] = self.inventory
@@ -146,6 +148,7 @@ class Game:
         self.health = self.savefile['health']
         self.energy = self.savefile['energy']
         self.energy_overflow = self.savefile['energy_overflow']
+        self.experience = self.savefile['experience']
         self.stamina = self.savefile['stamina']
         self.selection = self.savefile['selection']
         self.inventory = self.savefile['inventory']
@@ -250,8 +253,9 @@ class Game:
         self.world = World(self.start_level, self.end_level, self.current_subpart, self.current_part, self.display_surface, self)
         self.status = 'world'
         self.health[self.character] = self.max_health[self.character]
-        self.energy[self.character] = int(self.energy[self.character] / 2)
+        self.energy[self.character] = 0
         self.energy_overflow[self.character] = 0
+        self.experience = 0
 
     def update_health(self, amount, damage):
         """Change the player health.
@@ -282,14 +286,36 @@ class Game:
                 self.energy_overflow[self.character] += self.energy[self.character] - self.max_energy[self.character]
                 self.energy[self.character] = self.max_energy[self.character]
                 if self.energy_overflow[self.character] >= self.max_energy_overflow[self.character]:
-                    self.update_health(self.max_health[self.character], False)
-                    self.energy_overflow[self.character] -= self.max_energy_overflow[self.character]
+                    self.increase_xp(1)
+                    self.reset_energy_overflow()
         else:
             self.energy[self.character] -= amount
             if self.energy[self.character] < self.max_energy[self.character] - int(self.max_energy[self.character] / 10):
                 self.reset_energy_overflow()
             if self.energy[self.character] < 0:
                 self.energy[self.character] = 0
+        if self.energy_overflow[self.character] < 0:
+            self.energy_overflow[self.character] = 0
+
+    def increase_xp(self, amount):
+        """Increase the player experience.
+
+        Arguments:
+        amount -- the amount of experience to add
+        """
+        self.experience[self.character] += amount
+        if self.experience[self.character] > 9999:
+            self.experience[self.character] = 9999
+
+    def decrease_xp(self, amount):
+        """Decrease the player experience.
+
+        Arguments:
+        amount -- the amount of experience to subtract
+        """
+        self.experience[self.character] -= amount
+        if self.experience[self.character] < 0:
+            self.experience[self.character] = 0
 
     def reset_energy_overflow(self):
         """Reset the energy overflow bar."""

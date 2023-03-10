@@ -51,7 +51,7 @@ class Player(pygame.sprite.Sprite):
         self.screenshot_taken_sfx = pygame.mixer.Sound('./assets/audio/sfx/screenshot_taken.ogg')
 
         # Player movement
-        self.direction = pygame.math.Vector2(0, 0)
+        self.direction = pygame.Vector2(0, 0)
         self.base_speed = 360
         self.speed = 360
         self.target_speed = 360
@@ -160,10 +160,10 @@ class Player(pygame.sprite.Sprite):
             particle = self.run_particles[int(self.dust_frame_index)]
 
             if self.facing_right:
-                pos = self.rect.bottomleft - pygame.math.Vector2(28, 32)
+                pos = self.rect.bottomleft - pygame.Vector2(28, 32)
                 self.display_surface.blit(particle, pos)
             else:
-                pos = self.rect.bottomright - pygame.math.Vector2(6, 32)
+                pos = self.rect.bottomright - pygame.Vector2(6, 32)
                 flipped_particle = pygame.transform.flip(particle, True, False)
                 self.display_surface.blit(flipped_particle, pos)
 
@@ -226,11 +226,11 @@ class Player(pygame.sprite.Sprite):
                 controller_share = True
             controller_rt = controller.get_axis(gamepad['axes']['RT'])
         keys = pygame.key.get_pressed()
-        if (keys[pygame.K_a] or controller_left):
+        if (keys[pygame.K_a] or controller_left) and not self.melee_attacking:
             self.direction.x = -1  # Left movement
             self.facing_right = False
             self.check_player_running(keys, controller_rt)
-        elif (keys[pygame.K_d] or controller_right):
+        elif (keys[pygame.K_d] or controller_right) and not self.melee_attacking:
             self.direction.x = 1  # Right movement
             self.facing_right = True
             self.check_player_running(keys, controller_rt)
@@ -243,41 +243,47 @@ class Player(pygame.sprite.Sprite):
             self.buttondown_a = True
         if (keys[pygame.K_j] or controller_b) and not (self.keydown_j or self.buttondown_b or self.keydown_k or self.buttondown_x or self.keydown_l or self.buttondown_y):
             if self.now - self.melee_attack_time >= self.game.selection['melee'].cooldown:
-                self.melee_attacking = True
-                self.melee_attack_time = pygame.time.get_ticks()
-                self.melee_attack_sfx.play()
-                self.update_melee_weapon_rect(False)
-                self.frame_index = 0
-                for controller in self.controllers.values():
-                    controller.rumble(0, 0.5, int(self.game.selection['melee'].cooldown / 2))
+                if self.game.selection['melee'].durability > 0:
+                    self.melee_attacking = True
+                    self.melee_attack_time = pygame.time.get_ticks()
+                    self.melee_attack_sfx.play()
+                    self.game.selection['melee'].durability -= 1
+                    self.update_melee_weapon_rect(False)
+                    self.frame_index = 0
+                    for controller in self.controllers.values():
+                        controller.rumble(0, 0.5, int(self.game.selection['melee'].cooldown / 2))
             self.keydown_j = True
             self.buttondown_b = True
             self.keydown_k = True
             self.buttondown_x = True
             self.keydown_l = True
             self.buttondown_y = True
-        if (keys[pygame.K_k] or controller_x) and not (self.keydown_k or self.buttondown_x or self.keydown_j or self.buttondown_b or self.keydown_l or self.buttondown_y) and self.game.selection['ranged'].projectile.count > 0:
-            if self.now - self.ranged_attack_time >= self.game.selection['ranged'].cooldown:
-                self.ranged_attack_time = pygame.time.get_ticks()
-                self.ranged_attack_sfx.play()
-                self.game.selection['ranged'].projectile.count -= 1
-                self.parent.create_ranged_projectile()
-                for controller in self.controllers.values():
-                    controller.rumble(0.5, 0.5, int(self.game.selection['ranged'].cooldown / 1.5))
+        if (keys[pygame.K_k] or controller_x) and not (self.keydown_k or self.buttondown_x or self.keydown_j or self.buttondown_b or self.keydown_l or self.buttondown_y):
+            if self.game.selection['ranged'].projectile.count > 0:
+                if self.now - self.ranged_attack_time >= self.game.selection['ranged'].cooldown:
+                    self.ranged_attack_time = pygame.time.get_ticks()
+                    self.ranged_attack_sfx.play()
+                    self.game.selection['ranged'].projectile.count -= 1
+                    self.parent.create_ranged_projectile()
+                    for controller in self.controllers.values():
+                        controller.rumble(0.5, 0.5, int(self.game.selection['ranged'].cooldown / 1.5))
             self.keydown_k = True
             self.buttondown_x = True
             self.keydown_j = True
             self.buttondown_b = True
             self.keydown_l = True
             self.buttondown_y = True
-        if (keys[pygame.K_l] or controller_y) and not (self.keydown_l or self.buttondown_y or self.keydown_j or self.buttondown_b or self.keydown_k or self.buttondown_x) and self.game.energy[self.character] >= self.game.selection['magical'].cost:
-            if self.now - self.magical_attack_time >= self.game.selection['magical'].cooldown:
-                self.magical_attack_time = pygame.time.get_ticks()
-                self.magical_attack_sfx.play()
-                self.parent.decrease_energy(self.game.selection['magical'].cost)
-                self.parent.create_magical_projectile()
-                for controller in self.controllers.values():
-                    controller.rumble(1, 0.5, int(self.game.selection['magical'].cooldown / 1.5))
+        if (keys[pygame.K_l] or controller_y) and not (self.keydown_l or self.buttondown_y or self.keydown_j or self.buttondown_b or self.keydown_k or self.buttondown_x):
+            if self.game.energy[self.character] >= self.game.selection['magical'].cost:
+                if self.now - self.magical_attack_time >= self.game.selection['magical'].cooldown:
+                    if self.game.selection['magical'].power > 0:
+                        self.magical_attack_time = pygame.time.get_ticks()
+                        self.magical_attack_sfx.play()
+                        self.parent.decrease_energy(self.game.selection['magical'].cost)
+                        self.game.selection['magical'].power -= 1
+                        self.parent.create_magical_projectile()
+                        for controller in self.controllers.values():
+                            controller.rumble(1, 0.5, int(self.game.selection['magical'].cooldown / 1.5))
             self.keydown_l = True
             self.buttondown_y = True
             self.keydown_j = True

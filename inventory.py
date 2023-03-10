@@ -25,6 +25,9 @@ class Inventory:
         self.page_cursor = pygame.image.load('./assets/menu/inventory/page_cursor.png').convert_alpha()
         self.object_section_border = pygame.image.load('./assets/menu/inventory/object_tools_border.png').convert_alpha()
         self.object_box_border = pygame.image.load('./assets/menu/inventory/object_box_border.png').convert_alpha()
+        self.upgrade_box_border = pygame.image.load('./assets/menu/inventory/upgrade_box_border.png').convert_alpha()
+        self.xp_icon = pygame.image.load('./assets/ui/xp_icon.png').convert_alpha()
+        self.energy_icon = pygame.image.load('./assets/ui/energy_icon.png').convert_alpha()
         self.font_file = './font.ttf'
         self.page_name_font = pygame.font.Font(self.font_file, 10)
         self.object_name_font = pygame.font.Font(self.font_file, 18)
@@ -131,7 +134,7 @@ class Inventory:
                 self.cursor_animation_frame_index = 0
             cursor_surf = self.cursor[int(self.cursor_animation_frame_index)]
         else:
-            cursor_surf = pygame.image.load('./assets/menu/inventory/cursor/cursor1.png').convert_alpha()
+            cursor_surf = pygame.image.load('./assets/menu/inventory/cursor/cursor01.png').convert_alpha()
         cursor_x = 80 + 125*self.cursor_pos
         cursor_y = 150 + 125*self.cursor_row
         cursor_rect = cursor_surf.get_rect(center=(cursor_x, cursor_y))
@@ -162,7 +165,7 @@ class Inventory:
                 self.cursor_animation_frame_index = 0
             cursor_surf = self.cursor[int(self.cursor_animation_frame_index)]
         else:
-            cursor_surf = pygame.image.load('./assets/menu/inventory/cursor/cursor1.png').convert_alpha()
+            cursor_surf = pygame.image.load('./assets/menu/inventory/cursor/cursor01.png').convert_alpha()
         cursor_rect = cursor_surf.get_rect(center=self.selection_hotspots[self.selection_cursor_pos])
         self.display_surface.blit(cursor_surf, cursor_rect)
 
@@ -192,7 +195,7 @@ class Inventory:
         level_color_table = {1: '#c0c0c0', 2: '#00ff66', 3: '#17599c', 4: '#5c35ae', 5: '#a62d19'}
         object_section_border_rect = self.object_section_border.get_rect(midright=(1265, 352))
         self.display_surface.blit(self.object_section_border, object_section_border_rect)
-        object_box_border_rect = self.object_box_border.get_rect(topleft=object_section_border_rect.topleft+pygame.math.Vector2(20, 20))
+        object_box_border_rect = self.object_box_border.get_rect(topleft=object_section_border_rect.topleft+pygame.Vector2(20, 20))
         self.display_surface.blit(self.object_box_border, object_box_border_rect)
         if not self.selection_mode:
             if self.page == 0:
@@ -206,128 +209,176 @@ class Inventory:
             self.display_surface.blit(object_icon, object_icon_rect)
             # Name
             object_name = self.object_name_font.render(obj.name, False, 'white')
-            object_name_rect = object_name.get_rect(topleft=object_box_border_rect.topright+pygame.math.Vector2(25, 0))
+            object_name_rect = object_name.get_rect(topleft=object_box_border_rect.topright+pygame.Vector2(25, 0))
             self.display_surface.blit(object_name, object_name_rect)
             # Description
-            object_description_rect = pygame.Rect(object_box_border_rect.topright+pygame.math.Vector2(25, 40), (360, 120))
+            object_description_rect = pygame.Rect(object_box_border_rect.topright+pygame.Vector2(25, 40), (360, 120))
             render(obj.description, self.object_description_font, self.display_surface, object_description_rect, 'white', -2)
             if isinstance(obj, MeleeWeapon):  # Melee weapons
                 # Level
                 level = self.object_level_font.render(f"Level {level_table[obj.level]}", False, level_color_table[obj.level])
-                level_rect = level.get_rect(topleft=object_box_border_rect.bottomleft+pygame.math.Vector2(0, 20))
+                level_rect = level.get_rect(topleft=object_box_border_rect.bottomleft+pygame.Vector2(0, 20))
                 self.display_surface.blit(level, level_rect)
                 # Damage
                 damage = self.object_description_font.render(f"Damage: {obj.damage[obj.level]} HP", False, 'white')
-                damage_rect = damage.get_rect(topleft=level_rect.bottomleft+pygame.math.Vector2(0, 10))
+                damage_rect = damage.get_rect(topleft=level_rect.bottomleft+pygame.Vector2(0, 10))
                 self.display_surface.blit(damage, damage_rect)
                 # Cooldown
                 cooldown = self.object_description_font.render(f"Cooldown: {format(obj.cooldown/1000, '.2f')} s", False, 'white')
-                cooldown_rect = cooldown.get_rect(topleft=damage_rect.bottomleft+pygame.math.Vector2(0, 5))
+                cooldown_rect = cooldown.get_rect(topleft=damage_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(cooldown, cooldown_rect)
                 # Durability
                 if obj.durability/obj.max_durability < 0.1: durability_color = '#bb0000'
                 elif 0.1 <= obj.durability/obj.max_durability < 0.25: durability_color = 'gold'
                 else: durability_color = 'white'
                 durability = self.object_description_font.render(f"Durability: {obj.durability} / {obj.max_durability}", False, durability_color)
-                durability_rect = durability.get_rect(topleft=cooldown_rect.bottomleft+pygame.math.Vector2(0, 5))
+                durability_rect = durability.get_rect(topleft=cooldown_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(durability, durability_rect)
                 # Range
                 obj_range = self.object_description_font.render(f"Range: {format(obj.range/tile_size, '.1f')} bl", False, 'white')
-                obj_range_rect = obj_range.get_rect(topleft=durability_rect.bottomleft+pygame.math.Vector2(0, 5))
+                obj_range_rect = obj_range.get_rect(topleft=durability_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(obj_range, obj_range_rect)
             elif isinstance(obj, RangedWeapon):  # Ranged weapons
                 # Level
                 level = self.object_level_font.render(f"Level {level_table[obj.level]}", False, level_color_table[obj.level])
-                level_rect = level.get_rect(topleft=object_box_border_rect.bottomleft+pygame.math.Vector2(0, 20))
+                level_rect = level.get_rect(topleft=object_box_border_rect.bottomleft+pygame.Vector2(0, 20))
                 self.display_surface.blit(level, level_rect)
                 # Damage
                 damage = self.object_description_font.render(f"Damage: {obj.damage[obj.level]} HP", False, 'white')
-                damage_rect = damage.get_rect(topleft=level_rect.bottomleft+pygame.math.Vector2(0, 10))
+                damage_rect = damage.get_rect(topleft=level_rect.bottomleft+pygame.Vector2(0, 10))
                 self.display_surface.blit(damage, damage_rect)
                 # Cooldown
                 cooldown = self.object_description_font.render(f"Cooldown: {format(obj.cooldown/1000, '.2f')} s", False, 'white')
-                cooldown_rect = cooldown.get_rect(topleft=damage_rect.bottomleft+pygame.math.Vector2(0, 5))
+                cooldown_rect = cooldown.get_rect(topleft=damage_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(cooldown, cooldown_rect)
                 # Range
                 obj_range = self.object_description_font.render(f"Range: {format(obj.range/tile_size, '.1f')} bl", False, 'white')
-                obj_range_rect = obj_range.get_rect(topleft=cooldown_rect.bottomleft+pygame.math.Vector2(0, 5))
+                obj_range_rect = obj_range.get_rect(topleft=cooldown_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(obj_range, obj_range_rect)
                 # Speed
                 speed = self.object_description_font.render(f"Speed: {format(obj.speed*60/tile_size, '.2f')} bl/s", False, 'white')
-                speed_rect = speed.get_rect(topleft=obj_range_rect.bottomleft+pygame.math.Vector2(0, 5))
+                speed_rect = speed.get_rect(topleft=obj_range_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(speed, speed_rect)
                 # Projectile info
                 projectile = self.object_description_font.render(f"Projectile: {obj.projectile.name} ({obj.projectile.count} remaining)", False, 'white')
-                projectile_rect = projectile.get_rect(topleft=speed_rect.bottomleft+pygame.math.Vector2(0, 5))
+                projectile_rect = projectile.get_rect(topleft=speed_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(projectile, projectile_rect)
             elif isinstance(obj, MagicalWeapon):  # Magical weapons
                 # Level
                 level = self.object_level_font.render(f"Level {level_table[obj.level]}", False, level_color_table[obj.level])
-                level_rect = level.get_rect(topleft=object_box_border_rect.bottomleft+pygame.math.Vector2(0, 20))
+                level_rect = level.get_rect(topleft=object_box_border_rect.bottomleft+pygame.Vector2(0, 20))
                 self.display_surface.blit(level, level_rect)
                 # Damage
                 damage = self.object_description_font.render(f"Damage: {obj.damage[obj.level]} HP", False, 'white')
-                damage_rect = damage.get_rect(topleft=level_rect.bottomleft+pygame.math.Vector2(0, 10))
+                damage_rect = damage.get_rect(topleft=level_rect.bottomleft+pygame.Vector2(0, 10))
                 self.display_surface.blit(damage, damage_rect)
                 # Cooldown
                 cooldown = self.object_description_font.render(f"Cooldown: {format(obj.cooldown/1000, '.2f')} s", False, 'white')
-                cooldown_rect = cooldown.get_rect(topleft=damage_rect.bottomleft+pygame.math.Vector2(0, 5))
+                cooldown_rect = cooldown.get_rect(topleft=damage_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(cooldown, cooldown_rect)
                 # Power
                 if obj.power/obj.max_power < 0.1: power_color = '#bb0000'
                 elif 0.1 <= obj.power/obj.max_power < 0.25: power_color = 'gold'
                 else: power_color = 'white'
                 power = self.object_description_font.render(f"Power: {obj.power} / {obj.max_power}", False, power_color)
-                power_rect = power.get_rect(topleft=cooldown_rect.bottomleft+pygame.math.Vector2(0, 5))
+                power_rect = power.get_rect(topleft=cooldown_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(power, power_rect)
                 # Range
                 obj_range = self.object_description_font.render(f"Range: {format(obj.range/tile_size, '.1f')} bl", False, 'white')
-                obj_range_rect = obj_range.get_rect(topleft=power_rect.bottomleft+pygame.math.Vector2(0, 5))
+                obj_range_rect = obj_range.get_rect(topleft=power_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(obj_range, obj_range_rect)
                 # Speed
                 speed = self.object_description_font.render(f"Speed: {format(obj.speed*60/tile_size, '.2f')} bl/s", False, 'white')
-                speed_rect = speed.get_rect(topleft=obj_range_rect.bottomleft+pygame.math.Vector2(0, 5))
+                speed_rect = speed.get_rect(topleft=obj_range_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(speed, speed_rect)
                 # Cost
                 cost = self.object_description_font.render(f"Cost: {obj.cost} EP", False, 'gold')
-                cost_rect = cost.get_rect(topleft=speed_rect.bottomleft+pygame.math.Vector2(0, 5))
+                cost_rect = cost.get_rect(topleft=speed_rect.bottomleft+pygame.Vector2(0, 5))
                 self.display_surface.blit(cost, cost_rect)
                 # Attack info
                 attack_text = self.object_description_font.render("Attack info:", False, 'white')
-                attack_rect = attack_text.get_rect(topleft=level_rect.topright+pygame.math.Vector2(150, 0))
+                attack_rect = attack_text.get_rect(topleft=level_rect.topright+pygame.Vector2(150, 0))
                 self.display_surface.blit(attack_text, attack_rect)
-                attack_info_rect = pygame.Rect(level_rect.topright+pygame.math.Vector2(150, 30), (290, 300))
+                attack_info_rect = pygame.Rect(level_rect.topright+pygame.Vector2(150, 30), (290, 300))
                 render(obj.attack_desc, self.object_description_font, self.display_surface, attack_info_rect, 'white', -2)
         else:
             inventory_text = self.object_name_font.render("Inventory", False, 'white')
-            inventory_text_rect = inventory_text.get_rect(topleft=object_box_border_rect.topright+pygame.math.Vector2(25, 0))
+            inventory_text_rect = inventory_text.get_rect(topleft=object_box_border_rect.topright+pygame.Vector2(25, 0))
             self.display_surface.blit(inventory_text, inventory_text_rect)
-            instruction_text_rect = pygame.Rect(object_box_border_rect.topright+pygame.math.Vector2(25, 40), (360, 120))
+            instruction_text_rect = pygame.Rect(object_box_border_rect.topright+pygame.Vector2(25, 40), (360, 120))
             render("Select an object to view its data and possible actions.", self.object_description_font, self.display_surface, instruction_text_rect, 'white', -2)
+
+    def display_upgrade_box(self):
+        """Display everything in the upgrade box."""
+        upgrade_box_border_rect = self.upgrade_box_border.get_rect(bottomleft=(30, 692))
+        self.display_surface.blit(self.upgrade_box_border, upgrade_box_border_rect)
+        xp_icon_rect = self.xp_icon.get_rect(topleft=upgrade_box_border_rect.topleft+pygame.Vector2(20, 20))
+        self.display_surface.blit(self.xp_icon, xp_icon_rect)
+        current_xp = self.object_description_font.render(str(self.game.experience[self.game.character]), False, 'white')
+        current_xp_rect = current_xp.get_rect(midleft=xp_icon_rect.midright+pygame.Vector2(10, 0))
+        self.display_surface.blit(current_xp, current_xp_rect)
+        energy_icon_rect = self.energy_icon.get_rect(midleft=xp_icon_rect.midright+pygame.Vector2(80, 0))
+        self.display_surface.blit(self.energy_icon, energy_icon_rect)
+        current_ep = self.object_description_font.render(str(self.game.energy[self.game.character]), False, 'white')
+        current_ep_rect = current_ep.get_rect(midleft=energy_icon_rect.midright+pygame.Vector2(10, 0))
+        self.display_surface.blit(current_ep, current_ep_rect)
+        if not self.selection_mode:
+            if self.page == 0:
+                obj = self.game.inventory[self.names[self.page]][self.selected_object]
+            elif self.page == 1:
+                obj = self.game.selection[self.selection_cursor_pos]
+            if isinstance(obj, MeleeWeapon):
+                repair_cost = self.object_description_font.render(f"Repair cost: {obj.repair_cost}", False, 'white')
+                repair_cost_rect = repair_cost.get_rect(midleft=energy_icon_rect.midright+pygame.Vector2(180, 0))
+                self.display_surface.blit(repair_cost, repair_cost_rect)
+                self.display_surface.blit(self.xp_icon, self.xp_icon.get_rect(midleft=repair_cost_rect.midright+pygame.Vector2(5, 0)))
+            elif isinstance(obj, MagicalWeapon):
+                refill_cost = self.object_description_font.render(f"Refill cost: {obj.refill_cost}", False, 'white')
+                refill_cost_rect = refill_cost.get_rect(midleft=energy_icon_rect.midright+pygame.Vector2(180, 0))
+                self.display_surface.blit(refill_cost, refill_cost_rect)
+                self.display_surface.blit(self.xp_icon, self.xp_icon.get_rect(midleft=refill_cost_rect.midright+pygame.Vector2(5, 0)))
+        # Coming soon text
+        coming_soon_text = self.object_name_font.render("Upgrade system coming soon!!", False, 'white')
+        coming_soon_text_rect = coming_soon_text.get_rect(center=upgrade_box_border_rect.center)
+        self.display_surface.blit(coming_soon_text, coming_soon_text_rect)
 
     def get_actions(self):
         """Get the right actions for the currently selected object."""
         obj = self.game.inventory[self.names[self.page]][self.selected_object]
-        if isinstance(obj, (MeleeWeapon, MagicalWeapon)):
+        if isinstance(obj, MeleeWeapon):
             #[return, equip, upgrade, repair, move_to_top]
-            self.actions = [self.return_to_selection, self.equip, self.move_to_top]
-            self.action_names = ["Cancel", "Equip", "Move to Top"]
+            self.actions = [self.return_to_selection, self.equip, self.repair_melee, self.move_to_top]
+            self.action_names = ["Cancel", "Equip", "Repair", "Move to Top"]
         elif isinstance(obj, RangedWeapon):
             #[return, equip, upgrade, give_prj, move_to_top]
             self.actions = [self.return_to_selection, self.equip, self.give_projectiles, self.move_to_top]
             self.action_names = ["Cancel", "Equip", "Give Projectiles", "Move to Top"]
+        elif isinstance(obj, MagicalWeapon):
+            #[return, equip, upgrade, refill, move_to_top]
+            self.actions = [self.return_to_selection, self.equip, self.refill_magical, self.move_to_top]
+            self.action_names = ["Cancel", "Equip", "Refill", "Move to Top"]
 
     def get_selection_actions(self):
         """Get the right actions for the currently selected object in selection."""
         obj = self.game.selection[self.selection_cursor_pos]
-        if isinstance(obj, (MeleeWeapon, MagicalWeapon)):
+        if isinstance(obj, MeleeWeapon):
             #[return, upgrade, repair]
-            self.actions = [self.return_to_selection]
-            self.action_names = ["Cancel"]
+            self.actions = [self.return_to_selection, self.repair_melee_selection, self.convert_xp]
+            self.action_names = ["Cancel", "Repair", "Convert EP to XP"]
         elif isinstance(obj, RangedWeapon):
             #[return, upgrade]
-            self.actions = [self.return_to_selection]
-            self.action_names = ["Cancel"]
+            self.actions = [self.return_to_selection, self.convert_xp]
+            self.action_names = ["Cancel", "Convert EP to XP"]
+        elif isinstance(obj, MagicalWeapon):
+            #[return, upgrade, repair]
+            self.actions = [self.return_to_selection, self.refill_magical_selection, self.convert_xp]
+            self.action_names = ["Cancel", "Refill", "Convert EP to XP"]
+
+    def convert_xp(self):
+        """Convert 15 EP to 1 XP."""
+        if self.game.energy[self.game.character] >= 15:
+            self.game.update_energy(15, False)
+            self.game.increase_xp(1)
 
     def display_action_text(self):
         """Display the text for the object actions."""
@@ -368,12 +419,54 @@ class Inventory:
         inv_list.insert(0, inv_list.pop(self.selected_object))
         self.selection_mode = True
 
+    def _repair_melee(self, obj):
+        """The repair routine for melee weapons.
+
+        Arguments:
+        obj -- the currently selected melee weapon
+        """
+        if self.game.experience[self.game.character] >= obj.repair_cost:
+            if obj.durability < obj.max_durability:
+                self.game.decrease_xp(round(obj.repair_cost))
+                obj.durability = obj.max_durability
+
+    def repair_melee(self):
+        """Repair a melee weapon."""
+        obj = self.game.inventory[self.names[self.page]][self.selected_object]
+        self._repair_melee(obj)
+
+    def repair_melee_selection(self):
+        """Repair a melee weapon in selection."""
+        obj = self.game.selection[self.selection_cursor_pos]
+        self._repair_melee(obj)
+
     def give_projectiles(self):
         """Give 10 ranged projectiles to the selected ranged weapon."""
         if isinstance(self.game.inventory[self.names[self.page]][self.selected_object].projectile, self.game.selection['ranged'].projectile_type):
             if self.game.inventory[self.names[self.page]][self.selected_object].projectile.count >= 10:
                 self.game.inventory[self.names[self.page]][self.selected_object].projectile.count -= 10
                 self.game.selection['ranged'].projectile.count += 10
+
+    def _refill_magical(self, obj):
+        """The refill routine for magical weapons.
+
+        Arguments:
+        obj -- the currently selected magical weapon
+        """
+        if self.game.experience[self.game.character] >= obj.refill_cost:
+            if obj.power < obj.max_power:
+                self.game.decrease_xp(round(obj.refill_cost))
+                obj.power = obj.max_power
+
+    def refill_magical(self):
+        """Refill a magical weapon."""
+        obj = self.game.inventory[self.names[self.page]][self.selected_object]
+        self._refill_magical(obj)
+
+    def refill_magical_selection(self):
+        """Refill a magical weapon in selection."""
+        obj = self.game.selection[self.selection_cursor_pos]
+        self._refill_magical(obj)
 
     def get_input(self):
         """Get the input from the devices and do the correct actions."""
@@ -644,6 +737,7 @@ class Inventory:
             self.display_objects()
             self.display_cursor()
             self.display_object_section()
+            self.display_upgrade_box()
             if not self.selection_mode:
                 self.get_actions()
                 self.display_action_text()
@@ -652,6 +746,7 @@ class Inventory:
             self.display_selection_objects()
             self.display_selection_cursor()
             self.display_object_section()
+            self.display_upgrade_box()
             if not self.selection_mode:
                 self.get_selection_actions()
                 self.display_action_text()

@@ -41,6 +41,16 @@ class Crash(Menu):
             "Guess who will spend the night debugging?"
         ]
 
+    def display_cursor(self):
+        """Display the cursor in a fixed way."""
+        if self.layout == 'v':
+            x = self.x - self.cursor.get_width()
+            y = self.y + self.cursor_pos*self.step - self.cursor.get_height()//6
+        elif self.layout == 'h':
+            x = self.x + self.cursor_pos*self.step - self.cursor.get_width()
+            y = self.y - self.cursor.get_height()//6
+        self.display_surface.blit(self.cursor, (x, y))
+
     def save_game(self):
         """Save and quit the game."""
         self.parent.save()

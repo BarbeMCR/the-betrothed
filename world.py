@@ -80,7 +80,7 @@ class World:
         self.menu_sfx = pygame.mixer.Sound('./assets/audio/sfx/menu_select.ogg')
 
         # Movement logic
-        self.movement_direction = pygame.math.Vector2(0, 0)
+        self.movement_direction = pygame.Vector2(0, 0)
         self.movement_speed = 12
         self.moving = False
 
@@ -124,7 +124,7 @@ class World:
             target_node = self.nodes.sprites()[self.current_level]
             if target_node.target_rect.collidepoint(self.level_selector.sprite.pos):
                 self.moving = False
-                self.movement_direction = pygame.math.Vector2(0, 0)
+                self.movement_direction = pygame.Vector2(0, 0)
 
     def get_input(self):
         """Get the input from the devices and move the level selector around."""
@@ -174,12 +174,12 @@ class World:
         next -- if this flag is set to True the vector will be generated based on the next node position.
         """
         if next:
-            start_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level].rect.center)
-            end_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level + 1].rect.center)
+            start_vector = pygame.Vector2(self.nodes.sprites()[self.current_level].rect.center)
+            end_vector = pygame.Vector2(self.nodes.sprites()[self.current_level + 1].rect.center)
         else:
             # This code takes in consideration the fact that the current level gets already calculated when moving left
-            start_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level + 1].rect.center)
-            end_vector = pygame.math.Vector2(self.nodes.sprites()[self.current_level].rect.center)
+            start_vector = pygame.Vector2(self.nodes.sprites()[self.current_level + 1].rect.center)
+            end_vector = pygame.Vector2(self.nodes.sprites()[self.current_level].rect.center)
         return (end_vector - start_vector).normalize()
 
     def run(self):

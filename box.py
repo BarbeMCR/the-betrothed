@@ -21,7 +21,7 @@ class TextBox:
         self.gamepad = self.parent.gamepad
         self.outline = pygame.image.load(outline).convert_alpha()
         self.outline_rect = self.outline.get_rect(center=self.display_surface.get_rect().center)
-        self.input_box_topleft = self.outline_rect.topleft + pygame.math.Vector2(27, 67)
+        self.input_box_topleft = self.outline_rect.topleft + pygame.Vector2(27, 67)
         self.font = pygame.font.Font('./font.ttf', 48)
         self.now = 0  # This is a dummy value
         self.gen_time = pygame.time.get_ticks()
@@ -90,8 +90,8 @@ class SelectionBox:
         self.gamepad = self.parent.gamepad
         self.outline = pygame.image.load(outline).convert_alpha()
         self.outline_rect = self.outline.get_rect(midbottom=(self.display_surface.get_rect().centerx, self.display_surface.get_rect().bottom-54))
-        self.textbox_topleft = self.outline_rect.midleft + pygame.math.Vector2(16, 16)
-        self.textbox_rect = pygame.Rect(self.textbox_topleft, self.outline_rect.size - pygame.math.Vector2(32, 32))
+        self.textbox_topleft = self.outline_rect.midleft + pygame.Vector2(16, 16)
+        self.textbox_rect = pygame.Rect(self.textbox_topleft, self.outline_rect.size - pygame.Vector2(32, 32))
         self.font = pygame.font.Font('./font.ttf', 24)
         self.selection_font = pygame.font.Font('./font.ttf', 40)
         self.cursor = pygame.image.load('./assets/menu/cursor.png').convert_alpha()

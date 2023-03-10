@@ -12,19 +12,21 @@ class StarterStaff(MagicalWeapon):
         self.level = 1
         self.damage = {
             1: 1,
-            2: 3,
+            2: 2.5,
             3: 4,
             4: 6,
             5: 8
         }
         self.cooldown = 500
-        self.power = 125
-        self.max_power = 125
+        self.power = 75
+        self.max_power = 75
+        self.max_power_step = 15
         self.range = 384
         self.speed = 9
         self.cost = 1
         self.projectile_image = './assets/weapon/basic_fireball.png'
-        super().__init__(self.name, self.description, self.attack_desc, self.icon_path, self.level, self.damage, self.cooldown, self.power, self.max_power, self.range, self.speed, self.cost, self.projectile_image)
+        self.refill_cost = 1
+        super().__init__(self.name, self.description, self.attack_desc, self.icon_path, self.level, self.damage, self.cooldown, self.power, self.max_power, self.max_power_step, self.range, self.speed, self.cost, self.projectile_image, self.refill_cost)
 
     def on_impact(self, kill, pos, facing_right, level_class):
         if kill:

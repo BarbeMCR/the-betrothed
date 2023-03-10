@@ -17,14 +17,16 @@ class WoodenKnife(MeleeWeapon):
             5: 5
         }
         self.cooldown = 400
-        self.durability = 100
-        self.max_durability = 100
+        self.durability = 50
+        self.max_durability = 50
+        self.max_durability_step = 25
         self.range = 32
         self.height = 48
         self.offset = 32
         self.animation = '/woodenknife'
         self.animation_speed = 0.042
-        super().__init__(self.name, self.description, self.icon_path, self.level, self.damage, self.cooldown, self.durability, self.max_durability, self.range, self.height, self.offset, self.animation, self.animation_speed)
+        self.repair_cost = 1
+        super().__init__(self.name, self.description, self.icon_path, self.level, self.damage, self.cooldown, self.durability, self.max_durability, self.max_durability_step, self.range, self.height, self.offset, self.animation, self.animation_speed, self.repair_cost)
 
 class IronKnife(MeleeWeapon):
     def __init__(self):
@@ -40,11 +42,13 @@ class IronKnife(MeleeWeapon):
             5: 12
         }
         self.cooldown = 500
-        self.durability = 300
-        self.max_durability = 300
+        self.durability = 150
+        self.max_durability = 150
+        self.max_durability_step = 25
         self.range = 32
         self.height = 48
         self.offset = 32
         self.animation = '/ironknife'
         self.animation_speed = 0.042
-        super().__init__(self.name, self.description, self.icon_path, self.level, self.damage, self.cooldown, self.durability, self.max_durability, self.range, self.height, self.offset, self.animation, self.animation_speed)
+        self.repair_cost = 2
+        super().__init__(self.name, self.description, self.icon_path, self.level, self.damage, self.cooldown, self.durability, self.max_durability, self.max_durability_step, self.range, self.height, self.offset, self.animation, self.animation_speed, self.repair_cost)

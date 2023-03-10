@@ -5,6 +5,39 @@
 HISTORY OF "BarbeMCR's THE BETROTHED"
 +++++++++++++++++++++++++++++++++++++
 
+Release 0.21 - The Experience Update
+====================================
+Build 10310
+Python 3.11.2
+Pygame 2.2.0
+*Released on March 10th, 2023*
+### Experience
+- Added experience
+  - You can check the current amount in the inventory
+  - You can convert 15 EP to 1 XP by going into the 'Selection' tab in the inventory and selecting any weapon: an option to get XP will be in the list of actions possible
+### Durability
+- The durability system has been implemented
+  - Each melee and magical weapon has a set durability (or power)
+  - Each use of the weapon decreases by 1 said durability/power
+  - When durability/power reaches 0, the player is prevented from further attacking with that weapon
+  - Durability can be completely restored by repairing/refilling the weapon in the inventory
+    - You can repair/refill the weapon at any point (unless its durability/power is already full)
+    - Repairing/refilling the weapon consumes a set amount of XP (dependent on the weapon)
+  - There are two ways of checking on a weapon's durability/power:
+    - When selecting the weapon the inventory, the remaining durability/power and the maximum durability/power are shown in the weapon's statistics
+    - If the weapon is the selected one (the one you attack with) a colored bar will appear below its icon in the overlay: it will become shorter with use
+### Energy
+- Now the player's energy is reset to 0 after death
+- Filling the energy overflow bar no longer fully heals the player
+  - Instead, each time the bar gets filled, the player automatically gets 1 XP
+### Bugfixes
+- The player can no longer turn around while attacking with a melee weapon
+- The inventory cursor animation no longer seems to "skip" frames
+- The crash screen now renders the cursor correctly
+### Technical details
+- All instances of `pygame.math.Vector2` have been replaced by `pygame.Vector2`
+  - This should clean things up and `pygame.Vector2` is an alias for `pygame.math.Vector2` anyway
+
 Release 0.20a - The Inventory Update
 ====================================
 Build 10211

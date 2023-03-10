@@ -24,7 +24,7 @@ class Weapon:
 
 class MeleeWeapon(Weapon):
     """The basic melee weapon class."""
-    def __init__(self, name, description, icon_path, level, damage, cooldown, durability, max_durability, range, height, offset, animation, animation_speed):
+    def __init__(self, name, description, icon_path, level, damage, cooldown, durability, max_durability, max_durability_step, range, height, offset, animation, animation_speed, repair_cost):
         """Initialize the melee weapon attributes.
 
         Arguments:
@@ -36,19 +36,23 @@ class MeleeWeapon(Weapon):
         cooldown -- the cooldown time
         durability -- the durability of the weapon
         max_durability -- the maximum durability
+        max_durability_step -- the increase in durability per level
         range -- the range of the weapon
         height -- the height of the weapon sprite
         offset -- the offset from the top of the player
         animation -- the folder with the player weapon animation
         animation_speed -- the speed of the player weapon animation
+        repair_cost -- the cost for repairing the weapon to full durability (in experience points)
         """
         self.durability = durability
         self.max_durability = max_durability
+        self.max_durability_step = max_durability_step
         self.range = range
         self.height = height
         self.offset = offset
         self.animation = animation
         self.animation_speed = animation_speed
+        self.repair_cost = repair_cost
         super().__init__(name, description, icon_path, level, damage, cooldown)
 
 class RangedWeapon(Weapon):
@@ -76,7 +80,7 @@ class RangedWeapon(Weapon):
 
 class MagicalWeapon(Weapon):
     """The basic magical weapon class."""
-    def __init__(self, name, description, attack_desc, icon_path, level, damage, cooldown, power, max_power, range, speed, cost, projectile_image):
+    def __init__(self, name, description, attack_desc, icon_path, level, damage, cooldown, power, max_power, max_power_step, range, speed, cost, projectile_image, refill_cost):
         """Initialize the magical weapon attributes.
 
         Arguments:
@@ -89,18 +93,22 @@ class MagicalWeapon(Weapon):
         cooldown -- the cooldown time
         power -- the durability of the weapon
         max_power -- the maximum durability
+        max_power_step -- the increase in durability per level
         range -- the range of the weapon
         speed -- the speed at which the projectiles travel (in pixels per second)
         cost -- the cost of each use (in energy points)
         projectile_image -- the projectile image path
+        refill_cost -- the cost for refilling the weapon's power (in experience points)
         """
         self.attack_desc = attack_desc
         self.power = power
         self.max_power = max_power
+        self.max_power_step = max_power_step
         self.range = range
         self.speed = speed
         self.cost = cost
         self.projectile_image = projectile_image
+        self.refill_cost = refill_cost
         super().__init__(name, description, icon_path, level, damage, cooldown)
 
     def on_impact(self, kill, pos, facing_right, level_class):
