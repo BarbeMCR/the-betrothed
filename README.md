@@ -66,7 +66,8 @@ If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 | BarbeMCR's The Betrothed version | pygame version |
 | -------------------------------- | -------------- |
 | 0.01 - 0.15                      | 2.1.2          |
-| 0.16 +                           | 2.1.3.dev8 / 2.1.3 |
+| 0.16 - 0.20a                     | 2.1.3.dev8 / 2.1.3 |
+| 0.21 +                           | 2.2.0          |
 
 ---
 ## Settings
