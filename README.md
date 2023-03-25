@@ -43,8 +43,26 @@ If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 6. To start BarbeMCR's The Betrothed, run `main.py`
 
 ## How do I compile the code?
-1. Make sure to have Python 3.8 or higher and the right version of pygame, as in the table below (use a 32-bit Python version for wider compatibility)
-2. Grab the Pyinstaller version that matches what is used with your target game version, if you want (probably you can just use the latest version):
+Note: These instructions illustrate the recommended way to compile BarbeMCR's The Betrothed on Windows. You are free to experiment if you wish!
+1. Pick the version of BarbeMCR's The Betrothed you want to compile from the `Releases` page of this repo and download and extract the corresponding `the_betrothed_<version>_source.zip` archive.
+2. Check if you have Microsoft Visual C++ 2015 installed (either as an update or as a standalone redist) and install it if it isn't.
+3. Get the Windows 10 version 2004 SDK installer (from [here](https://download.microsoft.com/download/4/d/2/4d2b7011-606a-467e-99b4-99550bf24ffc/windowssdk/winsdksetup.exe)), run it and copy the `C:\Program Files (x86)\Windows Kits\10\Redist\ucrt` folder to a known location
+4. If you want to target Windows 8.1 and later, install (if you haven't already) the ideal 32-bit Python version for your game version, as seen in this table:
+
+| BarbeMCR's The Betrothed version | Python version |
+| -------------------------------- | -------------- |
+| 0.01                             | 3.10.1         |
+| 0.02 - 0.04                      | 3.10.2         |
+| 0.05 - 0.08a                     | 3.10.4         |
+| 0.09 - 0.12                      | 3.10.5         |
+| 0.13 - 0.15                      | 3.10.6         |
+| 0.16 - 0.19                      | 3.11.0         |
+| 0.20                             | 3.11.1         |
+| 0.20a +                          | 3.11.2         |
+
+4-bis. If you want to target Windows Vista and later, install (if you haven't already) 32-bit Python 3.8.10 (or compile later 3.8.x Python versions from source)
+
+5. If you haven't already, run `<path_to_python> -m pip install pyinstaller==<version>` to grab the Pyinstaller version that matches what is used with your target game version, as seen in this table (substitute `<path_to_python>` with the path to the target Python executable and `<version>` with the target Pyinstaller version):
 
 | BarbeMCR's The Betrothed version | Pyinstaller version |
 | -------------------------------- | ------------------- |
@@ -58,16 +76,85 @@ If so, check out [BarbeMCR/tb012to013](https://github.com/BarbeMCR/tb012to013).
 | 0.13 - 0.15                      | 5.3                 |
 | 0.16 - 0.19                      | 5.6.2               |
 | 0.20                             | 5.7.0               |
-| 0.20a                            | 5.8.0               |
+| 0.20 - 0.21                      | 5.8.0               |
+| 0.22 +                           | 5.9.0               |
 
-3. Compile with Pyinstaller using the `--onefile` argument
+6. If you haven't already, run `<path_to_python> -m pip install pygame==<version>` to grab the Pygame version that matches what is used with your target game version, as seen in this table (substitute `<path_to_python>` and `<version>` as above):
 
-**Game version to pygame version conversion table**
-| BarbeMCR's The Betrothed version | pygame version |
-| -------------------------------- | -------------- |
-| 0.01 - 0.15                      | 2.1.2          |
+| BarbeMCR's The Betrothed version | Pygame version     |
+| -------------------------------- | ------------------ |
+| 0.01 - 0.15                      | 2.1.2              |
 | 0.16 - 0.20a                     | 2.1.3.dev8 / 2.1.3 |
-| 0.21 +                           | 2.2.0          |
+| 0.21                             | 2.2.0              |
+| 0.22 +                           | 2.3.0              |
+
+7. Get the `icon.png` file from this repo and convert it to `icon.ico` using any tool of your choice.
+
+8. Paste the following command in a `.bat` file or copy it line by line in a terminal window (do NOT run it, as you will need to modify it later based on your configuration):
+
+```
+<path_to_pyinstaller.exe> ^
+--distpath <out>\dist ^
+--workpath <out>\build ^
+--onedir ^
+--specpath <out> ^
+--name "the_betrothed" ^
+--windowed ^
+--icon <path_to_icon.ico> ^
+--clean ^
+--noupx ^
+--exclude-module tkinter ^
+--add-binary "<ucrt>\x86\api-ms-win-core-console-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-console-l1-2-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-datetime-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-debug-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-errorhandling-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-file-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-file-l1-2-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-file-l2-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-handle-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-heap-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-interlocked-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-libraryloader-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-localization-l1-2-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-memory-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-namedpipe-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-processenvironment-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-processthreads-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-processthreads-l1-1-1.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-profile-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-rtlsupport-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-string-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-synch-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-synch-l1-2-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-sysinfo-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-timezone-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-core-util-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\API-MS-Win-core-xstate-l2-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-conio-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-convert-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-environment-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-filesystem-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-heap-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-locale-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-math-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-multibyte-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-private-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-process-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-runtime-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-stdio-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-string-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-time-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\api-ms-win-crt-utility-l1-1-0.dll";"." ^
+--add-binary "<ucrt>\x86\ucrtbase.dll";"." ^
+<path_to_main.py>
+```
+
+9. In the command, substitute `<path_to_pyinstaller.exe>` with the path to the Pyinstaller executable (either `<path_to_python>\Scripts\pyinstaller.exe` or `%appdata%\Python\<py_ver>\Scripts\pyinstaller.exe` with the chosen Python version, such as `Python311-32`, in place of `<py_ver>`), `<out>` with the output path (where to put the compiled game), `<path_to_python.ico>` with the path to the `icon.ico` file made before, `<ucrt>` with the path to the UCRT DLLs folder taken from the Windows 10 SDK and `<path_to_main.py>` with the path to the game's `main.py` from the extracted archive.
+
+10. Run the command.
+
+If you want to build a 64-bit version of BarbeMCR's The Betrothed, install a 64-bit version of Python and substitute `<ucrt>\x86` with `<ucrt>\x64` in the command at step 8.
 
 ---
 ## Settings
